@@ -161,7 +161,9 @@ namespace LifeTimeV3.Src
         public LifeTimeV3TextList()
         {
             Language lang = Language.DE;
-
+            if (Properties.Settings.Default.Language == "EN")
+                lang = Language.EN;
+            
             if (lang == Language.DE) TextList = LoadTextList(ListDE);
             if (lang == Language.EN) TextList = LoadTextList(ListEN);
         }
