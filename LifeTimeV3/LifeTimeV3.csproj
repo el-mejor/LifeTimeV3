@@ -147,7 +147,6 @@
     <None Include="Resources\_folder.png" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Diagrams\mylife_groups - NEU.xml" />
     <Content Include="Diagrams\Z750.xml" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
