@@ -148,6 +148,11 @@ namespace LifeTimeV3.MainUI
 
         private void DiagramChanged(object sender, EventArgs e)
         {
+            if (DiagramEditor.Diagram != null)
+                Text = $"LifeTimeV3 - {DiagramEditor.FileName}";
+            else
+                Text = $"LifeTimeV3";
+
             if (DiagramEditor.DiagramIsChanged) toolStripDiagramStatusLabel.Text = LifeTimeV3TextList.GetText("[217]"); //unsaved changes
             if (!DiagramEditor.DiagramIsChanged) toolStripDiagramStatusLabel.Text = "";
         }
