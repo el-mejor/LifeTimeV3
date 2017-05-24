@@ -44,7 +44,8 @@ namespace LifeTimeV3.Src
                               "[214]", "Element",
                               "[215]", "Einstellungen",
                               "[216]", "Export",
-                              "[217]", "Nicht gespeichert.",                              
+                              "[217]", "Nicht gespeichert.", 
+                              "[218]", "Periodisch vervielfältigen",                             
 
                               "[300]", "Soll das ausgewählte Element \"{0}\" wirklich gelöscht werden?",
                               "[301]", "Soll die ausgewählte Gruppe \"{0}\" wirklich gelöscht werden? Alle darin befindlichen Elemente und Gruppen gehen dabei verloren!",
@@ -119,6 +120,7 @@ namespace LifeTimeV3.Src
                               "[215]", "Settings",
                               "[216]", "Export",
                               "[217]", "Unsaved changes.",
+                              "[218]", "Multiply periodically",
 
                               "[300]", "Would you really delete the element \"{0}\"?",
                               "[301]", "Would you really delete the group \"{0}\"? All containing elements and groups will be lost!",
