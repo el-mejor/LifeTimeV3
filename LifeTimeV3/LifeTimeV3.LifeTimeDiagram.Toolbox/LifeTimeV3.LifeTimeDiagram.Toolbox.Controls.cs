@@ -596,14 +596,15 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
 
                 throw new NotImplementedException();
 
-                if(d != DialogResult.Cancel)
-                {
-                    LifeTimeDiagramEditor.LifeTimeGroup g = null;
-                    if (Object is LifeTimeDiagramEditor.LifeTimeGroup) g = Object as LifeTimeDiagramEditor.LifeTimeGroup;
-                    if (Object is LifeTimeDiagramEditor.LifeTimeElement) g = (this.Parent as LifeTimeObjectTreeNode).Object as LifeTimeDiagramEditor.LifeTimeGroup;
-                    foreach(LifeTimeDiagramEditor.LifeTimeElement o in CopyPeriodicDialog.MultipliedObjectsCollection)
-                        g.Objects.Add(o);
-                }
+                if (d == DialogResult.Cancel)
+                    return;
+
+                LifeTimeDiagramEditor.LifeTimeGroup g = null;
+                if (Object is LifeTimeDiagramEditor.LifeTimeGroup) g = Object as LifeTimeDiagramEditor.LifeTimeGroup;
+                if (Object is LifeTimeDiagramEditor.LifeTimeElement) g = (this.Parent as LifeTimeObjectTreeNode).Object as LifeTimeDiagramEditor.LifeTimeGroup;
+                foreach (LifeTimeDiagramEditor.LifeTimeElement o in CopyPeriodicDialog.MultipliedObjectsCollection)
+                    g.Objects.Add(o);
+                
 
             }
 
