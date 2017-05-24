@@ -16,10 +16,12 @@ namespace LifeTimeV3.LifeTimeDiagram.CopyPeriodicDialog
         #region properties
         public LifeTimeDiagramEditor.LifeTimeElement Object
         { get; set; }
-
+        public List<LifeTimeDiagramEditor.LifeTimeElement> MultipliedObjectsCollection
+        { get { return _multipliedObjects; } }
         #endregion
 
         #region fields
+        private List<LifeTimeDiagramEditor.LifeTimeElement> _multipliedObjects = new List<LifeTimeDiagramEditor.LifeTimeElement>();
         #endregion
 
         #region constructor
