@@ -322,6 +322,7 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
                 if (o is LifeTimeDiagramEditor.LifeTimeElement)
                 {
                     AddContextMenuItem(ContextMenuItems.Copy);
+                    AddContextMenuItem(ContextMenuItems.CopyPeriodic);
                     AddContextMenuItem(ContextMenuItems.Cut);
                     AddContextMenuItem(ContextMenuItems.Paste);
                     AddContextMenuItem(ContextMenuItems.Separator);
@@ -339,11 +340,19 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
             #endregion
 
             #region private methods
-            enum ContextMenuItems { Separator, AddElement, AddGroup, Delete, Cut, Copy, Paste, MoveUp, MoveDown, BringToFront, BringToBack, CollapseAll, ExpandAll }
+            enum ContextMenuItems { Separator, CopyPeriodic, AddElement, AddGroup, Delete, Cut, Copy, Paste, MoveUp, MoveDown, BringToFront, BringToBack, CollapseAll, ExpandAll }
             private void AddContextMenuItem(ContextMenuItems item)
             {
                 //SEPARATOR
                 if (item == ContextMenuItems.Separator) ContextMenuStrip.Items.Add(new ToolStripSeparator());
+
+                //COPY PERIODIC
+                if (item == ContextMenuItems.CopyPeriodic)
+                {
+                    ToolStripItem i = new ToolStripMenuItem(LifeTimeV3TextList.GetText("[218]"));
+                    i.Click += new EventHandler(MenuItemCopyPeriodicClicked);
+                    ContextMenuStrip.Items.Add(i);                    
+                }
 
                 //ADD ELEMENT
                 if (item == ContextMenuItems.AddElement)
@@ -481,7 +490,7 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
                 NodeChangedEventArgs eventArgs = new NodeChangedEventArgs();
                 eventArgs.NewObject = newObj;
 
-                if (NodeChanged != null) NodeChanged(this, eventArgs);
+                NodeChanged?.Invoke(this, eventArgs);
             }
 
             private void MenuItemAddGroupClicked(object sender, EventArgs e)
@@ -495,7 +504,7 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
                 NodeChangedEventArgs eventArgs = new NodeChangedEventArgs();
                 eventArgs.NewObject = newObj;
 
-                if (NodeChanged != null) NodeChanged(this, eventArgs);
+                NodeChanged?.Invoke(this, eventArgs);
             }
 
             private void MenuItemDeleteItemClicked(object sender, EventArgs e)
@@ -511,7 +520,7 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
                 NodeChangedEventArgs eventArgs = new NodeChangedEventArgs();
                 eventArgs.NewObject = null;
 
-                if (NodeChanged != null) NodeChanged(this, eventArgs);
+                NodeChanged?.Invoke(this, eventArgs);
             }
 
             private void DeleteObject(LifeTimeDiagramEditor.ILifeTimeObject g)
@@ -577,6 +586,14 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
             private void MenuItemCopyClicked(object sender, EventArgs e)
             {
                 CopyObjectToClipboard(_object);
+            }
+
+            private void MenuItemCopyPeriodicClicked(object sender, EventArgs e)
+            {                
+                CopyPeriodicDialog.FormCopyPeriodicDialog CopyPeriodicDialog = new CopyPeriodicDialog.FormCopyPeriodicDialog();
+                CopyPeriodicDialog.Object = _object as LifeTimeDiagramEditor.LifeTimeElement;
+                DialogResult d = CopyPeriodicDialog.ShowDialog();
+                throw new NotImplementedException();
             }
 
             private void MenuItemBringToFront(object sender, EventArgs e)
