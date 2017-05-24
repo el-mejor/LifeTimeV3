@@ -34,7 +34,14 @@
             this.labelPeriod = new System.Windows.Forms.Label();
             this.numericUpDownPeriod = new System.Windows.Forms.NumericUpDown();
             this.comboBoxPeriodBase = new System.Windows.Forms.ComboBox();
+            this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.radioButtonAmmount = new System.Windows.Forms.RadioButton();
+            this.radioButtonLimit = new System.Windows.Forms.RadioButton();
+            this.numericUpDownAmmount = new System.Windows.Forms.NumericUpDown();
+            this.dateTimePicker1 = new System.Windows.Forms.DateTimePicker();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDownPeriod)).BeginInit();
+            this.groupBox1.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.numericUpDownAmmount)).BeginInit();
             this.SuspendLayout();
             // 
             // buttonCancel
@@ -72,32 +79,86 @@
             this.labelPeriod.AutoSize = true;
             this.labelPeriod.Location = new System.Drawing.Point(12, 35);
             this.labelPeriod.Name = "labelPeriod";
-            this.labelPeriod.Size = new System.Drawing.Size(35, 13);
+            this.labelPeriod.Size = new System.Drawing.Size(31, 13);
             this.labelPeriod.TabIndex = 2;
-            this.labelPeriod.Text = "label1";
+            this.labelPeriod.Text = "[401]";
             // 
             // numericUpDownPeriod
             // 
-            this.numericUpDownPeriod.Location = new System.Drawing.Point(142, 33);
+            this.numericUpDownPeriod.Location = new System.Drawing.Point(224, 33);
             this.numericUpDownPeriod.Name = "numericUpDownPeriod";
             this.numericUpDownPeriod.Size = new System.Drawing.Size(51, 20);
             this.numericUpDownPeriod.TabIndex = 3;
+            this.numericUpDownPeriod.ValueChanged += new System.EventHandler(this.numericUpDownPeriod_ValueChanged);
             // 
             // comboBoxPeriodBase
             // 
             this.comboBoxPeriodBase.FormattingEnabled = true;
-            this.comboBoxPeriodBase.Location = new System.Drawing.Point(199, 33);
+            this.comboBoxPeriodBase.Location = new System.Drawing.Point(281, 33);
             this.comboBoxPeriodBase.Name = "comboBoxPeriodBase";
             this.comboBoxPeriodBase.Size = new System.Drawing.Size(121, 21);
             this.comboBoxPeriodBase.TabIndex = 4;
+            // 
+            // groupBox1
+            // 
+            this.groupBox1.Controls.Add(this.dateTimePicker1);
+            this.groupBox1.Controls.Add(this.numericUpDownAmmount);
+            this.groupBox1.Controls.Add(this.radioButtonLimit);
+            this.groupBox1.Controls.Add(this.radioButtonAmmount);
+            this.groupBox1.Location = new System.Drawing.Point(12, 60);
+            this.groupBox1.Name = "groupBox1";
+            this.groupBox1.Size = new System.Drawing.Size(390, 71);
+            this.groupBox1.TabIndex = 5;
+            this.groupBox1.TabStop = false;
+            // 
+            // radioButtonAmmount
+            // 
+            this.radioButtonAmmount.AutoSize = true;
+            this.radioButtonAmmount.Location = new System.Drawing.Point(6, 16);
+            this.radioButtonAmmount.Name = "radioButtonAmmount";
+            this.radioButtonAmmount.Size = new System.Drawing.Size(49, 17);
+            this.radioButtonAmmount.TabIndex = 0;
+            this.radioButtonAmmount.TabStop = true;
+            this.radioButtonAmmount.Text = "[402]";
+            this.radioButtonAmmount.UseVisualStyleBackColor = true;
+            this.radioButtonAmmount.CheckedChanged += new System.EventHandler(this.radioButtonAmmount_CheckedChanged);
+            // 
+            // radioButtonLimit
+            // 
+            this.radioButtonLimit.AutoSize = true;
+            this.radioButtonLimit.Location = new System.Drawing.Point(6, 39);
+            this.radioButtonLimit.Name = "radioButtonLimit";
+            this.radioButtonLimit.Size = new System.Drawing.Size(49, 17);
+            this.radioButtonLimit.TabIndex = 1;
+            this.radioButtonLimit.TabStop = true;
+            this.radioButtonLimit.Text = "[403]";
+            this.radioButtonLimit.UseVisualStyleBackColor = true;
+            this.radioButtonLimit.CheckedChanged += new System.EventHandler(this.radioButtonLimit_CheckedChanged);
+            // 
+            // numericUpDown1
+            // 
+            this.numericUpDownAmmount.Location = new System.Drawing.Point(264, 16);
+            this.numericUpDownAmmount.Name = "numericUpDown1";
+            this.numericUpDownAmmount.Size = new System.Drawing.Size(120, 20);
+            this.numericUpDownAmmount.TabIndex = 2;
+            this.numericUpDownAmmount.ValueChanged += new System.EventHandler(this.numericUpDownAmmount_ValueChanged);
+            // 
+            // dateTimePicker1
+            // 
+            this.dateTimePicker1.Location = new System.Drawing.Point(184, 39);
+            this.dateTimePicker1.Name = "dateTimePicker1";
+            this.dateTimePicker1.Size = new System.Drawing.Size(200, 20);
+            this.dateTimePicker1.TabIndex = 3;
+            this.dateTimePicker1.ValueChanged += new System.EventHandler(this.dateTimePickerLimit_ValueChanged);
             // 
             // FormCopyPeriodicDialog
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.CancelButton = this.buttonCancel;
-            this.ClientSize = new System.Drawing.Size(334, 262);
+            this.ClientSize = new System.Drawing.Size(414, 262);
             this.ControlBox = false;
+            this.Controls.Add(this.groupBox1);
             this.Controls.Add(this.comboBoxPeriodBase);
             this.Controls.Add(this.numericUpDownPeriod);
             this.Controls.Add(this.labelPeriod);
@@ -106,8 +167,11 @@
             this.Controls.Add(this.buttonCancel);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
             this.Name = "FormCopyPeriodicDialog";
-            this.Text = "LifeTimeV3 - Add periodic copies of element";
+            this.Text = "[400]";
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDownPeriod)).EndInit();
+            this.groupBox1.ResumeLayout(false);
+            this.groupBox1.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.numericUpDownAmmount)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -121,5 +185,10 @@
         private System.Windows.Forms.Label labelPeriod;
         private System.Windows.Forms.NumericUpDown numericUpDownPeriod;
         private System.Windows.Forms.ComboBox comboBoxPeriodBase;
+        private System.Windows.Forms.GroupBox groupBox1;
+        private System.Windows.Forms.RadioButton radioButtonLimit;
+        private System.Windows.Forms.RadioButton radioButtonAmmount;
+        private System.Windows.Forms.DateTimePicker dateTimePicker1;
+        private System.Windows.Forms.NumericUpDown numericUpDownAmmount;
     }
 }

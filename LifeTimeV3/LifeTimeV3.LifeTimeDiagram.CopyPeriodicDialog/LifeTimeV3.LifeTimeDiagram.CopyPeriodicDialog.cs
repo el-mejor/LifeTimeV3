@@ -68,9 +68,14 @@ namespace LifeTimeV3.LifeTimeDiagram.CopyPeriodicDialog
             UseLimitForAddingCopies = true;
 
             //GUI
-            Text = LifeTimeV3TextList.GetText("[400]");
+            Text = LifeTimeV3TextList.GetText(Text);
             labelElement.Text = $"Element: {Object.Name}";
-            labelPeriod.Text = LifeTimeV3TextList.GetText("[401]");
+            labelPeriod.Text = LifeTimeV3TextList.GetText(labelPeriod.Text);
+            radioButtonAmmount.Text = LifeTimeV3TextList.GetText(radioButtonAmmount.Text);
+            radioButtonLimit.Text = LifeTimeV3TextList.GetText(radioButtonLimit.Text);
+            radioButtonLimit.Checked = UseLimitForAddingCopies ? true : false;
+            radioButtonAmmount.Checked = !radioButtonLimit.Checked ? true : false;
+
             numericUpDownPeriod.Value = Period;
 
         }
@@ -87,8 +92,32 @@ namespace LifeTimeV3.LifeTimeDiagram.CopyPeriodicDialog
             DialogResult = DialogResult.OK;
             Close();
         }
+
         #endregion
 
+        private void numericUpDownPeriod_ValueChanged(object sender, EventArgs e)
+        {
+            Period = Convert.ToInt16(numericUpDownPeriod.Value);
+        }
 
+        private void radioButtonAmmount_CheckedChanged(object sender, EventArgs e)
+        {
+            UseLimitForAddingCopies = false;
+        }
+
+        private void radioButtonLimit_CheckedChanged(object sender, EventArgs e)
+        {
+            UseLimitForAddingCopies = true;
+        }
+
+        private void dateTimePickerLimit_ValueChanged(object sender, EventArgs e)
+        {
+            LimitForAddingCopies = dateTimePicker1.Value;
+        }
+
+        private void numericUpDownAmmount_ValueChanged(object sender, EventArgs e)
+        {
+            AmmountOfCopies = Convert.ToInt16(numericUpDownAmmount.Value);
+        }
     }
 }

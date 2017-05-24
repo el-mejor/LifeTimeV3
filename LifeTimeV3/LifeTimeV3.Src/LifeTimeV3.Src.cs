@@ -135,7 +135,7 @@ namespace LifeTimeV3.Src
                               "[400]", "LifeTimeV3 - Add periodic copies of element",
                               "[401]", "Add copy every",
                               "[402]", "Ammount",
-                              "[403]", "To date",
+                              "[403]", "To date",                              
 
                               "Name","Name", //LifeTimeObject Properties
                               "Type","Object Type",
