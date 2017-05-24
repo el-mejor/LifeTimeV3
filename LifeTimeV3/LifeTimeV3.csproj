@@ -61,11 +61,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="LifeTimeV3.BL.LifeTimeDiagram\LifeTimeV3.BL.LifeTimeDiagram.FileHandler.cs" />
-    <Compile Include="LifeTimeV3.Counter.Display\LifeTimeV 3.Counter.Display.Digit.cs">
-      <SubType>Component</SubType>
+    <Compile Include="LifeTimeV3.LifeTimeDiagram.CopyPeriodicDialog\LifeTimeV3.LifeTimeDiagram.CopyPeriodicDialog.cs">
+      <SubType>Form</SubType>
     </Compile>
-    <Compile Include="LifeTimeV3.Counter.Display\LifeTimeV3.Counter.Display.cs">
-      <SubType>Component</SubType>
+    <Compile Include="LifeTimeV3.LifeTimeDiagram.CopyPeriodicDialog\LifeTimeV3.LifeTimeDiagram.CopyPeriodicDialog.Designer.cs">
+      <DependentUpon>LifeTimeV3.LifeTimeDiagram.CopyPeriodicDialog.cs</DependentUpon>
     </Compile>
     <Compile Include="LifeTimeV3.LifeTimeDiagram.Toolbox\LifeTimeV3.LifeTimeDiagram.DiagramBox.cs">
       <SubType>Component</SubType>
