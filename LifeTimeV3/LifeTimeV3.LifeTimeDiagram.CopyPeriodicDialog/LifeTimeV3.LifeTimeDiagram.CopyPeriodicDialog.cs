@@ -8,13 +8,14 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using LifeTimeV3.BL.LifeTimeDiagram;
+using LifeTimeV3.Src;
 
 namespace LifeTimeV3.LifeTimeDiagram.CopyPeriodicDialog
 {
     public partial class FormCopyPeriodicDialog : Form
     {
         #region properties
-        public LifeTimeDiagramEditor.LifeTimeElement Object
+        public LifeTimeDiagramEditor.ILifeTimeObject Object
         { get; set; }
 
         public List<LifeTimeDiagramEditor.LifeTimeElement> MultipliedObjectsCollection
@@ -53,9 +54,25 @@ namespace LifeTimeV3.LifeTimeDiagram.CopyPeriodicDialog
         #endregion
 
         #region constructor
-        public FormCopyPeriodicDialog()
+        public FormCopyPeriodicDialog(LifeTimeDiagramEditor.ILifeTimeObject Object)
         {
             InitializeComponent();
+
+            this.Object = Object;
+
+            //Setup default values
+            PeriodBase = PeriodBaseEnum.Years;
+            Period = 1;
+            AmmountOfCopies = 10;
+            LimitForAddingCopies = DateTime.Now.AddYears(10);
+            UseLimitForAddingCopies = true;
+
+            //GUI
+            Text = LifeTimeV3TextList.GetText("[400]");
+            labelElement.Text = $"Element: {Object.Name}";
+            labelPeriod.Text = LifeTimeV3TextList.GetText("[401]");
+            numericUpDownPeriod.Value = Period;
+
         }
         #endregion
 
@@ -64,6 +81,14 @@ namespace LifeTimeV3.LifeTimeDiagram.CopyPeriodicDialog
         {
             DialogResult = DialogResult.Cancel;
         }
+
+        private void buttonOK_Click(object sender, EventArgs e)
+        {
+            DialogResult = DialogResult.OK;
+            Close();
+        }
         #endregion
+
+
     }
 }

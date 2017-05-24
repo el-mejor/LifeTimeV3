@@ -44,13 +44,18 @@ namespace LifeTimeV3.Src
                               "[214]", "Element",
                               "[215]", "Einstellungen",
                               "[216]", "Export",
-                              "[217]", "Nicht gespeichert.", 
-                              "[218]", "Periodisch vervielfältigen",                             
+                              "[217]", "Nicht gespeichert.",
+                              "[218]", "Periodisch vervielfältigen",
 
                               "[300]", "Soll das ausgewählte Element \"{0}\" wirklich gelöscht werden?",
                               "[301]", "Soll die ausgewählte Gruppe \"{0}\" wirklich gelöscht werden? Alle darin befindlichen Elemente und Gruppen gehen dabei verloren!",
                               "[302]", "Die Zieldatei existiert bereits. Soll sie überschrieben werden?",
                               "[303]", "Element: \"{0}\" - vor {1} jahren ({2} Tage), dauerte {3} Jahre ({4} Tage)",
+
+                              "[400]", "LifeTimeV3 - Element periodisch vervielfältigen",
+                              "[401]", "Kopie erstellen alle",
+                              "[402]", "Anzahl",
+                              "[403]", "Bis zu Datum",
 
                               "Name","Name", //LifeTimeObject Properties
                               "Type","Element Typ",
@@ -126,6 +131,11 @@ namespace LifeTimeV3.Src
                               "[301]", "Would you really delete the group \"{0}\"? All containing elements and groups will be lost!",
                               "[302]", "The target file already exists. Would you overwrite it?",
                               "[303]", "Element: \"{0}\" - {1} years ({2} days) ago, lasted for {3} years ({4} days)",
+
+                              "[400]", "LifeTimeV3 - Add periodic copies of element",
+                              "[401]", "Add copy every",
+                              "[402]", "Ammount",
+                              "[403]", "To date",
 
                               "Name","Name", //LifeTimeObject Properties
                               "Type","Object Type",

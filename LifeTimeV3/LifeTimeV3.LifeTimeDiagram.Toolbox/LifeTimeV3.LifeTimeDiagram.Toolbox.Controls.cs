@@ -590,14 +590,13 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
 
             private void MenuItemCopyPeriodicClicked(object sender, EventArgs e)
             {                
-                CopyPeriodicDialog.FormCopyPeriodicDialog CopyPeriodicDialog = new CopyPeriodicDialog.FormCopyPeriodicDialog();
-                CopyPeriodicDialog.Object = _object as LifeTimeDiagramEditor.LifeTimeElement;
+                CopyPeriodicDialog.FormCopyPeriodicDialog CopyPeriodicDialog = new CopyPeriodicDialog.FormCopyPeriodicDialog(_object);
                 DialogResult d = CopyPeriodicDialog.ShowDialog();
-
-                throw new NotImplementedException();
-
+                
                 if (d == DialogResult.Cancel)
                     return;
+
+                throw new NotImplementedException();
 
                 LifeTimeDiagramEditor.LifeTimeGroup g = null;
                 if (Object is LifeTimeDiagramEditor.LifeTimeGroup) g = Object as LifeTimeDiagramEditor.LifeTimeGroup;
