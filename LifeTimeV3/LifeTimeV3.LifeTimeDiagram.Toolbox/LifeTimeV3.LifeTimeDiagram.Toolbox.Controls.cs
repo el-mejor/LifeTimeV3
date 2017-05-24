@@ -593,7 +593,18 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
                 CopyPeriodicDialog.FormCopyPeriodicDialog CopyPeriodicDialog = new CopyPeriodicDialog.FormCopyPeriodicDialog();
                 CopyPeriodicDialog.Object = _object as LifeTimeDiagramEditor.LifeTimeElement;
                 DialogResult d = CopyPeriodicDialog.ShowDialog();
+
                 throw new NotImplementedException();
+
+                if(d != DialogResult.Cancel)
+                {
+                    LifeTimeDiagramEditor.LifeTimeGroup g = null;
+                    if (Object is LifeTimeDiagramEditor.LifeTimeGroup) g = Object as LifeTimeDiagramEditor.LifeTimeGroup;
+                    if (Object is LifeTimeDiagramEditor.LifeTimeElement) g = (this.Parent as LifeTimeObjectTreeNode).Object as LifeTimeDiagramEditor.LifeTimeGroup;
+                    foreach(LifeTimeDiagramEditor.LifeTimeElement o in CopyPeriodicDialog.MultipliedObjectsCollection)
+                        g.Objects.Add(o);
+                }
+
             }
 
             private void MenuItemBringToFront(object sender, EventArgs e)
