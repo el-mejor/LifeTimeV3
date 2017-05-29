@@ -6,6 +6,8 @@ using System.Windows.Forms;
 
 using LifeTimeV3.MainUI;
 
+//dummy comment
+
 namespace LifeTimeV3
 {
     static class Program
