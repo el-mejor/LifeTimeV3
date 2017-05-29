@@ -568,7 +568,7 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
                 NodeChangedEventArgs eventArgs = new NodeChangedEventArgs();
                 eventArgs.NewObject = o;
 
-                if (NodeChanged != null) NodeChanged(this, eventArgs);
+                NodeChanged?.Invoke(this, eventArgs);
             }
 
             private void MenuItemCutClicked(object sender, EventArgs e)
@@ -580,7 +580,7 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
                 NodeChangedEventArgs eventArgs = new NodeChangedEventArgs();
                 eventArgs.NewObject = null;
 
-                if (NodeChanged != null) NodeChanged(this, eventArgs);
+                NodeChanged?.Invoke(this, eventArgs);
             }
 
             private void MenuItemCopyClicked(object sender, EventArgs e)
@@ -595,16 +595,22 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
                 
                 if (d == DialogResult.Cancel)
                     return;
-
-                throw new NotImplementedException();
-
+                
                 LifeTimeDiagramEditor.LifeTimeGroup g = null;
                 if (Object is LifeTimeDiagramEditor.LifeTimeGroup) g = Object as LifeTimeDiagramEditor.LifeTimeGroup;
                 if (Object is LifeTimeDiagramEditor.LifeTimeElement) g = (this.Parent as LifeTimeObjectTreeNode).Object as LifeTimeDiagramEditor.LifeTimeGroup;
-                foreach (LifeTimeDiagramEditor.LifeTimeElement o in CopyPeriodicDialog.MultipliedObjectsCollection)
-                    g.Objects.Add(o);
-                
 
+                if(CopyPeriodicDialog.UseLimitForAddingCopies)
+                    foreach (LifeTimeDiagramEditor.LifeTimeElement o in LifeTimeDiagramEditor.MultiplyElements(_object, CopyPeriodicDialog.PeriodBase, CopyPeriodicDialog.Period, CopyPeriodicDialog.LimitForAddingCopies))
+                        g.Objects.Add(o);
+                else
+                    foreach (LifeTimeDiagramEditor.LifeTimeElement o in LifeTimeDiagramEditor.MultiplyElements(_object, CopyPeriodicDialog.PeriodBase, CopyPeriodicDialog.Period, CopyPeriodicDialog.AmmountOfCopies))
+                        g.Objects.Add(o);
+
+                NodeChangedEventArgs eventArgs = new NodeChangedEventArgs();
+                eventArgs.NewObject = null;                
+
+                NodeChanged?.Invoke(this, eventArgs);
             }
 
             private void MenuItemBringToFront(object sender, EventArgs e)

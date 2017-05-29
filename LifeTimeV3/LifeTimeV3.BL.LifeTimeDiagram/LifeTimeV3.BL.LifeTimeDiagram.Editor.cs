@@ -6,6 +6,7 @@ using LifeTimeV3.LifeTimeDiagram.Toolbox;
 using LifeTimeV3.LifeTimeDiagram.Toolbox.Controls;
 using LifeTimeV3.LifeTimeDiagram.DiagramBox;
 using LifeTimeV3.Src;
+using System.Collections.Generic;
 
 namespace LifeTimeV3.BL.LifeTimeDiagram
 {   
@@ -18,6 +19,7 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
         public enum DrawComponent { Shadow, Object, Label, All }
         public enum DrawNewRandomColor { Yes, No }
         public enum DrawStyle { WithShadow, WithoutShadow }
+        public enum PeriodBaseEnum { Days, Month, Years };
         #endregion
 
         #region Properties
@@ -186,9 +188,71 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
 
             return null; 
         }
+
+
+
+        public static List<LifeTimeElement> MultiplyElements(ILifeTimeObject element, PeriodBaseEnum periodBase, int period, int ammount)
+        {
+            LifeTimeElement e = element as LifeTimeElement;
+
+            List<LifeTimeElement> l = new List<LifeTimeElement>();
+
+            int offset = 0;
+
+            for (int i = ammount; i > 0; i--)
+            {                
+                _addElementAndAddPeriod(e.Clone() as LifeTimeElement, periodBase, period + offset, l);
+                offset += period;
+            }
+            
+            return l;
+        }
+
+        public static List<LifeTimeElement> MultiplyElements(ILifeTimeObject element, PeriodBaseEnum periodBase, int period, DateTime limit)
+        {
+            LifeTimeElement e = element as LifeTimeElement;
+
+            List<LifeTimeElement> l = new List<LifeTimeElement>();
+            DateTime approachingLimit;
+
+            int offset = 0;
+
+            do
+            {
+                approachingLimit = _addElementAndAddPeriod(e.Clone() as LifeTimeElement, periodBase, period + offset, l);
+                offset += period;
+            } while (DateTime.Compare(approachingLimit, limit) < 0);
+
+            return l;
+        }
         #endregion
 
         #region Private Methods
+        private static DateTime _addElementAndAddPeriod(LifeTimeElement element, PeriodBaseEnum periodBase, int value, List<LifeTimeElement> l)
+        {
+            element.Highlight = false;
+            
+            if (periodBase == PeriodBaseEnum.Days)
+            {
+                element.Begin = element.Begin.AddDays(value);
+                element.End = element.End.AddDays(value);
+            }
+            if (periodBase == PeriodBaseEnum.Month)
+            {
+                element.Begin = element.Begin.AddMonths(value);
+                element.End = element.End.AddMonths(value);
+            }
+            if (periodBase == PeriodBaseEnum.Years)
+            {
+                element.Begin = element.Begin.AddYears(value);
+                element.End = element.End.AddYears(value);
+            }
+
+            l.Add(element);
+
+            return element.Begin;        
+        }
+
         private void CreateToolBoxControlls()
         {
             PropertyGrid = new LifeTimeObjectPropertyGrid();

@@ -56,6 +56,9 @@ namespace LifeTimeV3.Src
                               "[401]", "Kopie erstellen alle",
                               "[402]", "Anzahl",
                               "[403]", "Bis zu Datum",
+                              "[404]", "Tage",
+                              "[405]", "Monate",
+                              "[406]", "Jahre",
 
                               "Name","Name", //LifeTimeObject Properties
                               "Type","Element Typ",
@@ -135,7 +138,10 @@ namespace LifeTimeV3.Src
                               "[400]", "LifeTimeV3 - Add periodic copies of element",
                               "[401]", "Add copy every",
                               "[402]", "Ammount",
-                              "[403]", "To date",                              
+                              "[403]", "To date",
+                              "[404]", "days",
+                              "[405]", "month",
+                              "[406]", "years",
 
                               "Name","Name", //LifeTimeObject Properties
                               "Type","Object Type",

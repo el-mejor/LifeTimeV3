@@ -11,7 +11,7 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
         /// <summary>
         /// The interface of LifeTimeObjects
         /// </summary>
-        public interface ILifeTimeObject
+        public interface ILifeTimeObject: ICloneable
         {
             bool Deleted
             {
@@ -84,6 +84,8 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
             }
 
             public abstract List<string> Properties(bool All);
+
+            public abstract object Clone();            
         }
 
         /// <summary>
@@ -275,6 +277,15 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
                     .Replace("##minutes#", GetTimeSpan(TimeSpanBase.Minutes).ToString());
             }
 
+            /// <summary>
+            /// Clone the object
+            /// </summary>
+            /// <returns></returns>
+            public override object Clone()
+            {
+                return MemberwiseClone();
+            }
+
             #endregion
 
             #region Private Methods
@@ -384,6 +395,15 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
                 if (!g.OwnColor) g.GroupColor = _groupColor;
                 Groups.Add(g);
             }
+
+            /// <summary>
+            /// Clone the object
+            /// </summary>
+            /// <returns></returns>
+            public override object Clone()
+            {
+                return MemberwiseClone();
+            }
             #endregion
 
             #region Private Methods
@@ -469,6 +489,14 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
             #endregion
 
             #region Public Methods
+            /// <summary>
+            /// Clone the object
+            /// </summary>
+            /// <returns></returns>
+            public override object Clone()
+            {
+                return MemberwiseClone();
+            }
             #endregion
 
             #region Private Methods
@@ -524,6 +552,14 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
             #endregion
 
             #region Public Methods
+            /// <summary>
+            /// Clone the object
+            /// </summary>
+            /// <returns></returns>
+            public override object Clone()
+            {
+                return MemberwiseClone();
+            }
             #endregion
 
             #region Private Methods

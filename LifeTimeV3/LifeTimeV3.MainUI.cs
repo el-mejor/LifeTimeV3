@@ -90,6 +90,8 @@ namespace LifeTimeV3.MainUI
             DiagramEditor.NewDiagram(null);
 
             zoomSlider.Value = Convert.ToInt16(DiagramEditor.DiagramViewer.Zoom * 50);
+
+            ShowToolbox();
         }
 
         private void saveAsToolStripMenuItem_Click(object sender, EventArgs e)

@@ -35,10 +35,10 @@
             this.numericUpDownPeriod = new System.Windows.Forms.NumericUpDown();
             this.comboBoxPeriodBase = new System.Windows.Forms.ComboBox();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
-            this.radioButtonAmmount = new System.Windows.Forms.RadioButton();
-            this.radioButtonLimit = new System.Windows.Forms.RadioButton();
-            this.numericUpDownAmmount = new System.Windows.Forms.NumericUpDown();
             this.dateTimePicker1 = new System.Windows.Forms.DateTimePicker();
+            this.numericUpDownAmmount = new System.Windows.Forms.NumericUpDown();
+            this.radioButtonLimit = new System.Windows.Forms.RadioButton();
+            this.radioButtonAmmount = new System.Windows.Forms.RadioButton();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDownPeriod)).BeginInit();
             this.groupBox1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDownAmmount)).BeginInit();
@@ -93,11 +93,13 @@
             // 
             // comboBoxPeriodBase
             // 
+            this.comboBoxPeriodBase.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.comboBoxPeriodBase.FormattingEnabled = true;
             this.comboBoxPeriodBase.Location = new System.Drawing.Point(281, 33);
             this.comboBoxPeriodBase.Name = "comboBoxPeriodBase";
             this.comboBoxPeriodBase.Size = new System.Drawing.Size(121, 21);
             this.comboBoxPeriodBase.TabIndex = 4;
+            this.comboBoxPeriodBase.SelectedIndexChanged += new System.EventHandler(this.comboBoxPeriodBase_SelectedIndexChanged);
             // 
             // groupBox1
             // 
@@ -111,17 +113,21 @@
             this.groupBox1.TabIndex = 5;
             this.groupBox1.TabStop = false;
             // 
-            // radioButtonAmmount
+            // dateTimePicker1
             // 
-            this.radioButtonAmmount.AutoSize = true;
-            this.radioButtonAmmount.Location = new System.Drawing.Point(6, 16);
-            this.radioButtonAmmount.Name = "radioButtonAmmount";
-            this.radioButtonAmmount.Size = new System.Drawing.Size(49, 17);
-            this.radioButtonAmmount.TabIndex = 0;
-            this.radioButtonAmmount.TabStop = true;
-            this.radioButtonAmmount.Text = "[402]";
-            this.radioButtonAmmount.UseVisualStyleBackColor = true;
-            this.radioButtonAmmount.CheckedChanged += new System.EventHandler(this.radioButtonAmmount_CheckedChanged);
+            this.dateTimePicker1.Location = new System.Drawing.Point(184, 39);
+            this.dateTimePicker1.Name = "dateTimePicker1";
+            this.dateTimePicker1.Size = new System.Drawing.Size(200, 20);
+            this.dateTimePicker1.TabIndex = 3;
+            this.dateTimePicker1.ValueChanged += new System.EventHandler(this.dateTimePickerLimit_ValueChanged);
+            // 
+            // numericUpDownAmmount
+            // 
+            this.numericUpDownAmmount.Location = new System.Drawing.Point(264, 16);
+            this.numericUpDownAmmount.Name = "numericUpDownAmmount";
+            this.numericUpDownAmmount.Size = new System.Drawing.Size(120, 20);
+            this.numericUpDownAmmount.TabIndex = 2;
+            this.numericUpDownAmmount.ValueChanged += new System.EventHandler(this.numericUpDownAmmount_ValueChanged);
             // 
             // radioButtonLimit
             // 
@@ -135,21 +141,17 @@
             this.radioButtonLimit.UseVisualStyleBackColor = true;
             this.radioButtonLimit.CheckedChanged += new System.EventHandler(this.radioButtonLimit_CheckedChanged);
             // 
-            // numericUpDown1
+            // radioButtonAmmount
             // 
-            this.numericUpDownAmmount.Location = new System.Drawing.Point(264, 16);
-            this.numericUpDownAmmount.Name = "numericUpDown1";
-            this.numericUpDownAmmount.Size = new System.Drawing.Size(120, 20);
-            this.numericUpDownAmmount.TabIndex = 2;
-            this.numericUpDownAmmount.ValueChanged += new System.EventHandler(this.numericUpDownAmmount_ValueChanged);
-            // 
-            // dateTimePicker1
-            // 
-            this.dateTimePicker1.Location = new System.Drawing.Point(184, 39);
-            this.dateTimePicker1.Name = "dateTimePicker1";
-            this.dateTimePicker1.Size = new System.Drawing.Size(200, 20);
-            this.dateTimePicker1.TabIndex = 3;
-            this.dateTimePicker1.ValueChanged += new System.EventHandler(this.dateTimePickerLimit_ValueChanged);
+            this.radioButtonAmmount.AutoSize = true;
+            this.radioButtonAmmount.Location = new System.Drawing.Point(6, 16);
+            this.radioButtonAmmount.Name = "radioButtonAmmount";
+            this.radioButtonAmmount.Size = new System.Drawing.Size(49, 17);
+            this.radioButtonAmmount.TabIndex = 0;
+            this.radioButtonAmmount.TabStop = true;
+            this.radioButtonAmmount.Text = "[402]";
+            this.radioButtonAmmount.UseVisualStyleBackColor = true;
+            this.radioButtonAmmount.CheckedChanged += new System.EventHandler(this.radioButtonAmmount_CheckedChanged);
             // 
             // FormCopyPeriodicDialog
             // 

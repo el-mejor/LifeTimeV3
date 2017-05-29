@@ -15,18 +15,13 @@ namespace LifeTimeV3.LifeTimeDiagram.CopyPeriodicDialog
     public partial class FormCopyPeriodicDialog : Form
     {
         #region properties
-        public LifeTimeDiagramEditor.ILifeTimeObject Object
+        public LifeTimeDiagramEditor.LifeTimeElement Element
         { get; set; }
-
-        public List<LifeTimeDiagramEditor.LifeTimeElement> MultipliedObjectsCollection
-        { get { return _multipliedObjects; } }
-
-        public enum PeriodBaseEnum { Days, Month, Years};
 
         /// <summary>
         /// Base unit of the period (every [Period] [Day/Month/Year])
         /// </summary>
-        public PeriodBaseEnum PeriodBase { get; set; }
+        public LifeTimeDiagramEditor.PeriodBaseEnum PeriodBase { get; set; }
 
         /// <summary>
         /// Period (every x [BaseUnit])
@@ -49,27 +44,34 @@ namespace LifeTimeV3.LifeTimeDiagram.CopyPeriodicDialog
         public bool UseLimitForAddingCopies { get; set; }
         #endregion
 
-        #region fields
-        private List<LifeTimeDiagramEditor.LifeTimeElement> _multipliedObjects = new List<LifeTimeDiagramEditor.LifeTimeElement>();
+        #region fields        
         #endregion
 
         #region constructor
-        public FormCopyPeriodicDialog(LifeTimeDiagramEditor.ILifeTimeObject Object)
+        public FormCopyPeriodicDialog(LifeTimeDiagramEditor.ILifeTimeObject element)
         {
             InitializeComponent();
 
-            this.Object = Object;
+            Element = element as LifeTimeDiagramEditor.LifeTimeElement;
 
             //Setup default values
-            PeriodBase = PeriodBaseEnum.Years;
+            PeriodBase = LifeTimeDiagramEditor.PeriodBaseEnum.Years;
             Period = 1;
             AmmountOfCopies = 10;
-            LimitForAddingCopies = DateTime.Now.AddYears(10);
+            LimitForAddingCopies = Element.Begin.AddYears(10);
             UseLimitForAddingCopies = true;
 
             //GUI
+
+            dateTimePicker1.Value = LimitForAddingCopies;
+
+            comboBoxPeriodBase.Items.Add(LifeTimeV3TextList.GetText("[404]"));
+            comboBoxPeriodBase.Items.Add(LifeTimeV3TextList.GetText("[405]"));
+            comboBoxPeriodBase.Items.Add(LifeTimeV3TextList.GetText("[406]"));
+            comboBoxPeriodBase.SelectedIndex = 2;
+
             Text = LifeTimeV3TextList.GetText(Text);
-            labelElement.Text = $"Element: {Object.Name}";
+            labelElement.Text = $"Element: {Element.Name}";
             labelPeriod.Text = LifeTimeV3TextList.GetText(labelPeriod.Text);
             radioButtonAmmount.Text = LifeTimeV3TextList.GetText(radioButtonAmmount.Text);
             radioButtonLimit.Text = LifeTimeV3TextList.GetText(radioButtonLimit.Text);
@@ -113,11 +115,23 @@ namespace LifeTimeV3.LifeTimeDiagram.CopyPeriodicDialog
         private void dateTimePickerLimit_ValueChanged(object sender, EventArgs e)
         {
             LimitForAddingCopies = dateTimePicker1.Value;
+            radioButtonLimit.Checked = true;
         }
 
         private void numericUpDownAmmount_ValueChanged(object sender, EventArgs e)
         {
             AmmountOfCopies = Convert.ToInt16(numericUpDownAmmount.Value);
+            radioButtonAmmount.Checked = true;
+        }
+
+        private void comboBoxPeriodBase_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if ((string)comboBoxPeriodBase.SelectedItem == LifeTimeV3TextList.GetText("[404]"))
+                PeriodBase = LifeTimeDiagramEditor.PeriodBaseEnum.Days;
+            if ((string)comboBoxPeriodBase.SelectedItem == LifeTimeV3TextList.GetText("[405]"))
+                PeriodBase = LifeTimeDiagramEditor.PeriodBaseEnum.Month;
+            if ((string)comboBoxPeriodBase.SelectedItem == LifeTimeV3TextList.GetText("[406]"))
+                PeriodBase = LifeTimeDiagramEditor.PeriodBaseEnum.Years;
         }
     }
 }

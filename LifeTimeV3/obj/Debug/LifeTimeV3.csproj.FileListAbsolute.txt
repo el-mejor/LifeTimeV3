@@ -32,3 +32,5 @@ C:\Users\bl4254\Desktop\LifeTimeV3-master\LifeTimeV3\bin\Debug\LifeTimeV3.pdb
 C:\Users\bl4254\Desktop\LifeTimeV3-master\LifeTimeV3\obj\Debug\LifeTimeV3.MainUI.FormLifeTimeMainUI.resources
 C:\Users\bl4254\Desktop\LifeTimeV3-master\LifeTimeV3\obj\Debug\LifeTimeV3.Properties.Resources.resources
 C:\Users\bl4254\Desktop\LifeTimeV3-master\LifeTimeV3\obj\Debug\LifeTimeV3.csproj.GenerateResource.Cache
+C:\Users\bl4254\Desktop\LifeTimeV3-master\LifeTimeV3\obj\Debug\LifeTimeV3.csprojResolveAssemblyReference.cache
+C:\Users\bl4254\Desktop\LifeTimeV3-master\LifeTimeV3\obj\Debug\LifeTimeV3.LifeTimeDiagram.CopyPeriodicDialog.FormCopyPeriodicDialog.resources

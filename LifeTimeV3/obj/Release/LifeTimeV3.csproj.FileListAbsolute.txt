@@ -20,7 +20,7 @@ C:\Users\bl4254\Desktop\LifeTimeV3-master\LifeTimeV3\obj\Release\LifeTimeV3.exe
 C:\Users\bl4254\Desktop\LifeTimeV3-master\LifeTimeV3\obj\Release\LifeTimeV3.pdb
 C:\Users\bl4254\Desktop\LifeTimeV3-master\LifeTimeV3\bin\Release\LifeTimeV3.exe
 C:\Users\bl4254\Desktop\LifeTimeV3-master\LifeTimeV3\bin\Release\LifeTimeV3.pdb
-C:\Users\bl4254\Desktop\LifeTimeV3-master\LifeTimeV3\obj\Release\LifeTimeV3.csprojResolveAssemblyReference.cache
 C:\Users\bl4254\Desktop\LifeTimeV3-master\LifeTimeV3\obj\Release\LifeTimeV3.MainUI.FormLifeTimeMainUI.resources
 C:\Users\bl4254\Desktop\LifeTimeV3-master\LifeTimeV3\obj\Release\LifeTimeV3.Properties.Resources.resources
 C:\Users\bl4254\Desktop\LifeTimeV3-master\LifeTimeV3\obj\Release\LifeTimeV3.csproj.GenerateResource.Cache
+C:\Users\bl4254\Desktop\LifeTimeV3-master\LifeTimeV3\obj\Release\LifeTimeV3.LifeTimeDiagram.CopyPeriodicDialog.FormCopyPeriodicDialog.resources
