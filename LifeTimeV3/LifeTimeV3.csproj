@@ -151,7 +151,6 @@
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>
-    <Content Include=".gitignore" />
     <Content Include="SampleDiagrams\Z750.xml" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
