@@ -81,10 +81,10 @@
     <Compile Include="src\gui\LifeTimeV3.LifeTimeDiagram.Toolbox.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="LifeTimeV3.MainUI.cs">
+    <Compile Include="src\main\LifeTimeV3.MainUI.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="LifeTimeV3.MainUI.Designer.cs">
+    <Compile Include="src\main\LifeTimeV3.MainUI.Designer.cs">
       <DependentUpon>LifeTimeV3.MainUI.cs</DependentUpon>
     </Compile>
     <Compile Include="Program.cs" />
@@ -95,7 +95,7 @@
     <EmbeddedResource Include="src\gui\LifeTimeV3.LifeTimeDiagram.Toolbox.resx">
       <DependentUpon>LifeTimeV3.LifeTimeDiagram.Toolbox.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="LifeTimeV3.MainUI.resx">
+    <EmbeddedResource Include="src\main\LifeTimeV3.MainUI.resx">
       <DependentUpon>LifeTimeV3.MainUI.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
