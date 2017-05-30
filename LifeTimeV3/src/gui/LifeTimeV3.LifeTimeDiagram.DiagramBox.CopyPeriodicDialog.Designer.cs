@@ -46,8 +46,10 @@
             // 
             // buttonCancel
             // 
+            this.buttonCancel.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.buttonCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-            this.buttonCancel.Location = new System.Drawing.Point(245, 227);
+            this.buttonCancel.Location = new System.Drawing.Point(327, 145);
             this.buttonCancel.Name = "buttonCancel";
             this.buttonCancel.Size = new System.Drawing.Size(75, 23);
             this.buttonCancel.TabIndex = 0;
@@ -57,7 +59,9 @@
             // 
             // buttonOK
             // 
-            this.buttonOK.Location = new System.Drawing.Point(12, 227);
+            this.buttonOK.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.buttonOK.Location = new System.Drawing.Point(12, 145);
             this.buttonOK.Name = "buttonOK";
             this.buttonOK.Size = new System.Drawing.Size(75, 23);
             this.buttonOK.TabIndex = 1;
@@ -123,9 +127,9 @@
             // 
             // numericUpDownAmmount
             // 
-            this.numericUpDownAmmount.Location = new System.Drawing.Point(264, 16);
+            this.numericUpDownAmmount.Location = new System.Drawing.Point(184, 16);
             this.numericUpDownAmmount.Name = "numericUpDownAmmount";
-            this.numericUpDownAmmount.Size = new System.Drawing.Size(120, 20);
+            this.numericUpDownAmmount.Size = new System.Drawing.Size(79, 20);
             this.numericUpDownAmmount.TabIndex = 2;
             this.numericUpDownAmmount.ValueChanged += new System.EventHandler(this.numericUpDownAmmount_ValueChanged);
             // 
@@ -158,7 +162,7 @@
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.CancelButton = this.buttonCancel;
-            this.ClientSize = new System.Drawing.Size(414, 262);
+            this.ClientSize = new System.Drawing.Size(414, 180);
             this.ControlBox = false;
             this.Controls.Add(this.groupBox1);
             this.Controls.Add(this.comboBoxPeriodBase);
