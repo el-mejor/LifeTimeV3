@@ -8,8 +8,11 @@ namespace LifeTimeV3.Src
 {
     class LifeTimeV3TextList
     {   
+        // Add more language codes to this enum
         public enum Language { DE, EN }
 
+        //Text lists
+        //German
         #region German
         string[] ListDE = {
                               "[1]", "Aktiviert", //Texts
@@ -93,6 +96,7 @@ namespace LifeTimeV3.Src
                           };
         #endregion
 
+        //English
         #region English
         string[] ListEN = {
                               "[1]", "Enabled", //Texts
@@ -176,6 +180,8 @@ namespace LifeTimeV3.Src
                           };
         #endregion
 
+        //Add more text lists here
+
         public LifeTimeV3TextList()
         {
             Language lang = Language.DE;
@@ -184,6 +190,7 @@ namespace LifeTimeV3.Src
             
             if (lang == Language.DE) TextList = LoadTextList(ListDE);
             if (lang == Language.EN) TextList = LoadTextList(ListEN);
+            // Add new languagecode and corresponding text list here
         }
 
         #region Properties
