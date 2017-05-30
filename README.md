@@ -1,7 +1,7 @@
 # LifeTimeV3
 Create Time Lines
 
-To run the program directly browse to LifeTimeV3\bin\Release and start LifeTimeV3.exe
+To run the program directly start LifeTimeV3.exe in the Release folder.
 
 To switch language (EN/DE) modify LifeTimeV3.exe.config:
             
