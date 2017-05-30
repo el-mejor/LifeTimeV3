@@ -3,6 +3,7 @@ using System.Windows.Forms;
 
 using LifeTimeV3.BL.LifeTimeDiagram;
 using LifeTimeV3.Src;
+using System.Collections.Generic;
 
 namespace LifeTimeV3.MainUI
 {
@@ -17,9 +18,19 @@ namespace LifeTimeV3.MainUI
         {
             InitializeComponent();
 
-            DiagramEditor = new LifeTimeDiagramEditor();
-            DiagramEditor.ObjectSelected += new LifeTimeDiagramEditor.ObjectSelectedEventHandler(ObjectSelected);
-            DiagramEditor.DiagramChanged += new LifeTimeDiagramEditor.DiagramChangedEventHandler(DiagramChanged);
+            //GUI
+            toolStripMenuItem1.Text = LifeTimeV3TextList.GetText(toolStripMenuItem1.Text);
+            newToolStripMenuItem.Text = LifeTimeV3TextList.GetText(newToolStripMenuItem.Text);
+            openToolStripMenuItem.Text = LifeTimeV3TextList.GetText(openToolStripMenuItem.Text);
+            saveToolStripMenuItem.Text = LifeTimeV3TextList.GetText(saveToolStripMenuItem.Text);
+            saveAsToolStripMenuItem.Text = LifeTimeV3TextList.GetText(saveAsToolStripMenuItem.Text);
+            exitToolStripMenuItem.Text = LifeTimeV3TextList.GetText(exitToolStripMenuItem.Text);
+
+            DiagramEditor = new LifeTimeDiagramEditor(this);
+            DiagramEditor.ObjectSelected += new EventHandler(ObjectSelected);
+            DiagramEditor.DiagramChanged += new EventHandler(DiagramChanged);
+
+            labelInfo.Visible = false;
 
             ShowDiagramViewer();
         }
@@ -141,10 +152,20 @@ namespace LifeTimeV3.MainUI
                     (DateTime.Now - o.Begin).Days.ToString(),
                     (o.GetTimeSpan(LifeTimeDiagramEditor.LifeTimeElement.TimeSpanBase.Days) / 365.0).ToString("F1"),
                     o.GetTimeSpan(LifeTimeDiagramEditor.LifeTimeElement.TimeSpanBase.Days).ToString());
+
+                //Update main menu: ELEMENT
+                eLEMENTToolStripMenuItem.DropDownItems.Clear();
+
+                LifeTimeDiagram.Toolbox.Controls.LifeTimeObjectBrowser.LifeTimeObjectTreeNode t = DiagramEditor.ObjectBrowser.ShowItemInObjectBrowser(o);
+
+                if (t != null)                
+                    foreach (ToolStripItem i in t.BuildContextMenu(false, true))
+                        eLEMENTToolStripMenuItem.DropDownItems.Add(i);
             }
             else
             {
                 toolStripObjectStatusLabel.Text = "";
+                eLEMENTToolStripMenuItem.DropDownItems.Clear();
             }
         }
 
@@ -180,7 +201,7 @@ namespace LifeTimeV3.MainUI
             if (zoomSlider.Value == 0) zoomSlider.Value = 1;
             DiagramEditor.DiagramViewer.Zoom = zoomSlider.Value / 50.0f;
             DiagramEditor.DiagramViewer.Refresh();
-        }
+        }       
         #endregion
     }
 }

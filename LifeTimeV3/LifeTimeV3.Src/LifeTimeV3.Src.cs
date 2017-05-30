@@ -26,6 +26,12 @@ namespace LifeTimeV3.Src
                               "[24]", "Breite",
                               "[25]", "Höhe",
                               "[26]", "Exportieren",
+                              "[000]", "DATEI",
+                              "[001]", "Neu...",
+                              "[002]", "Öffnen...",
+                              "[003]", "Speichern",
+                              "[004]", "Speichern als...",
+                              "[005]", "Beenden",
                               "[100]", "Kein Element ausgewählt.",
                               "[101]", "Root",
                               "[102]", "Neues Element",
@@ -62,6 +68,10 @@ namespace LifeTimeV3.Src
                               "[404]", "Tage",
                               "[405]", "Monate",
                               "[406]", "Jahre",
+
+                              "[1000]", "Klicken Sie hier um die Toolbox zu öffnen um Elemente hinzuzufügen oder zu bearbeiten.",
+                              "[1001]", "Legen Sie in der Toolbox zunächst eine Gruppe an (Rechtsklick auf Root).",
+                              "[1002]", "Legen Sie in der Toolbox ein Element an (Rechtsklick auf eine Gruppe).",
 
                               "Name","Name", //LifeTimeObject Properties
                               "Type","Element Typ",
@@ -110,6 +120,12 @@ namespace LifeTimeV3.Src
                               "[24]", "Width",
                               "[25]", "Height",
                               "[26]", "Export",
+                              "[000]", "FILE",
+                              "[001]", "New...",
+                              "[002]", "Open...",
+                              "[003]", "Save",
+                              "[004]", "Save as...",
+                              "[005]", "Close",
                               "[100]","No object selected.",  
                               "[101]","Root",
                               "[102]", "New element",
@@ -146,6 +162,10 @@ namespace LifeTimeV3.Src
                               "[404]", "days",
                               "[405]", "month",
                               "[406]", "years",
+
+                              "[1000]", "Click here to open the toolbox for adding and editing elements.",                              
+                              "[1001]", "Use the toolbox to add a group (right click on the root folder).",
+                              "[1002]", "Use the toolbox to add an element (right click on a group folder).",
 
                               "Name","Name", //LifeTimeObject Properties
                               "Type","Object Type",

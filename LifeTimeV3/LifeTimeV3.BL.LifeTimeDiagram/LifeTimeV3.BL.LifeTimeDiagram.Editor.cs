@@ -49,8 +49,9 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
         #endregion
 
         #region Constructor
-        public LifeTimeDiagramEditor()
+        public LifeTimeDiagramEditor(MainUI.FormLifeTimeMainUI mainUI)
         {
+
             Diagram = new LifeTimeDiagram();
 
             RequestNewRandomColors = DrawNewRandomColor.Yes;
@@ -265,7 +266,7 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
             ExportGrid.ExportButtonClick += new LifeTimeExportPNGPropertyGrid.ExportButtonClicked(ExportButtonClick);
 
             ObjectBrowser.ItemSelected += new LifeTimeObjectBrowser.ItemSelectedHandler(ObjectSelectedInObjectBrowser);
-            ObjectBrowser.ObjectCollectionChanged += new LifeTimeObjectBrowser.ObjectCollectionChangedHandler(ObjectCollectionChanged);            
+            ObjectBrowser.ObjectCollectionChanged += new EventHandler(ObjectCollectionChanged);            
         }
 
         private void CreateDiagramViewer()
@@ -426,12 +427,10 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
         }
         #endregion       
 
-        #region EventHandler
-        public delegate void ObjectSelectedEventHandler(object sender, EventArgs e);
-        public event ObjectSelectedEventHandler ObjectSelected;
-
-        public delegate void DiagramChangedEventHandler(object sender, EventArgs e);
-        public event DiagramChangedEventHandler DiagramChanged;
+        #region EventHandler        
+        public event EventHandler ObjectSelected;
+                
+        public event EventHandler DiagramChanged;
         #endregion
     }
 }

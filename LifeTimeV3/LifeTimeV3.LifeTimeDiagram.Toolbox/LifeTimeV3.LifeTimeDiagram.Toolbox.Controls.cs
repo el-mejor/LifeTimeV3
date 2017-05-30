@@ -17,7 +17,8 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
     public class LifeTimeObjectBrowser : TreeView
     {
         #region properties
-
+        internal LifeTimeObjectTreeNode SelectedObject
+        { get { return _selectedNode; } }
         #endregion
 
         #region fields
@@ -25,7 +26,7 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
         private Dictionary<int, LifeTimeDiagramEditor.ILifeTimeObject> _objectsByIndex;
         private Dictionary<LifeTimeDiagramEditor.ILifeTimeObject, TreeNode> _treenodesByObject;
         private LifeTimeDiagramEditor.ILifeTimeObject _selectedObject;
-        private TreeNode _selectedNode;
+        private LifeTimeObjectTreeNode _selectedNode;
         #endregion
 
         #region Constructor
@@ -38,7 +39,7 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
             this.CheckBoxes = true;
 
             this.AfterSelect += new TreeViewEventHandler(TreeViewObjectSelected);
-            this.AfterCheck += new TreeViewEventHandler(CheckedStateChanged);
+            this.AfterCheck += new TreeViewEventHandler(CheckedStateChanged);            
 
             this.ImageList = new ImageList();
             this.ImageList.Images.Add(Properties.Resources._folder); //0
@@ -105,7 +106,7 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
         /// Expand all parent nodes to show the given object
         /// </summary>
         /// <param name="o"></param>
-        public TreeNode ShowItemInObjectBrowser(LifeTimeDiagramEditor.ILifeTimeObject o)
+        public LifeTimeObjectTreeNode ShowItemInObjectBrowser(LifeTimeDiagramEditor.ILifeTimeObject o)
         {
             if (o == null) return null;
 
@@ -115,7 +116,7 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
 
             if (t != null) ShowItemInObjectBrowser(t);
 
-            return t;
+            return t as LifeTimeObjectTreeNode;
         }
 
         /// <summary>
@@ -266,10 +267,8 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
 
         #region events
         public delegate void ItemSelectedHandler(object sender, ItemSelectedArgs e);
-        public event ItemSelectedHandler ItemSelected;
-
-        public delegate void ObjectCollectionChangedHandler(object sender, EventArgs e);
-        public event ObjectCollectionChangedHandler ObjectCollectionChanged;
+        public event ItemSelectedHandler ItemSelected;        
+        public event EventHandler ObjectCollectionChanged;
 
         public class ItemSelectedArgs
         {
@@ -283,7 +282,7 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
         #endregion
 
         #region LifeTimeObjectTreeNode Class
-        private class LifeTimeObjectTreeNode : TreeNode
+        public class LifeTimeObjectTreeNode : TreeNode
         {
             #region Properties
             public LifeTimeDiagramEditor.ILifeTimeObject Object
@@ -299,59 +298,71 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
             #region constructor
             public LifeTimeObjectTreeNode(LifeTimeDiagramEditor.ILifeTimeObject o, Boolean IsRoot)
             {
-                _object = o;
+                _object = o;                
 
                 this.ContextMenuStrip = new ContextMenuStrip();
 
-                if (o is LifeTimeDiagramEditor.LifeTimeGroup)
-                {
-                    if (!IsRoot) AddContextMenuItem(ContextMenuItems.AddElement);
-                    AddContextMenuItem(ContextMenuItems.AddGroup);
-                    AddContextMenuItem(ContextMenuItems.Separator);
-                    if (!IsRoot) AddContextMenuItem(ContextMenuItems.Delete);
-                    if (!IsRoot) AddContextMenuItem(ContextMenuItems.Separator);
-                    if (!IsRoot) AddContextMenuItem(ContextMenuItems.Paste);
-                    if (!IsRoot) AddContextMenuItem(ContextMenuItems.Separator);
-                    if (!IsRoot) AddContextMenuItem(ContextMenuItems.MoveUp);
-                    if (!IsRoot) AddContextMenuItem(ContextMenuItems.MoveDown);
-                    if (!IsRoot) AddContextMenuItem(ContextMenuItems.Separator);
-                    AddContextMenuItem(ContextMenuItems.ExpandAll);
-                    AddContextMenuItem(ContextMenuItems.CollapseAll);
-                }
-
-                if (o is LifeTimeDiagramEditor.LifeTimeElement)
-                {
-                    AddContextMenuItem(ContextMenuItems.Copy);
-                    AddContextMenuItem(ContextMenuItems.CopyPeriodic);
-                    AddContextMenuItem(ContextMenuItems.Cut);
-                    AddContextMenuItem(ContextMenuItems.Paste);
-                    AddContextMenuItem(ContextMenuItems.Separator);
-                    AddContextMenuItem(ContextMenuItems.Delete);
-                    AddContextMenuItem(ContextMenuItems.Separator);
-                    AddContextMenuItem(ContextMenuItems.BringToFront);
-                    AddContextMenuItem(ContextMenuItems.MoveUp);
-                    AddContextMenuItem(ContextMenuItems.MoveDown);
-                    AddContextMenuItem(ContextMenuItems.BringToBack);
-                    AddContextMenuItem(ContextMenuItems.Separator);
-                    AddContextMenuItem(ContextMenuItems.ExpandAll);
-                    AddContextMenuItem(ContextMenuItems.CollapseAll);
-                }
+                foreach (ToolStripItem i in BuildContextMenu(IsRoot, false))
+                    this.ContextMenuStrip.Items.Add(i);                
             }
             #endregion
 
-            #region private methods
-            enum ContextMenuItems { Separator, CopyPeriodic, AddElement, AddGroup, Delete, Cut, Copy, Paste, MoveUp, MoveDown, BringToFront, BringToBack, CollapseAll, ExpandAll }
-            private void AddContextMenuItem(ContextMenuItems item)
+            public List<ToolStripItem> BuildContextMenu(bool IsRoot, bool IsMainMenu)
+            {
+                List<ToolStripItem> contextMenuItemCollection = new List<ToolStripItem>();
+
+                if (_object is LifeTimeDiagramEditor.LifeTimeGroup)
+                {
+                    if (!IsRoot) AddContextMenuItem(contextMenuItemCollection, ContextMenuItems.AddElement, true);
+                    AddContextMenuItem(contextMenuItemCollection, ContextMenuItems.AddGroup, false);
+                    AddContextMenuItem(contextMenuItemCollection, ContextMenuItems.Separator, false);
+                    if (!IsRoot) AddContextMenuItem(contextMenuItemCollection, ContextMenuItems.Delete, false);
+                    if (!IsRoot) AddContextMenuItem(contextMenuItemCollection, ContextMenuItems.Separator, false);
+                    if (!IsRoot) AddContextMenuItem(contextMenuItemCollection, ContextMenuItems.Paste, false);
+                    if (!IsRoot) AddContextMenuItem(contextMenuItemCollection, ContextMenuItems.Separator, false);
+                    if (!IsRoot) AddContextMenuItem(contextMenuItemCollection, ContextMenuItems.MoveUp, false);
+                    if (!IsRoot) AddContextMenuItem(contextMenuItemCollection, ContextMenuItems.MoveDown, false);
+                    if (!IsRoot) AddContextMenuItem(contextMenuItemCollection, ContextMenuItems.Separator, false);
+                    AddContextMenuItem(contextMenuItemCollection, ContextMenuItems.ExpandAll, false);
+                    AddContextMenuItem(contextMenuItemCollection, ContextMenuItems.CollapseAll, false);
+                }
+
+                if (_object is LifeTimeDiagramEditor.LifeTimeElement)
+                {
+                    AddContextMenuItem(contextMenuItemCollection, ContextMenuItems.Copy, true);
+                    AddContextMenuItem(contextMenuItemCollection, ContextMenuItems.CopyPeriodic, true);
+                    AddContextMenuItem(contextMenuItemCollection, ContextMenuItems.Cut, true);
+                    AddContextMenuItem(contextMenuItemCollection, ContextMenuItems.Paste, true);
+                    AddContextMenuItem(contextMenuItemCollection, ContextMenuItems.Separator, true);
+                    AddContextMenuItem(contextMenuItemCollection, ContextMenuItems.Delete, true);
+                    AddContextMenuItem(contextMenuItemCollection, ContextMenuItems.Separator, true);
+                    AddContextMenuItem(contextMenuItemCollection, ContextMenuItems.BringToFront, true);
+                    AddContextMenuItem(contextMenuItemCollection, ContextMenuItems.MoveUp, true);
+                    AddContextMenuItem(contextMenuItemCollection, ContextMenuItems.MoveDown, true);
+                    AddContextMenuItem(contextMenuItemCollection, ContextMenuItems.BringToBack, true);
+                    if (!IsMainMenu) AddContextMenuItem(contextMenuItemCollection, ContextMenuItems.Separator, true);
+                    if (!IsMainMenu) AddContextMenuItem(contextMenuItemCollection, ContextMenuItems.ExpandAll, true);
+                    if (!IsMainMenu) AddContextMenuItem(contextMenuItemCollection, ContextMenuItems.CollapseAll, true);
+                }
+
+                return contextMenuItemCollection;
+            }
+
+            public enum ContextMenuItems { Separator, CopyPeriodic, AddElement, AddGroup, Delete, Cut, Copy, Paste, MoveUp, MoveDown, BringToFront, BringToBack, CollapseAll, ExpandAll }
+            public void AddContextMenuItem(List<ToolStripItem> toolStripItemCollection, ContextMenuItems item, bool toMainMenu)
             {
                 //SEPARATOR
-                if (item == ContextMenuItems.Separator) ContextMenuStrip.Items.Add(new ToolStripSeparator());
+                if (item == ContextMenuItems.Separator)
+                {
+                    toolStripItemCollection.Add(new ToolStripSeparator());                 
+                }
 
                 //COPY PERIODIC
                 if (item == ContextMenuItems.CopyPeriodic)
                 {
                     ToolStripItem i = new ToolStripMenuItem(LifeTimeV3TextList.GetText("[218]"));
                     i.Click += new EventHandler(MenuItemCopyPeriodicClicked);
-                    ContextMenuStrip.Items.Add(i);                    
+                    toolStripItemCollection.Add(i);
                 }
 
                 //ADD ELEMENT
@@ -359,8 +370,8 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
                 {
                     ToolStripItem i = new ToolStripMenuItem(LifeTimeV3TextList.GetText("[200]"));
                     i.Click += new EventHandler(MenuItemAddElementClicked);
-                    ContextMenuStrip.Items.Add(i);
-                    (ContextMenuStrip.Items[ContextMenuStrip.Items.Count - 1] as ToolStripMenuItem).ShortcutKeys = Keys.Control | Keys.N;
+                    toolStripItemCollection.Add(i);                    
+                    (toolStripItemCollection[toolStripItemCollection.Count - 1] as ToolStripMenuItem).ShortcutKeys = Keys.Control | Keys.N;
                 }
 
                 //ADD GROUP
@@ -368,7 +379,7 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
                 {
                     ToolStripItem i = new ToolStripMenuItem(LifeTimeV3TextList.GetText("[201]"));
                     i.Click += new EventHandler(MenuItemAddGroupClicked);
-                    ContextMenuStrip.Items.Add(i);
+                    toolStripItemCollection.Add(i);
                 }
 
                 //DELETE
@@ -376,8 +387,8 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
                 {
                     ToolStripItem i = new ToolStripMenuItem(LifeTimeV3TextList.GetText("[203]"));
                     i.Click += new EventHandler(MenuItemDeleteItemClicked);
-                    ContextMenuStrip.Items.Add(i);
-                    (ContextMenuStrip.Items[ContextMenuStrip.Items.Count - 1] as ToolStripMenuItem).ShortcutKeys = Keys.Delete;
+                    toolStripItemCollection.Add(i);
+                    (toolStripItemCollection[toolStripItemCollection.Count - 1] as ToolStripMenuItem).ShortcutKeys = Keys.Delete;
                 }
 
                 //COPY
@@ -385,8 +396,8 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
                 {
                     ToolStripItem i = new ToolStripMenuItem(LifeTimeV3TextList.GetText("[204]"));
                     i.Click += new EventHandler(MenuItemCopyClicked);
-                    ContextMenuStrip.Items.Add(i);
-                    (ContextMenuStrip.Items[ContextMenuStrip.Items.Count - 1] as ToolStripMenuItem).ShortcutKeys = Keys.Control | Keys.C;
+                    toolStripItemCollection.Add(i);                    
+                    (toolStripItemCollection[toolStripItemCollection.Count - 1] as ToolStripMenuItem).ShortcutKeys = Keys.Control | Keys.C;
                 }
 
                 //CUT
@@ -394,8 +405,8 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
                 {
                     ToolStripItem i = new ToolStripMenuItem(LifeTimeV3TextList.GetText("[205]"));
                     i.Click += new EventHandler(MenuItemCutClicked);
-                    ContextMenuStrip.Items.Add(i);
-                    (ContextMenuStrip.Items[ContextMenuStrip.Items.Count - 1] as ToolStripMenuItem).ShortcutKeys = Keys.Control | Keys.X;
+                    toolStripItemCollection.Add(i);                    
+                    (toolStripItemCollection[toolStripItemCollection.Count - 1] as ToolStripMenuItem).ShortcutKeys = Keys.Control | Keys.X;
                 }
 
                 //PASTE
@@ -403,8 +414,8 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
                 {
                     ToolStripItem i = new ToolStripMenuItem(LifeTimeV3TextList.GetText("[206]"));
                     i.Click += new EventHandler(MenuItemPasteClicked);
-                    ContextMenuStrip.Items.Add(i);
-                    (ContextMenuStrip.Items[ContextMenuStrip.Items.Count - 1] as ToolStripMenuItem).ShortcutKeys = Keys.Control | Keys.V;
+                    toolStripItemCollection.Add(i);                    
+                    (toolStripItemCollection[toolStripItemCollection.Count - 1] as ToolStripMenuItem).ShortcutKeys = Keys.Control | Keys.V;
                 }
 
                 //BRING TO FRONT
@@ -412,8 +423,8 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
                 {
                     ToolStripItem i = new ToolStripMenuItem(LifeTimeV3TextList.GetText("[207]"));
                     i.Click += new EventHandler(MenuItemBringToFront);
-                    ContextMenuStrip.Items.Add(i);
-                    (ContextMenuStrip.Items[ContextMenuStrip.Items.Count - 1] as ToolStripMenuItem).ShortcutKeys = Keys.Control | Keys.Shift | Keys.Up;
+                    toolStripItemCollection.Add(i);
+                    (toolStripItemCollection[toolStripItemCollection.Count - 1] as ToolStripMenuItem).ShortcutKeys = Keys.Control | Keys.Shift | Keys.Up;
                 }
 
                 //MOVE UP
@@ -421,8 +432,8 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
                 {
                     ToolStripItem i = new ToolStripMenuItem(LifeTimeV3TextList.GetText("[208]"));
                     i.Click += new EventHandler(MenuItemMovetoFront);
-                    ContextMenuStrip.Items.Add(i);
-                    (ContextMenuStrip.Items[ContextMenuStrip.Items.Count - 1] as ToolStripMenuItem).ShortcutKeys = Keys.Control | Keys.Up;
+                    toolStripItemCollection.Add(i);                    
+                    (toolStripItemCollection[toolStripItemCollection.Count - 1] as ToolStripMenuItem).ShortcutKeys = Keys.Control | Keys.Up;
                 }
 
                 //MOVE DOWN
@@ -430,8 +441,8 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
                 {
                     ToolStripItem i = new ToolStripMenuItem(LifeTimeV3TextList.GetText("[209]"));
                     i.Click += new EventHandler(MenuItemMovetoBack);
-                    ContextMenuStrip.Items.Add(i);
-                    (ContextMenuStrip.Items[ContextMenuStrip.Items.Count - 1] as ToolStripMenuItem).ShortcutKeys = Keys.Control | Keys.Down;
+                    toolStripItemCollection.Add(i);                    
+                    (toolStripItemCollection[toolStripItemCollection.Count - 1] as ToolStripMenuItem).ShortcutKeys = Keys.Control | Keys.Down;                    
                 }
 
                 //BRING TO BACK
@@ -439,8 +450,8 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
                 {
                     ToolStripItem i = new ToolStripMenuItem(LifeTimeV3TextList.GetText("[210]"));
                     i.Click += new EventHandler(MenuItemBringToBack);
-                    ContextMenuStrip.Items.Add(i);
-                    (ContextMenuStrip.Items[ContextMenuStrip.Items.Count - 1] as ToolStripMenuItem).ShortcutKeys = Keys.Control | Keys.Shift | Keys.Down;
+                    toolStripItemCollection.Add(i);                    
+                    (toolStripItemCollection[toolStripItemCollection.Count - 1] as ToolStripMenuItem).ShortcutKeys = Keys.Control | Keys.Shift | Keys.Down;                    
                 }
 
                 //EXPAND ALL
@@ -448,7 +459,7 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
                 {
                     ToolStripItem i = new ToolStripMenuItem(LifeTimeV3TextList.GetText("[211]"));
                     i.Click += new EventHandler(MenuItemExpandAll);
-                    ContextMenuStrip.Items.Add(i);
+                    toolStripItemCollection.Add(i);                    
                 }
 
                 //COLLAPSE ALL
@@ -456,10 +467,11 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
                 {
                     ToolStripItem i = new ToolStripMenuItem(LifeTimeV3TextList.GetText("[212]"));
                     i.Click += new EventHandler(MenuItemCollapsedAll);
-                    ContextMenuStrip.Items.Add(i);
+                    toolStripItemCollection.Add(i);                    
                 }
             }
 
+            #region private methods
             private void CopyObjectToClipboard(LifeTimeDiagramEditor.ILifeTimeObject o)
             {
                 Clipboard.Clear();

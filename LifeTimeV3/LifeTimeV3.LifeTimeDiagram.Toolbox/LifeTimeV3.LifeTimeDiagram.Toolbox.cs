@@ -4,6 +4,7 @@ using System.Windows.Forms;
 using LifeTimeV3.BL.LifeTimeDiagram;
 using LifeTimeV3.LifeTimeDiagram.Toolbox.Controls;
 using LifeTimeV3.Src;
+using System;
 
 namespace LifeTimeV3.LifeTimeDiagram.Toolbox
 {
@@ -12,6 +13,11 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox
     /// </summary>
     public class LifeTimeToolBoxForm : Form
     {
+        #region events
+        public event EventHandler ToolBoxOpened;
+        public event EventHandler ToolBoxClosed;
+        #endregion
+
         #region Fields
         private LifeTimeObjectPropertyGrid _propertyGrid { get; set; }
         private LifeTimeObjectPropertyGrid _settingsGrid { get; set; }
@@ -89,5 +95,29 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox
             return _objectBrowser;
         }
         #endregion
+
+        private void InitializeComponent()
+        {
+            this.SuspendLayout();
+            // 
+            // LifeTimeToolBoxForm
+            // 
+            this.ClientSize = new System.Drawing.Size(284, 262);
+            this.Name = "LifeTimeToolBoxForm";
+            this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.LifeTimeToolBoxForm_FormClosed);
+            this.Shown += new System.EventHandler(this.LifeTimeToolBoxForm_Shown);
+            this.ResumeLayout(false);
+
+        }
+
+        private void LifeTimeToolBoxForm_Shown(object sender, System.EventArgs e)
+        {
+            if (ToolBoxOpened != null) ToolBoxOpened.Invoke(this, null);
+        }
+
+        private void LifeTimeToolBoxForm_FormClosed(object sender, FormClosedEventArgs e)
+        {
+            if (ToolBoxClosed != null) ToolBoxClosed.Invoke(this, null);
+        }
     }    
 }

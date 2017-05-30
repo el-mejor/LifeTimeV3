@@ -91,6 +91,9 @@
     <EmbeddedResource Include="LifeTimeV3.LifeTimeDiagram.CopyPeriodicDialog\LifeTimeV3.LifeTimeDiagram.CopyPeriodicDialog.resx">
       <DependentUpon>LifeTimeV3.LifeTimeDiagram.CopyPeriodicDialog.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="LifeTimeV3.LifeTimeDiagram.Toolbox\LifeTimeV3.LifeTimeDiagram.Toolbox.resx">
+      <DependentUpon>LifeTimeV3.LifeTimeDiagram.Toolbox.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="LifeTimeV3.MainUI.resx">
       <DependentUpon>LifeTimeV3.MainUI.cs</DependentUpon>
     </EmbeddedResource>
