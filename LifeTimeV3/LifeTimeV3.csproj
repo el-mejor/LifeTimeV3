@@ -60,24 +60,25 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="LifeTimeV3.BL.LifeTimeDiagram\LifeTimeV3.BL.LifeTimeDiagram.FileHandler.cs" />
-    <Compile Include="LifeTimeV3.LifeTimeDiagram.CopyPeriodicDialog\LifeTimeV3.LifeTimeDiagram.CopyPeriodicDialog.cs">
+    <Compile Include="CodeBL\LifeTimeV3.BL.LifeTimeDiagram.LifeTimeDiagramEditor.LifeTimeDiagramFileHandler.cs" />
+    <Compile Include="CodeBL\LifeTimeV3.BL.LifeTimeDiagram.LifeTimeDiagramEditor.LifeTimeXmlObject.cs" />
+    <Compile Include="CodeGUIComponents\LifeTimeV3.LifeTimeDiagram.DiagramBox.CopyPeriodicDialog.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="LifeTimeV3.LifeTimeDiagram.CopyPeriodicDialog\LifeTimeV3.LifeTimeDiagram.CopyPeriodicDialog.Designer.cs">
-      <DependentUpon>LifeTimeV3.LifeTimeDiagram.CopyPeriodicDialog.cs</DependentUpon>
+    <Compile Include="CodeGUIComponents\LifeTimeV3.LifeTimeDiagram.DiagramBox.CopyPeriodicDialog.Designer.cs">
+      <DependentUpon>LifeTimeV3.LifeTimeDiagram.DiagramBox.CopyPeriodicDialog.cs</DependentUpon>
     </Compile>
-    <Compile Include="LifeTimeV3.LifeTimeDiagram.Toolbox\LifeTimeV3.LifeTimeDiagram.DiagramBox.cs">
+    <Compile Include="CodeGUIComponents\LifeTimeV3.LifeTimeDiagram.DiagramBox.LifeTimeDiagramBox.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="LifeTimeV3.LifeTimeDiagram.Toolbox\LifeTimeV3.LifeTimeDiagram.Toolbox.Controls.cs">
+    <Compile Include="CodeGUIComponents\LifeTimeV3.LifeTimeDiagram.Toolbox.Controls.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="LifeTimeV3.Src\LifeTimeV3.Src.cs" />
-    <Compile Include="LifeTimeV3.BL.LifeTimeDiagram\LifeTimeV3.BL.LifeTimeDiagram.Diagram.cs" />
-    <Compile Include="LifeTimeV3.BL.LifeTimeDiagram\LifeTimeV3.BL.LifeTimeDiagram.Editor.cs" />
-    <Compile Include="LifeTimeV3.BL.LifeTimeDiagram\LifeTimeV3.BL.LifeTimeDiagram.LifeTimeObjects.cs" />
-    <Compile Include="LifeTimeV3.LifeTimeDiagram.Toolbox\LifeTimeV3.LifeTimeDiagram.Toolbox.cs">
+    <Compile Include="CodeSRC\LifeTimeV3.Src.LifeTimeV3TextList.cs" />
+    <Compile Include="CodeBL\LifeTimeV3.BL.LifeTimeDiagram.cs" />
+    <Compile Include="CodeBL\LifeTimeV3.BL.LifeTimeDiagram.LifeTimeDiagramEditor.cs" />
+    <Compile Include="CodeBL\LifeTimeV3.BL.LifeTimeDiagram.LifeTimeDiagramEditor.LifeTimeObjects.cs" />
+    <Compile Include="CodeGUIComponents\LifeTimeV3.LifeTimeDiagram.Toolbox.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="LifeTimeV3.MainUI.cs">
@@ -88,10 +89,10 @@
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <EmbeddedResource Include="LifeTimeV3.LifeTimeDiagram.CopyPeriodicDialog\LifeTimeV3.LifeTimeDiagram.CopyPeriodicDialog.resx">
-      <DependentUpon>LifeTimeV3.LifeTimeDiagram.CopyPeriodicDialog.cs</DependentUpon>
+    <EmbeddedResource Include="CodeGUIComponents\LifeTimeV3.LifeTimeDiagram.DiagramBox.CopyPeriodicDialog.resx">
+      <DependentUpon>LifeTimeV3.LifeTimeDiagram.DiagramBox.CopyPeriodicDialog.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="LifeTimeV3.LifeTimeDiagram.Toolbox\LifeTimeV3.LifeTimeDiagram.Toolbox.resx">
+    <EmbeddedResource Include="CodeGUIComponents\LifeTimeV3.LifeTimeDiagram.Toolbox.resx">
       <DependentUpon>LifeTimeV3.LifeTimeDiagram.Toolbox.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="LifeTimeV3.MainUI.resx">
