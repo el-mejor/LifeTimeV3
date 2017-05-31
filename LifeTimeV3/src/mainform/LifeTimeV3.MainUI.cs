@@ -10,8 +10,7 @@ namespace LifeTimeV3.MainUI
     public partial class  FormLifeTimeMainUI : Form
     {
         #region Fields
-        private LifeTimeDiagramEditor _diagramEditor;
-        private List<TreeNode> _findResults;
+        private LifeTimeDiagramEditor _diagramEditor;        
         private int _findResultsIndex;
         #endregion
 
@@ -193,49 +192,35 @@ namespace LifeTimeV3.MainUI
         {
             if (e.KeyData == Keys.Enter)
             {
-                ShowToolbox();
-                _findResults = deepSearchInTreeNodes(_diagramEditor.ObjectBrowser.Nodes, eLEMENTToolStripMenuItem.DropDownItems["elementMenuFindElementTextBox"].Text);
+                ShowToolbox();                
                 _findResultsIndex = 0;
 
-                _diagramEditor.ObjectBrowser.ShowItemInObjectBrowser(_findResults[_findResultsIndex]);
+                _diagramEditor.ObjectBrowser.ShowItemInObjectBrowser(_diagramEditor.ObjectBrowser.SearchInTreeNodes(eLEMENTToolStripMenuItem.DropDownItems["elementMenuFindElementTextBox"].Text)[_findResultsIndex]);
             }
         }
 
         private void elementMenuFindPrevElementButton_Clicked(object sender, EventArgs e)
         {
-            _findResults = deepSearchInTreeNodes(_diagramEditor.ObjectBrowser.Nodes, eLEMENTToolStripMenuItem.DropDownItems["elementMenuFindElementTextBox"].Text);
-
-            _findResultsIndex--;
-            if (_findResultsIndex < 0)
-                _findResultsIndex = _findResults.Count - 1;
-
-            _diagramEditor.ObjectBrowser.ShowItemInObjectBrowser(_findResults[_findResultsIndex]);
+            FindNextOrPrevious(-1);
         }
 
         private void elementMenuFindNextElementButton_Clicked(object sender, EventArgs e)
         {
-            _findResults = deepSearchInTreeNodes(_diagramEditor.ObjectBrowser.Nodes, eLEMENTToolStripMenuItem.DropDownItems["elementMenuFindElementTextBox"].Text);
-
-            _findResultsIndex++;
-            if (_findResultsIndex > _findResults.Count - 1)
-                _findResultsIndex = 0;
-            
-            _diagramEditor.ObjectBrowser.ShowItemInObjectBrowser(_findResults[_findResultsIndex]);
+            FindNextOrPrevious(+1);
         }
 
-        private List<TreeNode> deepSearchInTreeNodes(TreeNodeCollection treeNodeCollection, string findText)
+        private void FindNextOrPrevious(int n)
         {
-            List<TreeNode> coll = new List<TreeNode>();
+            List<TreeNode> r = _diagramEditor.ObjectBrowser.SearchInTreeNodes(eLEMENTToolStripMenuItem.DropDownItems["elementMenuFindElementTextBox"].Text);
 
-            foreach (TreeNode t in treeNodeCollection)
-            {
-                if (t.Text.Contains(findText))
-                    coll.Add(t);                
+            _findResultsIndex += n;
 
-                coll.AddRange(deepSearchInTreeNodes(t.Nodes, findText));
-            }
+            if (_findResultsIndex > r.Count - 1)
+                _findResultsIndex = 0;
+            if (_findResultsIndex < 0)
+                _findResultsIndex = r.Count - 1;
 
-            return coll;            
+            _diagramEditor.ObjectBrowser.ShowItemInObjectBrowser(r[_findResultsIndex]);
         }
 
         private void DiagramChanged(object sender, EventArgs e)

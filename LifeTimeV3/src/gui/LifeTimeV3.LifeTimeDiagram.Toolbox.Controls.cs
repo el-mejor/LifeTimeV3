@@ -128,6 +128,31 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
         {
             this.SelectedNode = t;
         }
+
+        /// <summary>
+        /// Return all Nodes matching the search string
+        /// </summary>
+        /// <param name="findText"></param>
+        /// <returns></returns>
+        public List<TreeNode> SearchInTreeNodes(string findText)
+        {
+            return deepSearchInTreeNodes(Nodes, findText);
+        }
+
+        private List<TreeNode> deepSearchInTreeNodes(TreeNodeCollection treeNodeCollection, string findText)
+        {
+            List<TreeNode> coll = new List<TreeNode>();
+
+            foreach (TreeNode t in treeNodeCollection)
+            {
+                if (t.Text.Contains(findText))
+                    coll.Add(t);
+
+                coll.AddRange(deepSearchInTreeNodes(t.Nodes, findText));
+            }
+
+            return coll;
+        }
         #endregion
 
         #region private Methods
