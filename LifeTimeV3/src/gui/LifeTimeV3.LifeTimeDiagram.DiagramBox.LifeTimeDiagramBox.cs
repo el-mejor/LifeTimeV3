@@ -40,7 +40,7 @@ namespace LifeTimeV3.LifeTimeDiagram.DiagramBox
             OffsetX = 0; OffsetY = 0; Zoom = 1; Moving = false;
             ZoomEventArgs e = new ZoomEventArgs();
             e.Zoom = Zoom;
-            if (DiagramZoomed != null) DiagramZoomed(this, e);
+            DiagramZoomed?.Invoke(this, e);
         }
 
         /// <summary>

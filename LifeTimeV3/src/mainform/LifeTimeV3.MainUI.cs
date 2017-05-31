@@ -10,7 +10,9 @@ namespace LifeTimeV3.MainUI
     public partial class  FormLifeTimeMainUI : Form
     {
         #region Fields
-        private LifeTimeDiagramEditor DiagramEditor;        
+        private LifeTimeDiagramEditor _diagramEditor;
+        private List<TreeNode> _findResults;
+        private int _findResultsIndex;
         #endregion
 
         #region constructor
@@ -26,11 +28,13 @@ namespace LifeTimeV3.MainUI
             saveAsToolStripMenuItem.Text = LifeTimeV3TextList.GetText(saveAsToolStripMenuItem.Text);
             exitToolStripMenuItem.Text = LifeTimeV3TextList.GetText(exitToolStripMenuItem.Text);
 
-            DiagramEditor = new LifeTimeDiagramEditor(this);
-            DiagramEditor.ObjectSelected += new EventHandler(ObjectSelected);
-            DiagramEditor.DiagramChanged += new EventHandler(DiagramChanged);
+            _diagramEditor = new LifeTimeDiagramEditor();
+            _diagramEditor.ObjectSelected += new EventHandler(ObjectSelected);
+            _diagramEditor.DiagramChanged += new EventHandler(DiagramChanged);
 
             labelInfo.Visible = false;
+
+            ClearAndAddMainMenuElementGenericItems();
 
             ShowDiagramViewer();
         }
@@ -42,14 +46,14 @@ namespace LifeTimeV3.MainUI
         /// </summary>
         private void ShowDiagramViewer()
         {
-            this.Controls.Add(DiagramEditor.DiagramViewer);
-            DiagramEditor.DiagramViewer.SendToBack();
-            DiagramEditor.DiagramViewer.Dock = DockStyle.Fill;
-            DiagramEditor.RequestNewRandomColors = LifeTimeDiagramEditor.DrawNewRandomColor.Yes;
-            DiagramEditor.DiagramViewer.MouseDoubleClick += new MouseEventHandler(DiagramDoubleClick);
-            DiagramEditor.DiagramViewer.DiagramZoomed += new LifeTimeDiagram.DiagramBox.LifeTimeDiagramBox.DiagramZoomedEventHandler(DiagramZoomed);
+            this.Controls.Add(_diagramEditor.DiagramViewer);
+            _diagramEditor.DiagramViewer.SendToBack();
+            _diagramEditor.DiagramViewer.Dock = DockStyle.Fill;
+            _diagramEditor.RequestNewRandomColors = LifeTimeDiagramEditor.DrawNewRandomColor.Yes;
+            _diagramEditor.DiagramViewer.MouseDoubleClick += new MouseEventHandler(DiagramDoubleClick);
+            _diagramEditor.DiagramViewer.DiagramZoomed += new LifeTimeDiagram.DiagramBox.LifeTimeDiagramBox.DiagramZoomedEventHandler(DiagramZoomed);
 
-            DiagramEditor.NewDiagram(null);
+            _diagramEditor.NewDiagram(null);
         }
         
         /// <summary>
@@ -57,7 +61,7 @@ namespace LifeTimeV3.MainUI
         /// </summary>
         private void ShowToolbox()
         {
-            if (!DiagramEditor.GetToolBoxForm().Visible) DiagramEditor.GetToolBoxForm().Show(this);
+            if (!_diagramEditor.GetToolBoxForm().Visible) _diagramEditor.GetToolBoxForm().Show(this);
         }
 
         /// <summary>
@@ -66,11 +70,11 @@ namespace LifeTimeV3.MainUI
         /// <returns></returns>
         private bool CheckForUnsavedChages()
         {
-            if (DiagramEditor.DiagramIsChanged)
+            if (_diagramEditor.DiagramIsChanged)
             {
                 DialogResult r = MessageBox.Show("There are unsaved changes. Would you save the Diagram?", "Unsaved changes", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question);
                 if (r == DialogResult.Cancel) return true;
-                else if (r == DialogResult.Yes) DiagramEditor.SaveDiagram(DiagramEditor.FileName);
+                else if (r == DialogResult.Yes) _diagramEditor.SaveDiagram(_diagramEditor.FileName);
             }
 
             return false;
@@ -85,8 +89,8 @@ namespace LifeTimeV3.MainUI
 
         private void saveToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (DiagramEditor.FileName == null) saveAsToolStripMenuItem_Click(sender, e);                            
-            else DiagramEditor.SaveDiagram(DiagramEditor.FileName);
+            if (_diagramEditor.FileName == null) saveAsToolStripMenuItem_Click(sender, e);                            
+            else _diagramEditor.SaveDiagram(_diagramEditor.FileName);
         }
 
         private void exitToolStripMenuItem_Click(object sender, EventArgs e)
@@ -98,9 +102,9 @@ namespace LifeTimeV3.MainUI
         {
             if(CheckForUnsavedChages()) return;             
             
-            DiagramEditor.NewDiagram(null);
+            _diagramEditor.NewDiagram(null);
 
-            zoomSlider.Value = Convert.ToInt16(DiagramEditor.DiagramViewer.Zoom * 50);
+            zoomSlider.Value = Convert.ToInt16(_diagramEditor.DiagramViewer.Zoom * 50);
 
             ShowToolbox();
         }
@@ -114,9 +118,9 @@ namespace LifeTimeV3.MainUI
                 return;
             }
 
-            DiagramEditor.FileName = SaveLifeTimeFile.FileName;
+            _diagramEditor.FileName = SaveLifeTimeFile.FileName;
 
-            DiagramEditor.SaveDiagram(DiagramEditor.FileName);
+            _diagramEditor.SaveDiagram(_diagramEditor.FileName);
         }
 
         private void openToolStripMenuItem_Click(object sender, EventArgs e)
@@ -128,9 +132,9 @@ namespace LifeTimeV3.MainUI
             if (OpenLifeTimeFile.ShowDialog() != DialogResult.OK)
                 return;
             
-            DiagramEditor.LoadDiagram(OpenLifeTimeFile.FileName);
+            _diagramEditor.LoadDiagram(OpenLifeTimeFile.FileName);
 
-            zoomSlider.Value = Convert.ToInt16(DiagramEditor.DiagramViewer.Zoom * 50);
+            zoomSlider.Value = Convert.ToInt16(_diagramEditor.DiagramViewer.Zoom * 50);
         }
 
         private void toolboxToolStripMenuItem_Click(object sender, EventArgs e)
@@ -152,32 +156,97 @@ namespace LifeTimeV3.MainUI
                     (DateTime.Now - o.Begin).Days.ToString(),
                     (o.GetTimeSpan(LifeTimeDiagramEditor.LifeTimeElement.TimeSpanBase.Days) / 365.0).ToString("F1"),
                     o.GetTimeSpan(LifeTimeDiagramEditor.LifeTimeElement.TimeSpanBase.Days).ToString());
+                
+                ClearAndAddMainMenuElementGenericItems();
 
-                //Update main menu: ELEMENT
-                eLEMENTToolStripMenuItem.DropDownItems.Clear();
+                LifeTimeDiagram.Toolbox.Controls.LifeTimeObjectBrowser.LifeTimeObjectTreeNode t = _diagramEditor.ObjectBrowser.ShowItemInObjectBrowser(o);
 
-                LifeTimeDiagram.Toolbox.Controls.LifeTimeObjectBrowser.LifeTimeObjectTreeNode t = DiagramEditor.ObjectBrowser.ShowItemInObjectBrowser(o);
-
-                if (t != null)                
+                if (t != null)
                     foreach (ToolStripItem i in t.BuildContextMenu(false, true))
                         eLEMENTToolStripMenuItem.DropDownItems.Add(i);
             }
             else
             {
                 toolStripObjectStatusLabel.Text = "";
-                eLEMENTToolStripMenuItem.DropDownItems.Clear();
+
+                ClearAndAddMainMenuElementGenericItems();
             }
+        }
+
+        private void ClearAndAddMainMenuElementGenericItems()
+        {
+            string searchText = eLEMENTToolStripMenuItem.DropDownItems["elementMenuFindElementTextBox"] != null ? 
+                eLEMENTToolStripMenuItem.DropDownItems["elementMenuFindElementTextBox"].Text : "";
+
+            eLEMENTToolStripMenuItem.DropDownItems.Clear();
+
+            ToolStripTextBox tb = new ToolStripTextBox("elementMenuFindElementTextBox");            
+            tb.KeyUp += new KeyEventHandler(elementMenuFindElementTextBox_KeyPress);         
+            eLEMENTToolStripMenuItem.DropDownItems.Add(tb);
+            eLEMENTToolStripMenuItem.DropDownItems.Add(new ToolStripButton(LifeTimeV3TextList.GetText("[219]"), null, elementMenuFindPrevElementButton_Clicked, "elementMenuFindPrevElementButton"));
+            eLEMENTToolStripMenuItem.DropDownItems.Add(new ToolStripButton(LifeTimeV3TextList.GetText("[220]"), null, elementMenuFindNextElementButton_Clicked, "elementMenuFindNextElementButton"));
+
+            eLEMENTToolStripMenuItem.DropDownItems["elementMenuFindElementTextBox"].Text = searchText;
+        }
+
+        private void elementMenuFindElementTextBox_KeyPress(object sender, KeyEventArgs e)
+        {
+            if (e.KeyData == Keys.Enter)
+            {
+                ShowToolbox();
+                _findResults = deepSearchInTreeNodes(_diagramEditor.ObjectBrowser.Nodes, eLEMENTToolStripMenuItem.DropDownItems["elementMenuFindElementTextBox"].Text);
+                _findResultsIndex = 0;
+
+                _diagramEditor.ObjectBrowser.ShowItemInObjectBrowser(_findResults[_findResultsIndex]);
+            }
+        }
+
+        private void elementMenuFindPrevElementButton_Clicked(object sender, EventArgs e)
+        {
+            _findResults = deepSearchInTreeNodes(_diagramEditor.ObjectBrowser.Nodes, eLEMENTToolStripMenuItem.DropDownItems["elementMenuFindElementTextBox"].Text);
+
+            _findResultsIndex--;
+            if (_findResultsIndex < 0)
+                _findResultsIndex = _findResults.Count - 1;
+
+            _diagramEditor.ObjectBrowser.ShowItemInObjectBrowser(_findResults[_findResultsIndex]);
+        }
+
+        private void elementMenuFindNextElementButton_Clicked(object sender, EventArgs e)
+        {
+            _findResults = deepSearchInTreeNodes(_diagramEditor.ObjectBrowser.Nodes, eLEMENTToolStripMenuItem.DropDownItems["elementMenuFindElementTextBox"].Text);
+
+            _findResultsIndex++;
+            if (_findResultsIndex > _findResults.Count - 1)
+                _findResultsIndex = 0;
+            
+            _diagramEditor.ObjectBrowser.ShowItemInObjectBrowser(_findResults[_findResultsIndex]);
+        }
+
+        private List<TreeNode> deepSearchInTreeNodes(TreeNodeCollection treeNodeCollection, string findText)
+        {
+            List<TreeNode> coll = new List<TreeNode>();
+
+            foreach (TreeNode t in treeNodeCollection)
+            {
+                if (t.Text.Contains(findText))
+                    coll.Add(t);                
+
+                coll.AddRange(deepSearchInTreeNodes(t.Nodes, findText));
+            }
+
+            return coll;            
         }
 
         private void DiagramChanged(object sender, EventArgs e)
         {
-            if (DiagramEditor.Diagram != null)
-                Text = $"LifeTimeV3 - {DiagramEditor.FileName}";
+            if (_diagramEditor.Diagram != null)
+                Text = $"LifeTimeV3 - {_diagramEditor.FileName}";
             else
                 Text = $"LifeTimeV3";
 
-            if (DiagramEditor.DiagramIsChanged) toolStripDiagramStatusLabel.Text = LifeTimeV3TextList.GetText("[217]"); //unsaved changes
-            if (!DiagramEditor.DiagramIsChanged) toolStripDiagramStatusLabel.Text = "";
+            if (_diagramEditor.DiagramIsChanged) toolStripDiagramStatusLabel.Text = LifeTimeV3TextList.GetText("[217]"); //unsaved changes
+            if (!_diagramEditor.DiagramIsChanged) toolStripDiagramStatusLabel.Text = "";
         }
 
         private void DiagramDoubleClick(object sender, EventArgs e)
@@ -187,8 +256,8 @@ namespace LifeTimeV3.MainUI
         
         private void resetZoomToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            DiagramEditor.DiagramViewer.Reset();
-            DiagramEditor.DiagramViewer.Refresh();
+            _diagramEditor.DiagramViewer.Reset();
+            _diagramEditor.DiagramViewer.Refresh();
         }
 
         private void DiagramZoomed(object sender, LifeTimeDiagram.DiagramBox.LifeTimeDiagramBox.ZoomEventArgs e)
@@ -199,8 +268,8 @@ namespace LifeTimeV3.MainUI
         private void zoomSlider_Scroll(object sender, EventArgs e)
         {
             if (zoomSlider.Value == 0) zoomSlider.Value = 1;
-            DiagramEditor.DiagramViewer.Zoom = zoomSlider.Value / 50.0f;
-            DiagramEditor.DiagramViewer.Refresh();
+            _diagramEditor.DiagramViewer.Zoom = zoomSlider.Value / 50.0f;
+            _diagramEditor.DiagramViewer.Refresh();
         }       
         #endregion
     }

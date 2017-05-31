@@ -49,9 +49,8 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
         #endregion
 
         #region Constructor
-        public LifeTimeDiagramEditor(MainUI.FormLifeTimeMainUI mainUI)
+        public LifeTimeDiagramEditor()
         {
-
             Diagram = new LifeTimeDiagram();
 
             RequestNewRandomColors = DrawNewRandomColor.Yes;
