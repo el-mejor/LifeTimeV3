@@ -114,7 +114,8 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
                 LifeTimeElement.LifeTimeObjectType[] types = { 
                                                                 LifeTimeElement.LifeTimeObjectType.Marker, 
                                                                 LifeTimeElement.LifeTimeObjectType.TimeSpan, 
-                                                                LifeTimeElement.LifeTimeObjectType.Event 
+                                                                LifeTimeElement.LifeTimeObjectType.Event,
+                                                                LifeTimeElement.LifeTimeObjectType.Text
                                                             };
                 foreach (LifeTimeElement.LifeTimeObjectType type in types) DrawObjectsOfType(type, draw, o, g, components);
             }
@@ -203,6 +204,10 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
                     {
                         return DrawObjectMarker(g, o, components);
                     }
+                    if (o.Type == LifeTimeElement.LifeTimeObjectType.Text)
+                    {
+                        return DrawObjectText(g, o, components);
+                    }
                     return new Rectangle();
                 }
 
@@ -280,16 +285,36 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
                     return new Rectangle(x - 4, 0, 8, Height - Settings.Border);
                 }
 
+                private Rectangle DrawObjectText(Graphics g, LifeTimeElement o, DrawComponent components)
+                {
+                    Int32 x = Settings.Border + o.TextPosX;
+                    Int32 y = Settings.Border + o.TextPosY;
+
+                    if (components == DrawComponent.Label || components == DrawComponent.All)
+                        DrawLabelText(g, o, x, y, Convert.ToSingle(o.Size));
+
+                    return new Rectangle(x - o.Size, y - o.Size, o.Size * 2, o.Size * 2);
+                }
+
                 private void DrawObjectLabel(Graphics g, LifeTimeElement o)
                 {
                     if (o.GetLabel() == "") return;
 
                     Int32 x = GetX(o.Begin);
                     Int32 y = GetY(o.Row) + o.LineDeviation;
+                    DrawLineToLabel(g, o, x, y);
+                    DrawLabelText(g, o, x, y);
+                }
 
+                private void DrawLabelText(Graphics g, LifeTimeElement o, int x, int y, float size = 8.0f)
+                {
+                    g.DrawString(o.GetLabel(), new Font("Arial Narrow", size), new SolidBrush(GetPenColor(o)), x + o.TextPosX, y + o.TextPosY);
+                }
+
+                private void DrawLineToLabel(Graphics g, LifeTimeElement o, int x, int y)
+                {
                     g.DrawLine(new Pen(Settings.LabelColor, 1.0f), x, y, x + o.TextPosX, y + o.TextPosY + 14);
                     g.DrawLine(new Pen(Settings.LabelColor, 1.0f), x + o.TextPosX, y + o.TextPosY + 14, x + o.TextPosX + 20, y + o.TextPosY + 14);
-                    g.DrawString(o.GetLabel(), new Font("Arial Narrow", 8.0f), new SolidBrush(GetPenColor(o)), x + o.TextPosX, y + o.TextPosY);
                 }
 
                 private Pen GetFramePen(LifeTimeElement o)

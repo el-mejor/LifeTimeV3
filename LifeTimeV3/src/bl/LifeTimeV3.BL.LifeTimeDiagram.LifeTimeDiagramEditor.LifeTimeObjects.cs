@@ -94,7 +94,7 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
         public class LifeTimeElement : LifeTimeObjectBase
         {
             #region Enumerators
-            public enum LifeTimeObjectType { TimeSpan, Event, Marker };
+            public enum LifeTimeObjectType { TimeSpan, Event, Marker, Text };
             public enum TimeSpanBase { Minutes, Days };
             #endregion
 
@@ -105,6 +105,8 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
             /// <returns></returns>
             public override List<String> Properties(bool All)
             {
+                //For text elements add/remove some properties (need absolute x,y values instead of times, groups)
+
                 List<String> properties = new List<String>();
 
                 properties.Add("Name");

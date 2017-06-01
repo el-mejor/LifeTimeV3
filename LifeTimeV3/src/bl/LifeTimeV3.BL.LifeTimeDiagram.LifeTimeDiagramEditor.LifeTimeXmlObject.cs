@@ -64,6 +64,7 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
                         if (node.Attributes["Type"].Value == "Marker") type = LifeTimeElement.LifeTimeObjectType.Marker;
                         if (node.Attributes["Type"].Value == "Event") type = LifeTimeElement.LifeTimeObjectType.Event;
                         if (node.Attributes["Type"].Value == "TimeSpan") type = LifeTimeElement.LifeTimeObjectType.TimeSpan;
+                        if (node.Attributes["Type"].Value == "Text") type = LifeTimeElement.LifeTimeObjectType.Text;
 
                         o = new LifeTimeElement(node.Attributes["Name"].Value, type);                        
                         break;

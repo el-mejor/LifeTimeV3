@@ -1010,12 +1010,12 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
 
                 LifeTimeDiagramEditor.LifeTimeElement currObj = _lifeTimeObject as LifeTimeDiagramEditor.LifeTimeElement;
 
-                LoadObjectProperties<LifeTimeDiagramEditor.LifeTimeElement>(currObj);
+                LoadObjectProperties(currObj);
                 currObj.Highlight = true;
 
                 ObjectChangedArgs objChangedArgs = new ObjectChangedArgs();
                 objChangedArgs.DiagramChanged = false;
-                if(ObjectChanged != null) ObjectChanged(currObj, objChangedArgs);
+                ObjectChanged?.Invoke(currObj, objChangedArgs);
             }
             else if (o is LifeTimeDiagramEditor.LifeTimeGroup)
             {
@@ -1023,11 +1023,11 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
 
                 LifeTimeDiagramEditor.LifeTimeGroup currObj = _lifeTimeObject as LifeTimeDiagramEditor.LifeTimeGroup;
 
-                LoadObjectProperties<LifeTimeDiagramEditor.LifeTimeGroup>(currObj);
+                LoadObjectProperties(currObj);
 
                 ObjectChangedArgs objChangedArgs = new ObjectChangedArgs();
                 objChangedArgs.DiagramChanged = false;
-                if (ObjectChanged != null) ObjectChanged(currObj, objChangedArgs);
+                ObjectChanged?.Invoke(currObj, objChangedArgs);
             }
             else if (o is LifeTimeDiagramEditor.LifeTimeDiagramSettings)
             {
@@ -1035,7 +1035,7 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
 
                 LifeTimeDiagramEditor.LifeTimeDiagramSettings currObj = _lifeTimeObject as LifeTimeDiagramEditor.LifeTimeDiagramSettings;
 
-                LoadObjectProperties<LifeTimeDiagramEditor.LifeTimeDiagramSettings>(currObj);
+                LoadObjectProperties(currObj);
             }
             _allowDiagramChanging = true;
         }
@@ -1111,6 +1111,7 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
                 if ((LifeTimeDiagramEditor.LifeTimeElement.LifeTimeObjectType)value == LifeTimeDiagramEditor.LifeTimeElement.LifeTimeObjectType.TimeSpan) d.Text = LifeTimeV3TextList.GetText("[10]");
                 if ((LifeTimeDiagramEditor.LifeTimeElement.LifeTimeObjectType)value == LifeTimeDiagramEditor.LifeTimeElement.LifeTimeObjectType.Event) d.Text = LifeTimeV3TextList.GetText("[11]");
                 if ((LifeTimeDiagramEditor.LifeTimeElement.LifeTimeObjectType)value == LifeTimeDiagramEditor.LifeTimeElement.LifeTimeObjectType.Marker) d.Text = LifeTimeV3TextList.GetText("[12]");
+                if ((LifeTimeDiagramEditor.LifeTimeElement.LifeTimeObjectType)value == LifeTimeDiagramEditor.LifeTimeElement.LifeTimeObjectType.Text) d.Text = LifeTimeV3TextList.GetText("[13]");
 
                 d.TextChanged += new EventHandler(TypeSelectorChanged);
             }
@@ -1206,7 +1207,7 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
                 objChangedArgs.NewColorsRequested = true;
                 objChangedArgs.DiagramChanged = _allowDiagramChanging;
                 objChangedArgs.ObjectChangedByPropertyGrid = true;
-                if (ObjectChanged != null) ObjectChanged(_lifeTimeObject, objChangedArgs);
+                ObjectChanged?.Invoke(_lifeTimeObject, objChangedArgs);
             }
             catch { c.BackColor = ErrorBackColor; }
         }
@@ -1358,6 +1359,7 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
                 this.Items.Add(LifeTimeV3TextList.GetText("[10]")); //TimeSpan
                 this.Items.Add(LifeTimeV3TextList.GetText("[11]")); //Event
                 this.Items.Add(LifeTimeV3TextList.GetText("[12]")); //Marker
+                this.Items.Add(LifeTimeV3TextList.GetText("[13]")); //Text
                 this.AutoCompleteMode = System.Windows.Forms.AutoCompleteMode.SuggestAppend;
                 this.TextChanged += new EventHandler(SelectionChanged);
             }
@@ -1369,6 +1371,7 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
                 if (this.Text == LifeTimeV3TextList.GetText("[10]")) value = LifeTimeDiagramEditor.LifeTimeElement.LifeTimeObjectType.TimeSpan;
                 else if (this.Text == LifeTimeV3TextList.GetText("[11]")) value = LifeTimeDiagramEditor.LifeTimeElement.LifeTimeObjectType.Event;
                 else if (this.Text == LifeTimeV3TextList.GetText("[12]")) value = LifeTimeDiagramEditor.LifeTimeElement.LifeTimeObjectType.Marker;
+                else if (this.Text == LifeTimeV3TextList.GetText("[13]")) value = LifeTimeDiagramEditor.LifeTimeElement.LifeTimeObjectType.Text;
                 else
                 {
                     value = LifeTimeDiagramEditor.LifeTimeElement.LifeTimeObjectType.Event;
