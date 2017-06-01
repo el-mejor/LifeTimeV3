@@ -221,7 +221,15 @@ namespace LifeTimeV3.MainUI
             if (zoomSlider.Value == 0) zoomSlider.Value = 1;
             _diagramEditor.DiagramViewer.Zoom = zoomSlider.Value / 50.0f;
             _diagramEditor.DiagramViewer.Refresh();
-        }       
+        }
         #endregion
+
+        private void FormLifeTimeMainUI_ResizeEnd(object sender, EventArgs e)
+        {
+            if (this.WindowState == FormWindowState.Minimized)
+                _diagramEditor.GetToolBoxForm().WindowState = FormWindowState.Minimized;
+            else
+                _diagramEditor.GetToolBoxForm().WindowState = FormWindowState.Normal;
+        }
     }
 }

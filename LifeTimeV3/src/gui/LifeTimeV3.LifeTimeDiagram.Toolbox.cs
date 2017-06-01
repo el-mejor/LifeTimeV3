@@ -35,7 +35,7 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox
             this.Font = new Font("Arial", 8.0f);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.SizableToolWindow;
             //this.ControlBox = false;
-            this.TopMost = true;
+            this.TopMost = false;
             this.Width = 350; this.Height = 700;
             this.StartPosition = FormStartPosition.Manual;
             this.ShowInTaskbar = false;

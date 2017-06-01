@@ -220,6 +220,7 @@
             this.Name = "FormLifeTimeMainUI";
             this.Text = "LifeTimeV3";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.FormLifeTimeUI_FormClosing);
+            this.ResizeEnd += new System.EventHandler(this.FormLifeTimeMainUI_ResizeEnd);
             this.menuStrip1.ResumeLayout(false);
             this.menuStrip1.PerformLayout();
             this.statusStrip1.ResumeLayout(false);
