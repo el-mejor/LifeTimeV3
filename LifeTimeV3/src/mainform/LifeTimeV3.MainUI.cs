@@ -10,8 +10,7 @@ namespace LifeTimeV3.MainUI
     public partial class  FormLifeTimeMainUI : Form
     {
         #region Fields
-        private LifeTimeDiagramEditor _diagramEditor;        
-        private int _findResultsIndex;
+        private LifeTimeDiagramEditor _diagramEditor;                
         #endregion
 
         #region constructor
@@ -173,56 +172,10 @@ namespace LifeTimeV3.MainUI
         }
 
         private void ClearAndAddMainMenuElementGenericItems()
-        {
-            string searchText = eLEMENTToolStripMenuItem.DropDownItems["elementMenuFindElementTextBox"] != null ? 
-                eLEMENTToolStripMenuItem.DropDownItems["elementMenuFindElementTextBox"].Text : "";
-
-            eLEMENTToolStripMenuItem.DropDownItems.Clear();
-
-            ToolStripTextBox tb = new ToolStripTextBox("elementMenuFindElementTextBox");            
-            tb.KeyUp += new KeyEventHandler(elementMenuFindElementTextBox_KeyPress);         
-            eLEMENTToolStripMenuItem.DropDownItems.Add(tb);
-            eLEMENTToolStripMenuItem.DropDownItems.Add(new ToolStripButton(LifeTimeV3TextList.GetText("[219]"), null, elementMenuFindPrevElementButton_Clicked, "elementMenuFindPrevElementButton"));
-            eLEMENTToolStripMenuItem.DropDownItems.Add(new ToolStripButton(LifeTimeV3TextList.GetText("[220]"), null, elementMenuFindNextElementButton_Clicked, "elementMenuFindNextElementButton"));
-
-            eLEMENTToolStripMenuItem.DropDownItems["elementMenuFindElementTextBox"].Text = searchText;
+        {            
+            eLEMENTToolStripMenuItem.DropDownItems.Clear();            
         }
-
-        private void elementMenuFindElementTextBox_KeyPress(object sender, KeyEventArgs e)
-        {
-            if (e.KeyData == Keys.Enter)
-            {
-                ShowToolbox();                
-                _findResultsIndex = 0;
-
-                _diagramEditor.ObjectBrowser.ShowItemInObjectBrowser(_diagramEditor.ObjectBrowser.SearchInTreeNodes(eLEMENTToolStripMenuItem.DropDownItems["elementMenuFindElementTextBox"].Text)[_findResultsIndex]);
-            }
-        }
-
-        private void elementMenuFindPrevElementButton_Clicked(object sender, EventArgs e)
-        {
-            FindNextOrPrevious(-1);
-        }
-
-        private void elementMenuFindNextElementButton_Clicked(object sender, EventArgs e)
-        {
-            FindNextOrPrevious(+1);
-        }
-
-        private void FindNextOrPrevious(int n)
-        {
-            List<TreeNode> r = _diagramEditor.ObjectBrowser.SearchInTreeNodes(eLEMENTToolStripMenuItem.DropDownItems["elementMenuFindElementTextBox"].Text);
-
-            _findResultsIndex += n;
-
-            if (_findResultsIndex > r.Count - 1)
-                _findResultsIndex = 0;
-            if (_findResultsIndex < 0)
-                _findResultsIndex = r.Count - 1;
-
-            _diagramEditor.ObjectBrowser.ShowItemInObjectBrowser(r[_findResultsIndex]);
-        }
-
+        
         private void DiagramChanged(object sender, EventArgs e)
         {
             if (_diagramEditor.Diagram != null)

@@ -20,6 +20,9 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
         #region properties
         internal LifeTimeObjectTreeNode SelectedObject
         { get { return _selectedNode; } }
+
+        public LifeTimeFindObjectControl FindObjectControl
+        { get; private set; }
         #endregion
 
         #region fields
@@ -28,6 +31,7 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
         private Dictionary<LifeTimeDiagramEditor.ILifeTimeObject, TreeNode> _treenodesByObject;
         private LifeTimeDiagramEditor.ILifeTimeObject _selectedObject;
         private LifeTimeObjectTreeNode _selectedNode;
+        private int _findResultsIndex;
         #endregion
 
         #region Constructor
@@ -35,6 +39,9 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
         {
             _objectsByIndex = new Dictionary<int, LifeTimeDiagramEditor.ILifeTimeObject>();
             _treenodesByObject = new Dictionary<LifeTimeDiagramEditor.ILifeTimeObject, TreeNode>();
+            FindObjectControl = new LifeTimeFindObjectControl();
+            FindObjectControl.SearchTextChanged += new KeyEventHandler(searchText_Changed);
+            FindObjectControl.FindNextOrPrev += new LifeTimeFindObjectControl.FindEventHandler(FindNextOrPrevious_Clicked);
 
             this.HideSelection = false;
             this.CheckBoxes = true;
@@ -305,6 +312,40 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
                 LifeTimeObject = o;
             }
         }
+        #endregion
+
+        #region event handler
+        private void searchText_Changed(object sender, KeyEventArgs e)
+        {
+            _findResultsIndex = 0;
+            List<TreeNode> r = SearchInTreeNodes(FindObjectControl.SearchText);
+            if (r.Count != 0)
+            {
+                ShowItemInObjectBrowser(r[_findResultsIndex]);
+                FindObjectControl.UpdateStatusLabel(r.Count, _findResultsIndex + 1);
+            }
+            else
+            {
+                FindObjectControl.UpdateStatusLabel(0,0);
+            }
+            
+        }
+
+        private void FindNextOrPrevious_Clicked(object sender, LifeTimeFindObjectControl.FindEventArgs n)
+        {
+            List<TreeNode> r = SearchInTreeNodes(FindObjectControl.SearchText);
+
+            _findResultsIndex += n.NextItem;
+
+            if (_findResultsIndex > r.Count - 1)
+                _findResultsIndex = 0;
+            if (_findResultsIndex < 0)
+                _findResultsIndex = r.Count - 1;
+
+            ShowItemInObjectBrowser(r[_findResultsIndex]);
+            FindObjectControl.UpdateStatusLabel(r.Count, _findResultsIndex + 1);
+        }
+
         #endregion
 
         #region LifeTimeObjectTreeNode Class
@@ -800,6 +841,116 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
                 { }
             }
 
+            #endregion
+        }
+        #endregion
+
+        #region Find Objects Class
+        public class LifeTimeFindObjectControl: TableLayoutPanel
+        {
+            #region Properties    
+            public string SearchText
+            { get; private set; } 
+            #endregion
+
+            #region constructor
+            public LifeTimeFindObjectControl() : base()
+            {
+                RowCount = 2;
+                ColumnCount = 3;
+
+                TextBox searchText = new TextBox();                
+                searchText.Name = "searchText";
+                searchText.Dock = DockStyle.Fill;
+                searchText.KeyUp += new KeyEventHandler(searchTextBox_KeyPressed);
+                Controls.Add(searchText);
+                SetColumn(searchText, 1);
+                SetRow(searchText, 1);
+                SetColumnSpan(searchText, 3);
+
+                Button fndPrv = new Button();
+                fndPrv.Name = "fndPrv";
+                fndPrv.Text = LifeTimeV3TextList.GetText("[219]");
+                fndPrv.Click += new EventHandler(fndPrv_Clicked);
+                Controls.Add(fndPrv);
+                SetColumn(fndPrv, 1);
+                SetRow(fndPrv, 2);
+
+                Button fndNxt = new Button();
+                fndNxt.Name = "fndNxt";
+                fndNxt.Text = LifeTimeV3TextList.GetText("[220]");
+                fndNxt.Click += new EventHandler(fndNxt_Clicked);
+                Controls.Add(fndNxt);
+                SetColumn(fndNxt, 2);
+                SetRow(fndNxt, 2);
+
+                Label results = new Label();
+                results.Name = "results";
+                results.Dock = DockStyle.Fill;
+                results.TextAlign = ContentAlignment.MiddleLeft;
+                Controls.Add(results);
+                SetColumn(results, 3);
+                SetRow(results, 2);
+
+                Height = searchText.Height + fndPrv.Height + 18;
+            }
+            #endregion
+
+            #region publics
+            public void UpdateStatusLabel(int resultsCount, int selectedResult)
+            {
+                Label l = (Controls["results"] as Label);
+
+                if (resultsCount == 0)
+                {
+                    l.Text = LifeTimeV3TextList.GetText("[221]");
+                    l.ForeColor = Color.Orange;
+                }
+                else
+                {
+                    l.Text = string.Format(LifeTimeV3TextList.GetText("[222]"), selectedResult, resultsCount);
+                    l.ForeColor = Color.DarkGreen;
+                }
+            }
+            #endregion
+
+            #region privates
+            #endregion
+            
+            #region eventhandler
+            private void fndNxt_Clicked(object sender, EventArgs e)
+            {
+                FindNextOrPrev?.Invoke(this, new FindEventArgs(+1));
+            }
+
+            private void fndPrv_Clicked(object sender, EventArgs e)
+            {
+                FindNextOrPrev?.Invoke(this, new FindEventArgs(-1));
+            }
+
+            private void searchTextBox_KeyPressed(object sender, KeyEventArgs e)
+            {
+                SearchText = (sender as TextBox).Text;
+                SearchTextChanged?.Invoke(this, e);
+            }
+            #endregion
+
+            #region events
+            public event KeyEventHandler SearchTextChanged;
+
+            public delegate void FindEventHandler(object sender, FindEventArgs e);
+
+            public class FindEventArgs : EventArgs
+            {
+                public int NextItem { get; set; }
+
+                public FindEventArgs(int nextItem)
+                {
+                    NextItem = nextItem;
+                }
+            }
+
+            public event FindEventHandler FindNextOrPrev;            
             #endregion
         }
         #endregion

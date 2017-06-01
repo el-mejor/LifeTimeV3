@@ -51,12 +51,9 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox
 
             _split.Panel1.Controls.Add(PropertyGridTab());
 
-            _objectBrowser.Dock = DockStyle.Fill;
-            _objectBrowser.FindObjectControl.Dock = DockStyle.Bottom;
-
-            _split.Panel2.Controls.Add(_objectBrowser);
-            _split.Panel2.Controls.Add(_objectBrowser.FindObjectControl);
+            objectBrowser.Dock = DockStyle.Fill;
             
+            _split.Panel2.Controls.Add(ObjectBrowser());
 
             this.Controls.Add(_split);
 
@@ -91,6 +88,12 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox
             ExpPNGGrid.Controls.Add(_exportGrid);
 
             return tabs;
+        }
+
+        private LifeTimeObjectBrowser ObjectBrowser()
+        {
+            _objectBrowser.Dock = DockStyle.Fill;
+            return _objectBrowser;
         }
         #endregion
 
