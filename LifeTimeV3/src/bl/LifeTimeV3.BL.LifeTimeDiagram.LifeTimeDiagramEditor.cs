@@ -56,8 +56,8 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
             RequestNewRandomColors = DrawNewRandomColor.Yes;
 
             CreateDiagramViewer();
-
-            CreateToolBoxControlls();
+            
+            LoadToolbox();
         }
         #endregion
 
@@ -68,7 +68,7 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
         /// <param name="filename"></param>
         public void LoadDiagram(String filename)
         {            
-            if (_toolbox != null) _toolbox.Close();                
+            if (_toolbox != null) _toolbox.Dispose();                
 
             LifeTimeDiagramFileHandler open = new LifeTimeDiagramFileHandler(filename);            
 
@@ -78,7 +78,7 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
             DiagramViewer.OffsetX = Diagram.Settings.OffsetX;
             DiagramViewer.OffsetY = Diagram.Settings.OffsetY;
 
-            UpdateControls();
+            LoadToolbox();
 
             if (DiagramChanged != null) DiagramChanged(this, null);            
         }
@@ -89,10 +89,10 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
         /// <param name="filename"></param>
         public void NewDiagram(String filename)
         {
-            if (_toolbox != null) _toolbox.Close();
+            if (_toolbox != null) _toolbox.Dispose();
             Diagram = new LifeTimeDiagram();
 
-            UpdateControls();
+            LoadToolbox();
 
             if (DiagramChanged != null) DiagramChanged(this, null);
         }
@@ -144,7 +144,7 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
 
                 if (_currObj != null) PropertyGrid.SetObject(_currObj);
             }
-
+            
             return _toolbox;
         }        
 
@@ -228,6 +228,15 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
         #endregion
 
         #region Private Methods
+        private void LoadToolbox()
+        {
+            if(_toolbox != null && !_toolbox.IsDisposed)
+                _toolbox.Dispose();
+
+            _toolbox = GetToolBoxForm();
+            _toolbox.Visible = false;            
+        }
+
         private static DateTime _addElementAndAddPeriod(LifeTimeElement element, PeriodBaseEnum periodBase, int value, List<LifeTimeElement> l)
         {
             element.Highlight = false;
@@ -326,13 +335,13 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
         #region DiagramViewer / Property Grid / ObjectBrowser Events
         private void ObjectSelectedInObjectBrowser(object sender, LifeTimeObjectBrowser.ItemSelectedArgs e)
         {
-            if (e.LifeTimeObject != null)
+            if (e.Object != null)
             {
-                PropertyGrid.SetObject(e.LifeTimeObject);                
-                if (ObjectSelected != null) ObjectSelected(e.LifeTimeObject, null);
+                PropertyGrid.SetObject(e.Object);
+                ObjectSelected?.Invoke(e.Object, null);
             }
 
-            _currObj = e.LifeTimeObject;
+            _currObj = e.Object;
         }
 
         private void ObjectCollectionChanged(object sender, EventArgs e)
@@ -341,7 +350,7 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
 
             DiagramViewer.Refresh();
 
-            if (DiagramChanged != null) DiagramChanged(this, null);
+            DiagramChanged?.Invoke(this, null);
         }
 
         private void ObjectChanged(object sender, LifeTimeObjectPropertyGrid.ObjectChangedArgs e)
@@ -396,15 +405,13 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
             if (!DiagramViewer.Scaling && !DiagramViewer.Moving) 
             {
                 ILifeTimeObject o = SelectObjectByPosition(e.X, e.Y);
-
-                if (o != null && ObjectSelected != null) ObjectSelected(o, e);
-
+                
                 PropertyGrid.SetObject(o);
 
                 _currObj = o;
 
-                TreeNode t = ObjectBrowser.ShowItemInObjectBrowser(o);                
-
+                TreeNode t = ObjectBrowser.ShowItemInObjectBrowser(o);
+                
                 if (t != null && e.Button == MouseButtons.Right)
                 {
                     DiagramViewer.ContextMenuStrip = t.ContextMenuStrip;

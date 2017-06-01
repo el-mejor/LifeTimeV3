@@ -28,6 +28,7 @@ namespace LifeTimeV3.MainUI
 
             _diagramEditor = new LifeTimeDiagramEditor();
             _diagramEditor.ObjectSelected += new EventHandler(ObjectSelected);
+            _diagramEditor.ObjectBrowser.ItemSelected += new LifeTimeDiagram.Toolbox.Controls.LifeTimeObjectBrowser.ItemSelectedHandler(ObjectSelectedInBrowser);
             _diagramEditor.DiagramChanged += new EventHandler(DiagramChanged);
 
             labelInfo.Visible = false;
@@ -59,7 +60,9 @@ namespace LifeTimeV3.MainUI
         /// </summary>
         private void ShowToolbox()
         {
-            if (!_diagramEditor.GetToolBoxForm().Visible) _diagramEditor.GetToolBoxForm().Show(this);
+            LifeTimeDiagram.Toolbox.LifeTimeToolBoxForm t = _diagramEditor.GetToolBoxForm();
+
+            if (!t.Visible) t.Show(this);
         }
 
         /// <summary>
@@ -140,6 +143,11 @@ namespace LifeTimeV3.MainUI
             ShowToolbox();
         }
 
+        private void ObjectSelectedInBrowser(object sender, LifeTimeDiagram.Toolbox.Controls.LifeTimeObjectBrowser.ItemSelectedArgs e)
+        {
+            ObjectSelected(sender, null);
+        }
+
         private void ObjectSelected(object sender, EventArgs e)
         {
             //ShowToolbox();
@@ -156,18 +164,23 @@ namespace LifeTimeV3.MainUI
                     o.GetTimeSpan(LifeTimeDiagramEditor.LifeTimeElement.TimeSpanBase.Days).ToString());
                 
                 ClearAndAddMainMenuElementGenericItems();
+                
+                if (_diagramEditor.ObjectBrowser.SelectedObject != null)
+                {
+                    eLEMENTToolStripMenuItem.Enabled = true;
+                    eLEMENTToolStripMenuItem.Text = $"ELEMENT \"{_diagramEditor.ObjectBrowser.SelectedObject.Text}\"";
 
-                LifeTimeDiagram.Toolbox.Controls.LifeTimeObjectBrowser.LifeTimeObjectTreeNode t = _diagramEditor.ObjectBrowser.ShowItemInObjectBrowser(o);
-
-                if (t != null)
-                    foreach (ToolStripItem i in t.BuildContextMenu(false, true))
+                    foreach (ToolStripItem i in _diagramEditor.ObjectBrowser.SelectedObject.BuildContextMenu(false, true))
                         eLEMENTToolStripMenuItem.DropDownItems.Add(i);
+                }
             }
             else
             {
                 toolStripObjectStatusLabel.Text = "";
 
                 ClearAndAddMainMenuElementGenericItems();
+
+                eLEMENTToolStripMenuItem.Enabled = false;
             }
         }
 

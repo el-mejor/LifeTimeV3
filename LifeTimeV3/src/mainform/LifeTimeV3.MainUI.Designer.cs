@@ -131,6 +131,7 @@
             // 
             // eLEMENTToolStripMenuItem
             // 
+            this.eLEMENTToolStripMenuItem.Enabled = false;
             this.eLEMENTToolStripMenuItem.Name = "eLEMENTToolStripMenuItem";
             this.eLEMENTToolStripMenuItem.Size = new System.Drawing.Size(70, 20);
             this.eLEMENTToolStripMenuItem.Text = "ELEMENT";
@@ -147,14 +148,14 @@
             // toolboxToolStripMenuItem
             // 
             this.toolboxToolStripMenuItem.Name = "toolboxToolStripMenuItem";
-            this.toolboxToolStripMenuItem.Size = new System.Drawing.Size(137, 22);
+            this.toolboxToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
             this.toolboxToolStripMenuItem.Text = "Toolbox";
             this.toolboxToolStripMenuItem.Click += new System.EventHandler(this.toolboxToolStripMenuItem_Click);
             // 
             // resetZoomToolStripMenuItem
             // 
             this.resetZoomToolStripMenuItem.Name = "resetZoomToolStripMenuItem";
-            this.resetZoomToolStripMenuItem.Size = new System.Drawing.Size(137, 22);
+            this.resetZoomToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
             this.resetZoomToolStripMenuItem.Text = "Reset Zoom";
             this.resetZoomToolStripMenuItem.Click += new System.EventHandler(this.resetZoomToolStripMenuItem_Click);
             // 

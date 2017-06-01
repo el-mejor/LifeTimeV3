@@ -13,16 +13,14 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox
     /// </summary>
     public class LifeTimeToolBoxForm : Form
     {
-        #region events
-        public event EventHandler ToolBoxOpened;
-        public event EventHandler ToolBoxClosed;
+        #region Properties
+        public LifeTimeObjectBrowser ObjectBrowser { get; private set; }
         #endregion
 
         #region Fields
         private LifeTimeObjectPropertyGrid _propertyGrid { get; set; }
         private LifeTimeObjectPropertyGrid _settingsGrid { get; set; }
-        private LifeTimeExportPNGPropertyGrid _exportGrid { get; set; }
-        private LifeTimeObjectBrowser _objectBrowser { get; set; }
+        private LifeTimeExportPNGPropertyGrid _exportGrid { get; set; }        
         #endregion
 
         #region constructor
@@ -31,7 +29,7 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox
             _propertyGrid = propertyGrid;
             _settingsGrid = settingsGrid;
             _exportGrid = exportGrid;
-            _objectBrowser = objectBrowser;
+            ObjectBrowser = objectBrowser;
 
             this.Text = LifeTimeV3TextList.GetText("[213]"); //Toolbox
             this.Font = new Font("Arial", 8.0f);
@@ -41,6 +39,7 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox
             this.Width = 350; this.Height = 700;
             this.StartPosition = FormStartPosition.Manual;
             this.ShowInTaskbar = false;
+            this.FormClosing += new FormClosingEventHandler(Toolbox_Closing);
 
             _propertyGrid.Dock = DockStyle.Fill;
             _propertyGrid.SetObject(null);
@@ -51,11 +50,11 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox
 
             _split.Panel1.Controls.Add(PropertyGridTab());
 
-            _objectBrowser.Dock = DockStyle.Fill;
-            _objectBrowser.FindObjectControl.Dock = DockStyle.Bottom;
+            ObjectBrowser.Dock = DockStyle.Fill;
+            ObjectBrowser.FindObjectControl.Dock = DockStyle.Bottom;
 
-            _split.Panel2.Controls.Add(_objectBrowser);
-            _split.Panel2.Controls.Add(_objectBrowser.FindObjectControl);
+            _split.Panel2.Controls.Add(ObjectBrowser);
+            _split.Panel2.Controls.Add(ObjectBrowser.FindObjectControl);
             
 
             this.Controls.Add(_split);
@@ -94,28 +93,12 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox
         }
         #endregion
 
-        private void InitializeComponent()
+        #region eventhandler
+        private void Toolbox_Closing(object sender, FormClosingEventArgs e)
         {
-            this.SuspendLayout();
-            // 
-            // LifeTimeToolBoxForm
-            // 
-            this.ClientSize = new System.Drawing.Size(284, 262);
-            this.Name = "LifeTimeToolBoxForm";
-            this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.LifeTimeToolBoxForm_FormClosed);
-            this.Shown += new System.EventHandler(this.LifeTimeToolBoxForm_Shown);
-            this.ResumeLayout(false);
-
+            Visible = false;
+            e.Cancel = true;            
         }
-
-        private void LifeTimeToolBoxForm_Shown(object sender, System.EventArgs e)
-        {
-            if (ToolBoxOpened != null) ToolBoxOpened.Invoke(this, null);
-        }
-
-        private void LifeTimeToolBoxForm_FormClosed(object sender, FormClosedEventArgs e)
-        {
-            if (ToolBoxClosed != null) ToolBoxClosed.Invoke(this, null);
-        }
-    }    
+        #endregion
+    }
 }

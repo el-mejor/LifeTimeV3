@@ -19,7 +19,7 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
     {
         #region properties
         internal LifeTimeObjectTreeNode SelectedObject
-        { get { return _selectedNode; } }
+        { get; private set; }
 
         public LifeTimeFindObjectControl FindObjectControl
         { get; private set; }
@@ -124,6 +124,11 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
 
             if (t != null) ShowItemInObjectBrowser(t);
 
+            SelectedObject = t as LifeTimeObjectTreeNode;
+
+            ItemSelectedArgs args = new ItemSelectedArgs(o);
+            ItemSelected?.Invoke(this, args);
+            
             return t as LifeTimeObjectTreeNode;
         }
 
@@ -251,10 +256,28 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
             foreach (LifeTimeObjectTreeNode _n in n.Nodes)
                 UpdateTreeViewDeep(_n);
         }
+        #endregion
 
+        #region events
+        public delegate void ItemSelectedHandler(object sender, ItemSelectedArgs e);
+        public event ItemSelectedHandler ItemSelected;        
+        public event EventHandler ObjectCollectionChanged;
+
+        public class ItemSelectedArgs
+        {
+            public LifeTimeDiagramEditor.ILifeTimeObject Object { get; private set; }
+            public ItemSelectedArgs(LifeTimeDiagramEditor.ILifeTimeObject o)
+            {
+                Object = o;                
+            }
+        }
+        #endregion
+
+        #region event handler
         private void TreeViewObjectSelected(object sender, TreeViewEventArgs e)
         {
             TreeNode n = this.SelectedNode;
+            SelectedObject = n as LifeTimeObjectTreeNode;
 
             this.ContextMenuStrip = n.ContextMenuStrip;
 
@@ -263,13 +286,13 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
             _objectsByIndex.TryGetValue(Convert.ToInt16(n.Name), out o);
 
             ItemSelectedArgs args = new ItemSelectedArgs(o);
-
             if (ItemSelected != null && o != null) this.ItemSelected(this, args);
         }
 
         private void NodeChangedEvent(object sender, LifeTimeObjectTreeNode.NodeChangedEventArgs e)
         {
             LifeTimeObjectTreeNode t = sender as LifeTimeObjectTreeNode;
+            SelectedObject = t;
             _selectedObject = e.NewObject;
 
             UpdateObjectBrowser(_root);
@@ -296,25 +319,7 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
                 if (ObjectCollectionChanged != null) ObjectCollectionChanged(n.Object, e);
             }
         }
-        #endregion
 
-        #region events
-        public delegate void ItemSelectedHandler(object sender, ItemSelectedArgs e);
-        public event ItemSelectedHandler ItemSelected;        
-        public event EventHandler ObjectCollectionChanged;
-
-        public class ItemSelectedArgs
-        {
-            public LifeTimeDiagramEditor.ILifeTimeObject LifeTimeObject { get; private set; }
-
-            public ItemSelectedArgs(LifeTimeDiagramEditor.ILifeTimeObject o)
-            {
-                LifeTimeObject = o;
-            }
-        }
-        #endregion
-
-        #region event handler
         private void searchText_Changed(object sender, KeyEventArgs e)
         {
             _findResultsIndex = 0;
