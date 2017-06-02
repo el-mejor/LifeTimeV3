@@ -472,8 +472,9 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
         {
             ExportPNG(Diagram.ExportSettings.FileName, Diagram.ExportSettings.Width, Diagram.ExportSettings.Height);
         }
-        #endregion       
+        #endregion
 
+        #region Move Object Helping class
         private class MoveObject
         {
             public LifeTimeElement Object;
@@ -519,5 +520,6 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
                 _editorInstance.DiagramViewer.Refresh();
             }
         }
+        #endregion
     }
 }

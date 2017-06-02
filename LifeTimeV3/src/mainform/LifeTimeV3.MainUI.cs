@@ -25,6 +25,7 @@ namespace LifeTimeV3.MainUI
             saveToolStripMenuItem.Text = LifeTimeV3TextList.GetText(saveToolStripMenuItem.Text);
             saveAsToolStripMenuItem.Text = LifeTimeV3TextList.GetText(saveAsToolStripMenuItem.Text);
             exitToolStripMenuItem.Text = LifeTimeV3TextList.GetText(exitToolStripMenuItem.Text);
+            toolStripMenuItemSwitchLang.Text = LifeTimeV3TextList.GetText(toolStripMenuItemSwitchLang.Text);
 
             _diagramEditor = new LifeTimeDiagramEditor();
             _diagramEditor.ObjectSelected += new EventHandler(ObjectSelected);
@@ -222,7 +223,6 @@ namespace LifeTimeV3.MainUI
             _diagramEditor.DiagramViewer.Zoom = zoomSlider.Value / 50.0f;
             _diagramEditor.DiagramViewer.Refresh();
         }
-        #endregion
 
         private void FormLifeTimeMainUI_ResizeEnd(object sender, EventArgs e)
         {
@@ -231,5 +231,26 @@ namespace LifeTimeV3.MainUI
             else
                 _diagramEditor.GetToolBoxForm().WindowState = FormWindowState.Normal;
         }
+
+        private void toolStripMenuItemSwitchLang_Click(object sender, EventArgs e)
+        {        
+
+            DialogResult r = MessageBox.Show(LifeTimeV3TextList.GetText("[224]"), LifeTimeV3TextList.GetText("[223]"), MessageBoxButtons.OKCancel, MessageBoxIcon.Information);
+            if (r == DialogResult.OK)
+            {
+                if (Properties.Settings.Default.Language == "DE")
+                    Properties.Settings.Default.Language = "EN";
+                else
+                    Properties.Settings.Default.Language = "DE";
+
+                Properties.Settings.Default.Save();
+
+                Close();
+            }
+        }
+
+        #endregion
+
+
     }
 }

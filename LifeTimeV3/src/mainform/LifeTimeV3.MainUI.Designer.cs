@@ -47,6 +47,7 @@
             this.toolStripObjectStatusLabel = new System.Windows.Forms.ToolStripStatusLabel();
             this.zoomSlider = new System.Windows.Forms.TrackBar();
             this.labelInfo = new System.Windows.Forms.Label();
+            this.toolStripMenuItemSwitchLang = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1.SuspendLayout();
             this.statusStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.zoomSlider)).BeginInit();
@@ -140,7 +141,8 @@
             // 
             this.eXTRASToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.toolboxToolStripMenuItem,
-            this.resetZoomToolStripMenuItem});
+            this.resetZoomToolStripMenuItem,
+            this.toolStripMenuItemSwitchLang});
             this.eXTRASToolStripMenuItem.Name = "eXTRASToolStripMenuItem";
             this.eXTRASToolStripMenuItem.Size = new System.Drawing.Size(59, 20);
             this.eXTRASToolStripMenuItem.Text = "EDITOR";
@@ -206,6 +208,13 @@
             this.labelInfo.TabIndex = 3;
             this.labelInfo.Text = "[]";
             // 
+            // toolStripMenuItemSwitchLang
+            // 
+            this.toolStripMenuItemSwitchLang.Name = "toolStripMenuItemSwitchLang";
+            this.toolStripMenuItemSwitchLang.Size = new System.Drawing.Size(152, 22);
+            this.toolStripMenuItemSwitchLang.Text = "[223]";
+            this.toolStripMenuItemSwitchLang.Click += new System.EventHandler(this.toolStripMenuItemSwitchLang_Click);
+            // 
             // FormLifeTimeMainUI
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -252,6 +261,7 @@
         private System.Windows.Forms.TrackBar zoomSlider;
         internal System.Windows.Forms.ToolStripMenuItem eLEMENTToolStripMenuItem;
         private System.Windows.Forms.Label labelInfo;
+        private System.Windows.Forms.ToolStripMenuItem toolStripMenuItemSwitchLang;
     }
 }
 

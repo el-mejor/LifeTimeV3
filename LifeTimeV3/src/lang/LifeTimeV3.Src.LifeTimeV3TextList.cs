@@ -60,6 +60,8 @@ namespace LifeTimeV3.Src
                               "[220]", "Nächstes",
                               "[221]", "nichts gefunden",
                               "[222]", "Ergebnis {0} von {1}",
+                              "[223]", "Switch to english",
+                              "[224]", "To switch language LifeTimeV3 needs to be closed.",
 
                               "[300]", "Soll das ausgewählte Element \"{0}\" wirklich gelöscht werden?",
                               "[301]", "Soll die ausgewählte Gruppe \"{0}\" wirklich gelöscht werden? Alle darin befindlichen Elemente und Gruppen gehen dabei verloren!",
@@ -162,6 +164,8 @@ namespace LifeTimeV3.Src
                               "[220]", "Next",
                               "[221]", "not found",
                               "[222]", "Result {0} of {1}",
+                              "[223]", "Switch to german",                              
+                              "[224]", "To switch language LifeTimeV3 needs to be closed.",
 
                               "[300]", "Would you really delete the element \"{0}\"?",
                               "[301]", "Would you really delete the group \"{0}\"? All containing elements and groups will be lost!",
