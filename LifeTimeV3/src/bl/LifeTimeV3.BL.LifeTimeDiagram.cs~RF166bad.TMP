@@ -19,10 +19,10 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
 
             #region Properties
             //Basics
-            public string Name { get; set; }
-            public string Description { get; set; }
-            public string FileName { get; set; }
-            public bool Changed { get; set; }
+            public String Name { get; set; }
+            public String Description { get; set; }
+            public String FileName { get; set; }
+            public Boolean Changed { get; set; }
             public Dictionary<Rectangle, LifeTimeElement> ObjectFences = new Dictionary<Rectangle, LifeTimeElement>();
 
             //Elements
@@ -73,7 +73,6 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
                     if (Settings.DrawShadows) DrawDiagramComponent(draw, o, g, rndColor, DrawComponent.Shadow);
                     DrawDiagramComponent(draw, o, g, rndColor, DrawComponent.Object);
                     DrawDiagramComponent(draw, o, g, rndColor, DrawComponent.Label);
-                    DrawDiagramComponent(draw, o, g, rndColor, DrawComponent.Text);
                 }
                 else
                     DrawDiagramComponent(draw, o, g, rndColor, components);
@@ -130,7 +129,7 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
                     if (!_o.Deleted && _o.Type == type)
                     {
                         fence = draw.DrawObject(g, _o, components);
-                        if (components == DrawComponent.Object || components == DrawComponent.Text)
+                        if (components == DrawComponent.Object)
                             AddObjectFenceToDictionary(fence, _o);
                     }
                 }
@@ -288,40 +287,21 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
 
                 private Rectangle DrawObjectText(Graphics g, LifeTimeElement o, DrawComponent components)
                 {
-                    int x = Settings.Border + o.TextPosX;
-                    int y = Settings.Border + o.TextPosY;
-                    int border = 0;
-                    if (o.TextInBox)
-                        border = 2;
+                    Int32 x = Settings.Border + o.TextPosX;
+                    Int32 y = Settings.Border + o.TextPosY;
 
-                    SizeF s = g.MeasureString(o.Text, new Font("Arial Narrow", Convert.ToSingle(o.Size)));
-                    Rectangle r = new Rectangle(x, y, Convert.ToInt32(s.Width) + 2 * border, Convert.ToInt32(s.Height) + 2 * border);
+                    if (components == DrawComponent.Label || components == DrawComponent.All)
+                        DrawLabelText(g, o, x, y, Convert.ToSingle(o.Size));
 
-                    Color c = Color.FromArgb(Convert.ToInt16(255.0 * o.Opacity),
-                            GetColorOfObject(o).R,
-                            GetColorOfObject(o).G,
-                            GetColorOfObject(o).B);
-
-                    if (components == DrawComponent.Text || components == DrawComponent.All)
-                    {
-                        if (o.TextInBox)
-                        {
-                            g.FillRectangle(new SolidBrush(c), r);
-                            g.DrawRectangle(new Pen(Settings.LabelColor, 1.0f), r);
-                        }
-                        
-                        g.DrawString(o.Text, new Font("Arial Narrow", o.Size), new SolidBrush(GetPenColor(o)), x + border, y + border);
-                    }
-                    
-                    return r;
+                    return new Rectangle(x - o.Size, y - o.Size, o.Size * 2, o.Size * 2);
                 }
 
                 private void DrawObjectLabel(Graphics g, LifeTimeElement o)
                 {
                     if (o.GetLabel() == "") return;
 
-                    int x = GetX(o.Begin);
-                    int y = GetY(o.Row) + o.LineDeviation;
+                    Int32 x = GetX(o.Begin);
+                    Int32 y = GetY(o.Row) + o.LineDeviation;
                     DrawLineToLabel(g, o, x, y);
                     DrawLabelText(g, o, x, y);
                 }
@@ -358,17 +338,17 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
                 #endregion
 
                 #region Math
-                private int GetX(DateTime d)
+                private Int32 GetX(DateTime d)
                 {
                     return Convert.ToInt32(Settings.Border + (d - Settings.Begin).Days * PixelPerDay);
                 }
 
-                private int GetWidth(DateTime begin, DateTime end)
+                private Int32 GetWidth(DateTime begin, DateTime end)
                 {
                     return Convert.ToInt32((end - begin).Days * PixelPerDay);
                 }
 
-                private int GetY(int row)
+                private Int32 GetY(int row)
                 {
                     return Settings.Border + Convert.ToInt32(row / 2.0 * Settings.GroupHeight);
                 }

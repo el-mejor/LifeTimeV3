@@ -77,6 +77,7 @@ namespace LifeTimeV3.Src
                               "[1000]", "Klicken Sie hier um die Toolbox zu öffnen um Elemente hinzuzufügen oder zu bearbeiten.",
                               "[1001]", "Legen Sie in der Toolbox zunächst eine Gruppe an (Rechtsklick auf Root).",
                               "[1002]", "Legen Sie in der Toolbox ein Element an (Rechtsklick auf eine Gruppe).",
+                              "[2000]", "Übernehmen mit Alt+Enter",
 
                               "Name","Name", //LifeTimeObject Properties
                               "Type","Element Typ",
@@ -95,6 +96,8 @@ namespace LifeTimeV3.Src
                               "Size", "Größe",
                               "TextPosX", "Textposition X",
                               "TextPosY", "Textposition Y",
+                              "TextInBox", "Rahmen",
+                              "Text", "Text",
 
                               "GroupColor", "Gruppenfarbe", //LifeTimeGroup Properties
                               "OwnColor", "Eigene Farbe",
@@ -176,6 +179,7 @@ namespace LifeTimeV3.Src
                               "[1000]", "Click here to open the toolbox for adding and editing elements.",                              
                               "[1001]", "Use the toolbox to add a group (right click on the root folder).",
                               "[1002]", "Use the toolbox to add an element (right click on a group folder).",
+                              "[2000]", "Alt+Enter to overtake",                              
 
                               "Name","Name", //LifeTimeObject Properties
                               "Type","Object Type",
@@ -194,6 +198,8 @@ namespace LifeTimeV3.Src
                               "Size", "Size",
                               "TextPosX", "Textposition X",
                               "TextPosY", "Textposition Y",
+                              "TextInBox", "Box",
+                              "Text", "Text",
 
                               "GroupColor", "Group Color", //LifeTimeGroup Properties
                               "OwnColor", "Own Color",           

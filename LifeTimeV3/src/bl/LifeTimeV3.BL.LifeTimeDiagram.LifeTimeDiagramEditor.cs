@@ -16,7 +16,7 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
     public partial class LifeTimeDiagramEditor
     {
         #region enums
-        public enum DrawComponent { Shadow, Object, Label, All }
+        public enum DrawComponent { Shadow, Object, Label, Text, All }
         public enum DrawNewRandomColor { Yes, No }
         public enum DrawStyle { WithShadow, WithoutShadow }
         public enum PeriodBaseEnum { Days, Month, Years };
@@ -45,7 +45,14 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
 
         #region fields        
         private LifeTimeToolBoxForm _toolbox;
-        private ILifeTimeObject _currObj;
+        private ILifeTimeObject CurrentObject;
+        private MoveObject _moveObject;
+        #endregion
+
+        #region events        
+        public event EventHandler ObjectSelected;
+
+        public event EventHandler DiagramChanged;
         #endregion
 
         #region Constructor
@@ -142,7 +149,7 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
                 ObjectBrowser.UpdateObjectBrowser(Diagram.Groups);
                 SettingsGrid.SetObject(Diagram.Settings);
 
-                if (_currObj != null) PropertyGrid.SetObject(_currObj);
+                if (CurrentObject != null) PropertyGrid.SetObject(CurrentObject);
             }
             
             return _toolbox;
@@ -157,7 +164,7 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
         /// <param name="randomcolor"></param>
         /// <param name="drawcomponents"></param>
         /// <param name="style"></param>
-        public void ExportPNG(String filename, int width, int height, 
+        public void ExportPNG(string filename, int width, int height, 
             DrawNewRandomColor randomcolor = DrawNewRandomColor.Yes, DrawComponent drawcomponents = DrawComponent.All, DrawStyle style = DrawStyle.WithShadow)
         {
             LifeTimeDiagramFileHandler export = new LifeTimeDiagramFileHandler(filename);
@@ -177,7 +184,8 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
             LifeTimeElement.LifeTimeObjectType[] types = { 
                                                             LifeTimeElement.LifeTimeObjectType.Event, //giving the order of searching
                                                             LifeTimeElement.LifeTimeObjectType.TimeSpan, 
-                                                            LifeTimeElement.LifeTimeObjectType.Marker 
+                                                            LifeTimeElement.LifeTimeObjectType.Marker,
+                                                            LifeTimeElement.LifeTimeObjectType.Text
                                                         };
 
             foreach (LifeTimeElement.LifeTimeObjectType type in types)
@@ -188,8 +196,6 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
 
             return null; 
         }
-
-
 
         public static List<LifeTimeElement> MultiplyElements(ILifeTimeObject element, PeriodBaseEnum periodBase, int period, int ammount)
         {
@@ -332,7 +338,7 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
         }
         #endregion
 
-        #region DiagramViewer / Property Grid / ObjectBrowser Events
+        #region DiagramViewer / Property Grid / ObjectBrowser Event Handler
         private void ObjectSelectedInObjectBrowser(object sender, LifeTimeObjectBrowser.ItemSelectedArgs e)
         {
             if (e.Object != null)
@@ -341,7 +347,7 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
                 ObjectSelected?.Invoke(e.Object, null);
             }
 
-            _currObj = e.Object;
+            CurrentObject = e.Object;
         }
 
         private void ObjectCollectionChanged(object sender, EventArgs e)
@@ -393,39 +399,74 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
 
         private void diagramViewer_MouseDown(object sender, MouseEventArgs e)
         {
-            DiagramViewer.ContextMenuStrip = null;
-            DiagramViewer.BeginMouse(e);
+            //DiagramViewer.ContextMenuStrip = null;
+
+            ILifeTimeObject o = SelectObjectByPosition(e.X, e.Y);
+
+            if (o == null || (!(o is LifeTimeElement) || (o as LifeTimeElement).Type != LifeTimeElement.LifeTimeObjectType.Text))
+                DiagramViewer.BeginMouse(e);
+            else
+            {
+                _moveObject = new MoveObject(this, o as LifeTimeElement, DiagramViewer.Zoom);
+                _moveObject.MoveObjectBegin(e);
+            }
         }
 
         private void diagramViewer_MouseUp(object sender, MouseEventArgs e)
         {
-            DiagramViewer.EndMouse(e);
-            DiagramViewer.Refresh();
-
-            if (!DiagramViewer.Scaling && !DiagramViewer.Moving) 
+            if (_moveObject == null || _moveObject.Object == null)
             {
-                ILifeTimeObject o = SelectObjectByPosition(e.X, e.Y);
+                DiagramViewer.EndMouse(e);
                 
-                PropertyGrid.SetObject(o);
+                DiagramViewer.Refresh();
 
-                _currObj = o;
+                if (!DiagramViewer.Scaling && !DiagramViewer.Moving)
+                {
+                    ILifeTimeObject o = SelectObjectByPosition(e.X, e.Y);
 
-                TreeNode t = ObjectBrowser.ShowItemInObjectBrowser(o);
-                
+                    PropertyGrid.SetObject(o);
+
+                    CurrentObject = o;
+
+                    TreeNode t = ObjectBrowser.ShowItemInObjectBrowser(o);
+
+                    if (t != null && e.Button == MouseButtons.Right)
+                    {
+                        DiagramViewer.ContextMenuStrip = t.ContextMenuStrip;
+                        DiagramViewer.ContextMenuStrip.Show(Cursor.Position);
+                    }
+                    else if (DiagramViewer.ContextMenuStrip != null) DiagramViewer.ContextMenuStrip.Hide();
+                }
+            }   
+            else
+            {
+                TreeNode t = ObjectBrowser.ShowItemInObjectBrowser(_moveObject.Object);
+
                 if (t != null && e.Button == MouseButtons.Right)
                 {
                     DiagramViewer.ContextMenuStrip = t.ContextMenuStrip;
                     DiagramViewer.ContextMenuStrip.Show(Cursor.Position);
                 }
                 else if (DiagramViewer.ContextMenuStrip != null) DiagramViewer.ContextMenuStrip.Hide();
-            }            
+
+                _moveObject.MoveObjectEnd(e);
+            }        
         }
 
         private void diagramViewer_MouseMove(object sender, MouseEventArgs e)
         {
-            DiagramViewer.MoveMouse(e);
-            DiagramViewer.Refresh();
+            if (_moveObject == null || _moveObject.Object == null)
+            {
+                DiagramViewer.MoveMouse(e);
+                DiagramViewer.Refresh();
+            }
+            else
+            {
+                _moveObject.MoveObjectMove(e);
+            }
         }
+
+
 
         private void ExportButtonClick(object sender, EventArgs e)
         {
@@ -433,10 +474,50 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
         }
         #endregion       
 
-        #region EventHandler        
-        public event EventHandler ObjectSelected;
-                
-        public event EventHandler DiagramChanged;
-        #endregion
+        private class MoveObject
+        {
+            public LifeTimeElement Object;
+
+            private LifeTimeDiagramEditor _editorInstance;
+            private int _movingObjectX;
+            private int _movingObjectY;
+            private int _movingObjectOriginX;
+            private int _movingObjectOriginY;
+            private float _currZoom;
+            
+            public MoveObject(LifeTimeDiagramEditor editorInstance, LifeTimeElement obj, float currZoom)
+            {
+                _editorInstance = editorInstance;
+                Object = obj;
+                _currZoom = currZoom;
+            }
+
+            public void MoveObjectBegin(MouseEventArgs e)
+            {   
+                _movingObjectX = e.X;
+                _movingObjectY = e.Y;
+                _movingObjectOriginX = Object.TextPosX;
+                _movingObjectOriginY = Object.TextPosY;
+            }
+
+            public void MoveObjectMove(MouseEventArgs e)
+            {
+                Object.TextPosX = _movingObjectOriginX + Convert.ToInt32((e.X - _movingObjectX) / _currZoom);
+                Object.TextPosY = _movingObjectOriginY + Convert.ToInt32((e.Y - _movingObjectY) / _currZoom);
+
+                _editorInstance.DiagramViewer.Refresh();
+            }
+
+            public void MoveObjectEnd(MouseEventArgs e)
+            {
+                _editorInstance.CurrentObject = Object;
+                _editorInstance.PropertyGrid.SetObject(_editorInstance.CurrentObject);
+                TreeNode t = _editorInstance.ObjectBrowser.ShowItemInObjectBrowser(_editorInstance.CurrentObject);
+
+                Object = null;
+
+                _editorInstance.DiagramViewer.Refresh();
+            }
+        }
     }
 }

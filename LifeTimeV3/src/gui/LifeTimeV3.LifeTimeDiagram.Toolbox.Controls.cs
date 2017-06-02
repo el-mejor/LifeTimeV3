@@ -54,7 +54,7 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
             this.ImageList.Images.Add(Properties.Resources._timespan); //1
             this.ImageList.Images.Add(Properties.Resources._marker); //2
             this.ImageList.Images.Add(Properties.Resources._event); //3
-            this.ImageList.Images.Add(Properties.Resources._edit); //4
+            this.ImageList.Images.Add(Properties.Resources._text); //4
 
             this.SelectedImageIndex = 4;
         }
@@ -223,6 +223,7 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
             if (_o.Type == LifeTimeDiagramEditor.LifeTimeElement.LifeTimeObjectType.TimeSpan) objNode.ImageIndex = 1;
             if (_o.Type == LifeTimeDiagramEditor.LifeTimeElement.LifeTimeObjectType.Marker) objNode.ImageIndex = 2;
             if (_o.Type == LifeTimeDiagramEditor.LifeTimeElement.LifeTimeObjectType.Event) objNode.ImageIndex = 3;
+            if (_o.Type == LifeTimeDiagramEditor.LifeTimeElement.LifeTimeObjectType.Text) objNode.ImageIndex = 4;
 
             objNode.SelectedImageIndex = objNode.ImageIndex;
 
@@ -250,6 +251,8 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
                     n.ImageIndex = 2;
                 if (o.Type == LifeTimeDiagramEditor.LifeTimeElement.LifeTimeObjectType.Event && n.ImageIndex != 3)
                     n.ImageIndex = 3;
+                if (o.Type == LifeTimeDiagramEditor.LifeTimeElement.LifeTimeObjectType.Text && n.ImageIndex != 4)
+                    n.ImageIndex = 4;
             }
 
 
@@ -1066,7 +1069,7 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
             int r = 0;
 
             _allowDiagramChanging = false;
-            foreach (String name in (o as LifeTimeDiagramEditor.ILifeTimeObject).Properties(false))
+            foreach (string name in (o as LifeTimeDiagramEditor.ILifeTimeObject).Properties(false))
             {
                 object value = t.GetProperty(name).GetValue(o);
 
@@ -1121,6 +1124,10 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
             {
                 c = new AdvancedTextBox();
                 AdvancedTextBox d = c as AdvancedTextBox;
+                if (name == "Text")
+                {
+                    d.EnableMultiline();
+                }
                 d.Name = name;
                 d.Text = (string)value;
 
@@ -1436,30 +1443,49 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
             public Button Button { get; set; }
             #endregion
 
+            #region fields
+            private bool _isMultiLine;
+            #endregion
+
             #region constructor
             public AdvancedTextBox()
             {
+                _isMultiLine = false;
                 Height = 22;
                 TextBox = new TextBox();
-                //Button = new Button();
-                //Button.Width = 20;
-                //Button.TextAlign = ContentAlignment.TopCenter;
                 TextBox.Dock = DockStyle.Fill;
-                //Button.Dock = DockStyle.Right;
-                //Controls.Add(Button);
                 Controls.Add(TextBox);
-                //Button.BringToFront();
-                //Button.Text = ">";
-                //Button.Click += new EventHandler(TakeOver);
                 TextBox.PreviewKeyDown += new PreviewKeyDownEventHandler(TakeOver);
+            }
+            #endregion
+
+            #region public methods
+            public void EnableMultiline()
+            {
+                _isMultiLine = true;
+                TextBox.Multiline = true;                                
+                Height = 90;
+
+                Label hint = new Label();                
+                hint.Text = LifeTimeV3TextList.GetText("[2000]");
+                hint.Dock = DockStyle.Bottom;
+                hint.BackColor = Color.LightYellow;
+                hint.ForeColor = Color.DimGray;                                
+
+                Controls.Add(hint);
             }
             #endregion
 
             #region private methods
             private void TakeOver(object sender, PreviewKeyDownEventArgs e)
             {
-                if(e.KeyCode == Keys.Enter)
-                    if(ValueChanged != null) ValueChanged(this, e);
+                if (_isMultiLine && e.KeyCode == Keys.Enter && e.Alt)
+                {
+                    ValueChanged?.Invoke(this, e);                    
+                }
+                else if (!_isMultiLine && e.KeyCode == Keys.Enter)
+                    ValueChanged?.Invoke(this, e);
+                
             }
             #endregion
 

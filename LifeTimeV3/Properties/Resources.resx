@@ -130,6 +130,9 @@
   <data name="_marker" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\_marker.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
+  <data name="_text" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\_text.bmp;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
   <data name="_timespan" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\_timespan.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>

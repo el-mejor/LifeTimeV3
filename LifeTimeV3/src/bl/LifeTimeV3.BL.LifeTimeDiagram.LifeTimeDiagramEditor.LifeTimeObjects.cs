@@ -105,26 +105,26 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
             /// <returns></returns>
             public override List<String> Properties(bool All)
             {
-                //For text elements add/remove some properties (need absolute x,y values instead of times, groups)
-
                 List<String> properties = new List<String>();
 
                 properties.Add("Name");
                 if (All) properties.Add("Enabled");
                 properties.Add("Type");
-                properties.Add("BeginsToday");
-                if (All || !BeginsToday) properties.Add("Begin");
+                if(All || Type != LifeTimeObjectType.Text) properties.Add("BeginsToday");
+                if (All || (!BeginsToday && Type != LifeTimeObjectType.Text)) properties.Add("Begin");
                 if (Type == LifeTimeObjectType.TimeSpan || All) properties.Add("EndsToday");
                 if ((Type == LifeTimeObjectType.TimeSpan && !EndsToday) || All) properties.Add("End");
                 properties.Add("GetRandomColor");
                 if (All || !GetRandomColor) properties.Add("FixedColor");
                 properties.Add("Opacity");
                 if (All || Type != LifeTimeObjectType.Marker) properties.Add("Size");
-                properties.Add("LineDeviation");
+                if (All || Type != LifeTimeObjectType.Text) properties.Add("LineDeviation");
                 properties.Add("TextPosX");
                 properties.Add("TextPosY");
                 if (All) properties.Add("Color");
                 if (All) properties.Add("BaseColor");
+                if (Type == LifeTimeObjectType.Text || All) properties.Add("TextInBox");
+                if (Type == LifeTimeObjectType.Text || All) properties.Add("Text");
 
                 return properties;
             }
@@ -149,7 +149,7 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
                     _type = value;
                 }
             }
-            public Boolean Highlight { get; set; }
+            public bool Highlight { get; set; }
             public DateTime Begin
             {
                 get
@@ -166,8 +166,8 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
                 }
                 set { _end = value; }
             }
-            public Boolean BeginsToday { get; set; }
-            public Boolean EndsToday { get; set; }
+            public bool BeginsToday { get; set; }
+            public bool EndsToday { get; set; }
             public Color BaseColor
             {
                 get
@@ -198,8 +198,8 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
                     CheckColorBehavior();
                 }
             }
-            public Boolean GetRandomColor { get; set; }
-            public Double Opacity
+            public bool GetRandomColor { get; set; }
+            public double Opacity
             {
                 get { return _opacity; }
                 set
@@ -213,6 +213,8 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
             public int Row { get; set; }
             public int TextPosX { get; set; }
             public int TextPosY { get; set; }
+            public bool TextInBox { get; set; }
+            public string Text { get; set; }
             #endregion
 
             #region Fields
@@ -244,7 +246,9 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
                 Size = 10;
                 LineDeviation = 0;
                 TextPosX = 0;
-                TextPosY = -20;
+                TextPosY = Size;
+                Text = "Text";
+                TextInBox = true;
 
                 Objects = new List<LifeTimeElement>();
                 Groups = new List<LifeTimeGroup>();
@@ -271,7 +275,7 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
             /// Returns the elements label, replacing placeholders for duration information. 
             /// </summary>
             /// <returns></returns>
-            public String GetLabel()
+            public string GetLabel()
             {
                 return Name.Replace("##years#", (GetTimeSpan(TimeSpanBase.Days) / 365.0f).ToString("F1"))
                     .Replace("##days#", GetTimeSpan(TimeSpanBase.Days).ToString())
