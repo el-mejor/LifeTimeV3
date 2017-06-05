@@ -26,6 +26,7 @@ namespace LifeTimeV3.MainUI
             saveAsToolStripMenuItem.Text = LifeTimeV3TextList.GetText(saveAsToolStripMenuItem.Text);
             exitToolStripMenuItem.Text = LifeTimeV3TextList.GetText(exitToolStripMenuItem.Text);
             toolStripMenuItemSwitchLang.Text = LifeTimeV3TextList.GetText(toolStripMenuItemSwitchLang.Text);
+            aboutToolStripMenuItem.Text = LifeTimeV3TextList.GetText(aboutToolStripMenuItem.Text);
 
             _diagramEditor = new LifeTimeDiagramEditor();
             _diagramEditor.ObjectSelected += new EventHandler(ObjectSelected);
@@ -247,6 +248,12 @@ namespace LifeTimeV3.MainUI
 
                 Close();
             }
+        }
+
+        private void aboutToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            LifeTimeV3AboutDlg about = new LifeTimeV3AboutDlg();
+            about.ShowDialog();
         }
 
         #endregion

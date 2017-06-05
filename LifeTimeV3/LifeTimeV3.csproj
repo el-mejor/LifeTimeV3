@@ -74,6 +74,12 @@
     <Compile Include="src\gui\LifeTimeV3.LifeTimeDiagram.Toolbox.Controls.cs">
       <SubType>Component</SubType>
     </Compile>
+    <Compile Include="src\gui\LifeTimeV3.MainUI.AboutDlg.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="src\gui\LifeTimeV3.MainUI.AboutDlg.Designer.cs">
+      <DependentUpon>LifeTimeV3.MainUI.AboutDlg.cs</DependentUpon>
+    </Compile>
     <Compile Include="src\lang\LifeTimeV3.Src.LifeTimeV3TextList.cs" />
     <Compile Include="src\bl\LifeTimeV3.BL.LifeTimeDiagram.cs" />
     <Compile Include="src\bl\LifeTimeV3.BL.LifeTimeDiagram.LifeTimeDiagramEditor.cs" />
@@ -94,6 +100,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="src\gui\LifeTimeV3.LifeTimeDiagram.Toolbox.resx">
       <DependentUpon>LifeTimeV3.LifeTimeDiagram.Toolbox.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="src\gui\LifeTimeV3.MainUI.AboutDlg.resx">
+      <DependentUpon>LifeTimeV3.MainUI.AboutDlg.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="src\mainform\LifeTimeV3.MainUI.resx">
       <DependentUpon>LifeTimeV3.MainUI.cs</DependentUpon>
