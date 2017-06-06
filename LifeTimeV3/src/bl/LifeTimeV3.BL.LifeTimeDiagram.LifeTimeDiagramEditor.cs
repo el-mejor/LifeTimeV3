@@ -39,8 +39,7 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
         public LifeTimeObjectPropertyGrid PropertyGrid;
         public LifeTimeObjectPropertyGrid SettingsGrid;
         public LifeTimeExportPNGPropertyGrid ExportGrid;
-        public LifeTimeObjectBrowser ObjectBrowser;
-        public bool ShowReferenceLine;
+        public LifeTimeObjectBrowser ObjectBrowser;        
         public int ReferenceLine;
         public DateTime ReferenceLineDateTime;
         #endregion
@@ -393,7 +392,7 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
                 DrawStyle.WithShadow);
 
             //draw reference line
-            if (ShowReferenceLine)
+            if (Diagram.Settings.ShowRefLine && ReferenceLine > 0 && ReferenceLine < Diagram.Settings.Width)
                 e.Graphics.DrawLine(new Pen(Color.Black, 1.0f), ReferenceLine, 0, ReferenceLine, Diagram.Settings.Height);
             
             RequestNewRandomColors = DrawNewRandomColor.No;
@@ -475,7 +474,7 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
             }
 
             ReferenceLineDateTime = Diagram.GetDateTimeFromPos(ReferenceLine);
-            if (ShowReferenceLine)
+            if (Diagram.Settings.ShowRefLine && ReferenceLine > 0 && ReferenceLine < Diagram.Settings.Width)
                 MouseMoved?.Invoke(this, e);                  
         }
 

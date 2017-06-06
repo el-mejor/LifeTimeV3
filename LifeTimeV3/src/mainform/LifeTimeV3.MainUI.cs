@@ -261,16 +261,20 @@ namespace LifeTimeV3.MainUI
 
         private void RefLineToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            RefLineToolStripMenuItem.Checked = !RefLineToolStripMenuItem.Checked;
-            _diagramEditor.ShowReferenceLine = RefLineToolStripMenuItem.Checked;
+            RefLineToolStripMenuItem.Checked = !RefLineToolStripMenuItem.Checked;            
             _diagramEditor.Diagram.Settings.ShowRefLine = RefLineToolStripMenuItem.Checked;
         }
 
         private void Mouse_Moved(object sender, MouseEventArgs e)
-        {
-            
-            _toolTip.Show(_diagramEditor.ReferenceLineDateTime.ToShortDateString(), this, e.X, e.Y, 5000);
+        {   
+            _toolTip.Show(_diagramEditor.ReferenceLineDateTime.ToShortDateString(), this, e.X, e.Y, 1000);
         }
+
+        private void eXTRASToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            RefLineToolStripMenuItem.Checked = _diagramEditor.Diagram.Settings.ShowRefLine;
+        }
+
         #endregion
 
 

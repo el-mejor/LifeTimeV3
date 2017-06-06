@@ -151,6 +151,7 @@
             this.eXTRASToolStripMenuItem.Name = "eXTRASToolStripMenuItem";
             this.eXTRASToolStripMenuItem.Size = new System.Drawing.Size(59, 20);
             this.eXTRASToolStripMenuItem.Text = "EDITOR";
+            this.eXTRASToolStripMenuItem.Click += new System.EventHandler(this.eXTRASToolStripMenuItem_Click);
             // 
             // toolboxToolStripMenuItem
             // 
