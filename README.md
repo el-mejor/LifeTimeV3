@@ -1,5 +1,5 @@
 # LifeTimeV3
-Simple create time lines
+Simply draw timelines
 
 To run the program directly start LifeTimeV3.exe in the Release folder.
 

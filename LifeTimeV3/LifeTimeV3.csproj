@@ -164,6 +164,7 @@
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>
+    <None Include="Resources\el-mejor.png" />
     <Content Include="Resources\_text.bmp" />
     <Content Include="SampleDiagrams\Z750.xml" />
   </ItemGroup>
@@ -174,7 +175,9 @@
   </PropertyGroup>
   <PropertyGroup>
     <PreBuildEvent>copy ..\License.md ..\Release
-copy ..\README.md ..\Release</PreBuildEvent>
+copy ..\README.md ..\Release
+copy ..\License.md ..\Debug
+copy ..\README.md ..\Debug</PreBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
