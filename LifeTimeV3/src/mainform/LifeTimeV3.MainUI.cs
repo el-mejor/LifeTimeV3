@@ -10,7 +10,8 @@ namespace LifeTimeV3.MainUI
     public partial class  FormLifeTimeMainUI : Form
     {
         #region Fields
-        private LifeTimeDiagramEditor _diagramEditor;                
+        private LifeTimeDiagramEditor _diagramEditor;
+        private ToolTip _toolTip = new ToolTip();
         #endregion
 
         #region constructor
@@ -27,11 +28,13 @@ namespace LifeTimeV3.MainUI
             exitToolStripMenuItem.Text = LifeTimeV3TextList.GetText(exitToolStripMenuItem.Text);
             toolStripMenuItemSwitchLang.Text = LifeTimeV3TextList.GetText(toolStripMenuItemSwitchLang.Text);
             aboutToolStripMenuItem.Text = LifeTimeV3TextList.GetText(aboutToolStripMenuItem.Text);
+            RefLineToolStripMenuItem.Text = LifeTimeV3TextList.GetText(RefLineToolStripMenuItem.Text);
 
             _diagramEditor = new LifeTimeDiagramEditor();
             _diagramEditor.ObjectSelected += new EventHandler(ObjectSelected);
             _diagramEditor.ObjectBrowser.ItemSelected += new LifeTimeDiagram.Toolbox.Controls.LifeTimeObjectBrowser.ItemSelectedHandler(ObjectSelectedInBrowser);
             _diagramEditor.DiagramChanged += new EventHandler(DiagramChanged);
+            _diagramEditor.MouseMoved += new MouseEventHandler(Mouse_Moved);
 
             labelInfo.Visible = false;
 
@@ -256,6 +259,18 @@ namespace LifeTimeV3.MainUI
             about.ShowDialog();
         }
 
+        private void RefLineToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            RefLineToolStripMenuItem.Checked = !RefLineToolStripMenuItem.Checked;
+            _diagramEditor.ShowReferenceLine = RefLineToolStripMenuItem.Checked;
+            _diagramEditor.Diagram.Settings.ShowRefLine = RefLineToolStripMenuItem.Checked;
+        }
+
+        private void Mouse_Moved(object sender, MouseEventArgs e)
+        {
+            
+            _toolTip.Show(_diagramEditor.ReferenceLineDateTime.ToShortDateString(), this, e.X, e.Y, 5000);
+        }
         #endregion
 
 

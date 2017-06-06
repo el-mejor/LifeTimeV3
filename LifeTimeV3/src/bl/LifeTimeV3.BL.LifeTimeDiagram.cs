@@ -100,6 +100,11 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
 
                 return c;
             }
+            
+            public DateTime GetDateTimeFromPos(int x)
+            {
+                return Settings.Begin.AddDays((Settings.End - Settings.Begin).TotalDays * (Convert.ToDouble(x - Settings.Border) / Convert.ToDouble(Settings.Width - Settings.Border * 2)));
+            }
             #endregion
 
             #region Private Methods
@@ -372,7 +377,6 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
                 {
                     return Settings.Border + Convert.ToInt32(row / 2.0 * Settings.GroupHeight);
                 }
-
 
                 #endregion
 

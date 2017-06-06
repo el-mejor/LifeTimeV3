@@ -35,24 +35,27 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
             set { Diagram.Changed = value; }
         }
         public DrawNewRandomColor RequestNewRandomColors;
-        
         public LifeTimeDiagramBox DiagramViewer;
         public LifeTimeObjectPropertyGrid PropertyGrid;
         public LifeTimeObjectPropertyGrid SettingsGrid;
         public LifeTimeExportPNGPropertyGrid ExportGrid;
         public LifeTimeObjectBrowser ObjectBrowser;
+        public bool ShowReferenceLine;
+        public int ReferenceLine;
+        public DateTime ReferenceLineDateTime;
         #endregion
 
         #region fields        
         private LifeTimeToolBoxForm _toolbox;
         private ILifeTimeObject CurrentObject;
-        private MoveObject _moveObject;
+        private MoveObject _moveObject;        
         #endregion
 
         #region events        
         public event EventHandler ObjectSelected;
 
         public event EventHandler DiagramChanged;
+        public event MouseEventHandler MouseMoved;
         #endregion
 
         #region Constructor
@@ -379,16 +382,20 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
             if (Diagram == null) return;
 
             PictureBox p = sender as PictureBox;
-
+            
             e.Graphics.ScaleTransform(DiagramViewer.Zoom, DiagramViewer.Zoom);
             e.Graphics.TranslateTransform(DiagramViewer.OffsetX, DiagramViewer.OffsetY);
             e.Graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.HighQuality;
-
+            
             Diagram.DrawDiagram(e.Graphics, Diagram.Settings.Width, Diagram.Settings.Height,
                 RequestNewRandomColors,
                 DrawComponent.All,
                 DrawStyle.WithShadow);
 
+            //draw reference line
+            if (ShowReferenceLine)
+                e.Graphics.DrawLine(new Pen(Color.Black, 1.0f), ReferenceLine, 0, ReferenceLine, Diagram.Settings.Height);
+            
             RequestNewRandomColors = DrawNewRandomColor.No;
         }
 
@@ -455,6 +462,8 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
 
         private void diagramViewer_MouseMove(object sender, MouseEventArgs e)
         {
+            ReferenceLine = Convert.ToInt32((e.X / DiagramViewer.Zoom) - Convert.ToInt32(DiagramViewer.OffsetX));
+
             if (_moveObject == null || _moveObject.Object == null)
             {
                 DiagramViewer.MoveMouse(e);
@@ -464,6 +473,10 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
             {
                 _moveObject.MoveObjectMove(e);
             }
+
+            ReferenceLineDateTime = Diagram.GetDateTimeFromPos(ReferenceLine);
+            if (ShowReferenceLine)
+                MouseMoved?.Invoke(this, e);                  
         }
 
 

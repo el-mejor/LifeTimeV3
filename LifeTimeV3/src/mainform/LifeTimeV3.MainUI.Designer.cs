@@ -43,13 +43,14 @@
             this.toolboxToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.resetZoomToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItemSwitchLang = new System.Windows.Forms.ToolStripMenuItem();
+            this.infoToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.aboutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.statusStrip1 = new System.Windows.Forms.StatusStrip();
             this.toolStripDiagramStatusLabel = new System.Windows.Forms.ToolStripStatusLabel();
             this.toolStripObjectStatusLabel = new System.Windows.Forms.ToolStripStatusLabel();
             this.zoomSlider = new System.Windows.Forms.TrackBar();
             this.labelInfo = new System.Windows.Forms.Label();
-            this.infoToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.aboutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.RefLineToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1.SuspendLayout();
             this.statusStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.zoomSlider)).BeginInit();
@@ -143,11 +144,12 @@
             // eXTRASToolStripMenuItem
             // 
             this.eXTRASToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.toolStripMenuItemSwitchLang,
             this.toolboxToolStripMenuItem,
-            this.resetZoomToolStripMenuItem,
-            this.toolStripMenuItemSwitchLang});
+            this.RefLineToolStripMenuItem,
+            this.resetZoomToolStripMenuItem});
             this.eXTRASToolStripMenuItem.Name = "eXTRASToolStripMenuItem";
-            this.eXTRASToolStripMenuItem.Size = new System.Drawing.Size(58, 20);
+            this.eXTRASToolStripMenuItem.Size = new System.Drawing.Size(59, 20);
             this.eXTRASToolStripMenuItem.Text = "EDITOR";
             // 
             // toolboxToolStripMenuItem
@@ -170,6 +172,21 @@
             this.toolStripMenuItemSwitchLang.Size = new System.Drawing.Size(152, 22);
             this.toolStripMenuItemSwitchLang.Text = "[223]";
             this.toolStripMenuItemSwitchLang.Click += new System.EventHandler(this.toolStripMenuItemSwitchLang_Click);
+            // 
+            // infoToolStripMenuItem
+            // 
+            this.infoToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.aboutToolStripMenuItem});
+            this.infoToolStripMenuItem.Name = "infoToolStripMenuItem";
+            this.infoToolStripMenuItem.Size = new System.Drawing.Size(24, 20);
+            this.infoToolStripMenuItem.Text = "?";
+            // 
+            // aboutToolStripMenuItem
+            // 
+            this.aboutToolStripMenuItem.Name = "aboutToolStripMenuItem";
+            this.aboutToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.aboutToolStripMenuItem.Text = "[225]";
+            this.aboutToolStripMenuItem.Click += new System.EventHandler(this.aboutToolStripMenuItem_Click);
             // 
             // statusStrip1
             // 
@@ -218,20 +235,12 @@
             this.labelInfo.TabIndex = 3;
             this.labelInfo.Text = "[]";
             // 
-            // infoToolStripMenuItem
+            // RefLineToolStripMenuItem
             // 
-            this.infoToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.aboutToolStripMenuItem});
-            this.infoToolStripMenuItem.Name = "infoToolStripMenuItem";
-            this.infoToolStripMenuItem.Size = new System.Drawing.Size(24, 20);
-            this.infoToolStripMenuItem.Text = "?";
-            // 
-            // aboutToolStripMenuItem
-            // 
-            this.aboutToolStripMenuItem.Name = "aboutToolStripMenuItem";
-            this.aboutToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
-            this.aboutToolStripMenuItem.Text = "[225]";
-            this.aboutToolStripMenuItem.Click += new System.EventHandler(this.aboutToolStripMenuItem_Click);
+            this.RefLineToolStripMenuItem.Name = "RefLineToolStripMenuItem";
+            this.RefLineToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.RefLineToolStripMenuItem.Text = "[226]";
+            this.RefLineToolStripMenuItem.Click += new System.EventHandler(this.RefLineToolStripMenuItem_Click);
             // 
             // FormLifeTimeMainUI
             // 
@@ -282,6 +291,7 @@
         private System.Windows.Forms.ToolStripMenuItem toolStripMenuItemSwitchLang;
         private System.Windows.Forms.ToolStripMenuItem infoToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem aboutToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem RefLineToolStripMenuItem;
     }
 }
 

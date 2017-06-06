@@ -447,6 +447,7 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
                 properties.Add("DrawShadows");
                 properties.Add("BackColor");
                 properties.Add("LabelColor");
+                if (All) properties.Add("ShowRefLine");
                 return properties;
             }
             public const String XmlNodeNameDefinition = "DiagramSettings";
@@ -472,6 +473,7 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
             public bool DrawShadows { get; set; }
             public Color BackColor { get; set; }
             public Color LabelColor { get; set; }
+            public bool ShowRefLine { get; set; }
             #endregion
 
             #region Constructors

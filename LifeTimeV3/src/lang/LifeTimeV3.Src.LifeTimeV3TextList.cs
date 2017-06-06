@@ -63,6 +63,7 @@ namespace LifeTimeV3.Src
                               "[223]", "Switch to english",
                               "[224]", "To switch language LifeTimeV3 needs to be closed.",
                               "[225]", "Über...",
+                              "[226]", "Hilfsline",
 
                               "[300]", "Soll das ausgewählte Element \"{0}\" wirklich gelöscht werden?",
                               "[301]", "Soll die ausgewählte Gruppe \"{0}\" wirklich gelöscht werden? Alle darin befindlichen Elemente und Gruppen gehen dabei verloren!",
@@ -168,6 +169,7 @@ namespace LifeTimeV3.Src
                               "[223]", "Switch to german",                              
                               "[224]", "To switch language LifeTimeV3 needs to be closed.",
                               "[225]", "About...",
+                              "[226]", "Referenceline",
 
 
                               "[300]", "Would you really delete the element \"{0}\"?",
