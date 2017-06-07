@@ -1111,12 +1111,54 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
                 TypeSelectorBox d = c as TypeSelectorBox;
                 d.Name = name;
 
-                if ((LifeTimeDiagramEditor.LifeTimeElement.LifeTimeObjectType)value == LifeTimeDiagramEditor.LifeTimeElement.LifeTimeObjectType.TimeSpan) d.Text = LifeTimeV3TextList.GetText("[10]");
-                if ((LifeTimeDiagramEditor.LifeTimeElement.LifeTimeObjectType)value == LifeTimeDiagramEditor.LifeTimeElement.LifeTimeObjectType.Event) d.Text = LifeTimeV3TextList.GetText("[11]");
-                if ((LifeTimeDiagramEditor.LifeTimeElement.LifeTimeObjectType)value == LifeTimeDiagramEditor.LifeTimeElement.LifeTimeObjectType.Marker) d.Text = LifeTimeV3TextList.GetText("[12]");
-                if ((LifeTimeDiagramEditor.LifeTimeElement.LifeTimeObjectType)value == LifeTimeDiagramEditor.LifeTimeElement.LifeTimeObjectType.Text) d.Text = LifeTimeV3TextList.GetText("[13]");
+                if ((LifeTimeDiagramEditor.LifeTimeElement.LifeTimeObjectType)value == LifeTimeDiagramEditor.LifeTimeElement.LifeTimeObjectType.TimeSpan)
+                    d.Text = LifeTimeV3TextList.GetText("[10]");
+                if ((LifeTimeDiagramEditor.LifeTimeElement.LifeTimeObjectType)value == LifeTimeDiagramEditor.LifeTimeElement.LifeTimeObjectType.Event)
+                    d.Text = LifeTimeV3TextList.GetText("[11]");
+                if ((LifeTimeDiagramEditor.LifeTimeElement.LifeTimeObjectType)value == LifeTimeDiagramEditor.LifeTimeElement.LifeTimeObjectType.Marker)
+                    d.Text = LifeTimeV3TextList.GetText("[12]");
+                if ((LifeTimeDiagramEditor.LifeTimeElement.LifeTimeObjectType)value == LifeTimeDiagramEditor.LifeTimeElement.LifeTimeObjectType.Text)
+                    d.Text = LifeTimeV3TextList.GetText("[13]");
 
                 d.TextChanged += new EventHandler(TypeSelectorChanged);
+            }
+            #endregion
+            #region BondH
+            else if (value is LifeTimeDiagramEditor.LifeTimeElement.BondPositionsHorizontally)
+            {
+                c = new BondHorSelectorBox();
+                BondHorSelectorBox d = c as BondHorSelectorBox;
+                d.Name = name;
+
+                if ((LifeTimeDiagramEditor.LifeTimeElement.BondPositionsHorizontally)value == LifeTimeDiagramEditor.LifeTimeElement.BondPositionsHorizontally.None)
+                    d.Text = LifeTimeV3TextList.GetText(Enum.GetName(typeof(LifeTimeDiagramEditor.LifeTimeElement.BondPositionsHorizontally), 0));
+                if ((LifeTimeDiagramEditor.LifeTimeElement.BondPositionsHorizontally)value == LifeTimeDiagramEditor.LifeTimeElement.BondPositionsHorizontally.Left)
+                    d.Text = LifeTimeV3TextList.GetText(Enum.GetName(typeof(LifeTimeDiagramEditor.LifeTimeElement.BondPositionsHorizontally), 1));
+                if ((LifeTimeDiagramEditor.LifeTimeElement.BondPositionsHorizontally)value == LifeTimeDiagramEditor.LifeTimeElement.BondPositionsHorizontally.Center)
+                    d.Text = LifeTimeV3TextList.GetText(Enum.GetName(typeof(LifeTimeDiagramEditor.LifeTimeElement.BondPositionsHorizontally), 2));
+                if ((LifeTimeDiagramEditor.LifeTimeElement.BondPositionsHorizontally)value == LifeTimeDiagramEditor.LifeTimeElement.BondPositionsHorizontally.Right)
+                    d.Text = LifeTimeV3TextList.GetText(Enum.GetName(typeof(LifeTimeDiagramEditor.LifeTimeElement.BondPositionsHorizontally), 3));
+
+                d.TextChanged += new EventHandler(BondHorSelectorChanged);
+            }
+            #endregion
+            #region BondV
+            else if (value is LifeTimeDiagramEditor.LifeTimeElement.BondPostionsVertically)
+            {
+                c = new BondVertSelectorBox();
+                BondVertSelectorBox d = c as BondVertSelectorBox;
+                d.Name = name;
+
+                if ((LifeTimeDiagramEditor.LifeTimeElement.BondPostionsVertically)value == LifeTimeDiagramEditor.LifeTimeElement.BondPostionsVertically.None)
+                    d.Text = LifeTimeV3TextList.GetText(Enum.GetName(typeof(LifeTimeDiagramEditor.LifeTimeElement.BondPostionsVertically), 0));
+                if ((LifeTimeDiagramEditor.LifeTimeElement.BondPostionsVertically)value == LifeTimeDiagramEditor.LifeTimeElement.BondPostionsVertically.Top)
+                    d.Text = LifeTimeV3TextList.GetText(Enum.GetName(typeof(LifeTimeDiagramEditor.LifeTimeElement.BondPostionsVertically), 1));
+                if ((LifeTimeDiagramEditor.LifeTimeElement.BondPostionsVertically)value == LifeTimeDiagramEditor.LifeTimeElement.BondPostionsVertically.Middle)
+                    d.Text = LifeTimeV3TextList.GetText(Enum.GetName(typeof(LifeTimeDiagramEditor.LifeTimeElement.BondPostionsVertically), 2));
+                if ((LifeTimeDiagramEditor.LifeTimeElement.BondPostionsVertically)value == LifeTimeDiagramEditor.LifeTimeElement.BondPostionsVertically.Bottom)
+                    d.Text = LifeTimeV3TextList.GetText(Enum.GetName(typeof(LifeTimeDiagramEditor.LifeTimeElement.BondPostionsVertically), 3));
+
+                d.TextChanged += new EventHandler(BondVerSelectorChanged);
             }
             #endregion
             #region TextBox
@@ -1211,6 +1253,41 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
 
                 ObjectChangedArgs objChangedArgs = new ObjectChangedArgs();
                 objChangedArgs.NewColorsRequested = true;
+                objChangedArgs.DiagramChanged = _allowDiagramChanging;
+                objChangedArgs.ObjectChangedByPropertyGrid = true;
+                ObjectChanged?.Invoke(_lifeTimeObject, objChangedArgs);
+            }
+            catch { c.BackColor = ErrorBackColor; }
+        }
+        private void BondHorSelectorChanged(object sender, EventArgs e)
+        {
+            BondHorSelectorBox c = sender as BondHorSelectorBox;
+            c.BackColor = Color.White;
+            try
+            {
+                LifeTimeDiagramEditor.LifeTimeElement o = _lifeTimeObject as LifeTimeDiagramEditor.LifeTimeElement;
+                o.HorizontallyBonding = c.value;
+                SetObject(_lifeTimeObject);
+
+                ObjectChangedArgs objChangedArgs = new ObjectChangedArgs();                
+                objChangedArgs.DiagramChanged = _allowDiagramChanging;
+                objChangedArgs.ObjectChangedByPropertyGrid = true;
+                ObjectChanged?.Invoke(_lifeTimeObject, objChangedArgs);
+            }
+            catch { c.BackColor = ErrorBackColor; }
+        }
+        private void BondVerSelectorChanged(object sender, EventArgs e)
+        {
+            BondVertSelectorBox c = sender as BondVertSelectorBox;
+            c.BackColor = Color.White;
+            try
+            {
+                LifeTimeDiagramEditor.LifeTimeElement o = _lifeTimeObject as LifeTimeDiagramEditor.LifeTimeElement;
+                o.VerticallyBonding = c.value;
+                
+                SetObject(_lifeTimeObject);
+
+                ObjectChangedArgs objChangedArgs = new ObjectChangedArgs();
                 objChangedArgs.DiagramChanged = _allowDiagramChanging;
                 objChangedArgs.ObjectChangedByPropertyGrid = true;
                 ObjectChanged?.Invoke(_lifeTimeObject, objChangedArgs);
@@ -1382,6 +1459,78 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
                 {
                     value = LifeTimeDiagramEditor.LifeTimeElement.LifeTimeObjectType.Event;
                     this.Text = LifeTimeV3TextList.GetText("[11]");
+                }
+            }
+            #endregion
+        }
+
+        public class BondHorSelectorBox : ComboBox
+        {
+            #region properties
+            public LifeTimeDiagramEditor.LifeTimeElement.BondPositionsHorizontally value { get; set; }
+            #endregion
+
+            #region constructor
+            public BondHorSelectorBox()
+            {
+                this.Items.Add(LifeTimeV3TextList.GetText(Enum.GetName(typeof(LifeTimeDiagramEditor.LifeTimeElement.BondPositionsHorizontally), 0)));
+                this.Items.Add(LifeTimeV3TextList.GetText(Enum.GetName(typeof(LifeTimeDiagramEditor.LifeTimeElement.BondPositionsHorizontally), 1)));
+                this.Items.Add(LifeTimeV3TextList.GetText(Enum.GetName(typeof(LifeTimeDiagramEditor.LifeTimeElement.BondPositionsHorizontally), 2)));
+                this.Items.Add(LifeTimeV3TextList.GetText(Enum.GetName(typeof(LifeTimeDiagramEditor.LifeTimeElement.BondPositionsHorizontally), 3)));
+                this.AutoCompleteMode = System.Windows.Forms.AutoCompleteMode.SuggestAppend;
+                this.TextChanged += new EventHandler(SelectionChanged);
+            }
+            #endregion
+
+            #region private methods
+            private void SelectionChanged(object sender, EventArgs e)
+            {
+                if (this.Text == LifeTimeV3TextList.GetText(Enum.GetName(typeof(LifeTimeDiagramEditor.LifeTimeElement.BondPositionsHorizontally), 1)))
+                    value = LifeTimeDiagramEditor.LifeTimeElement.BondPositionsHorizontally.Left;
+                else if (this.Text == LifeTimeV3TextList.GetText(Enum.GetName(typeof(LifeTimeDiagramEditor.LifeTimeElement.BondPositionsHorizontally), 2)))
+                    value = LifeTimeDiagramEditor.LifeTimeElement.BondPositionsHorizontally.Center;
+                else if (this.Text == LifeTimeV3TextList.GetText(Enum.GetName(typeof(LifeTimeDiagramEditor.LifeTimeElement.BondPositionsHorizontally), 3)))
+                    value = LifeTimeDiagramEditor.LifeTimeElement.BondPositionsHorizontally.Right;
+                else
+                {
+                    value = LifeTimeDiagramEditor.LifeTimeElement.BondPositionsHorizontally.None;
+                    this.Text = LifeTimeV3TextList.GetText(Enum.GetName(typeof(LifeTimeDiagramEditor.LifeTimeElement.BondPositionsHorizontally), 0));
+                }
+            }
+            #endregion
+        }
+
+        public class BondVertSelectorBox : ComboBox
+        {
+            #region properties
+            public LifeTimeDiagramEditor.LifeTimeElement.BondPostionsVertically value { get; set; }
+            #endregion
+
+            #region constructor
+            public BondVertSelectorBox()
+            {
+                this.Items.Add(LifeTimeV3TextList.GetText(Enum.GetName(typeof(LifeTimeDiagramEditor.LifeTimeElement.BondPostionsVertically), 0)));
+                this.Items.Add(LifeTimeV3TextList.GetText(Enum.GetName(typeof(LifeTimeDiagramEditor.LifeTimeElement.BondPostionsVertically), 1)));
+                this.Items.Add(LifeTimeV3TextList.GetText(Enum.GetName(typeof(LifeTimeDiagramEditor.LifeTimeElement.BondPostionsVertically), 2)));
+                this.Items.Add(LifeTimeV3TextList.GetText(Enum.GetName(typeof(LifeTimeDiagramEditor.LifeTimeElement.BondPostionsVertically), 3)));
+                this.AutoCompleteMode = System.Windows.Forms.AutoCompleteMode.SuggestAppend;
+                this.TextChanged += new EventHandler(SelectionChanged);
+            }
+            #endregion
+
+            #region private methods
+            private void SelectionChanged(object sender, EventArgs e)
+            {
+                if (this.Text == LifeTimeV3TextList.GetText(Enum.GetName(typeof(LifeTimeDiagramEditor.LifeTimeElement.BondPostionsVertically), 1)))
+                    value = LifeTimeDiagramEditor.LifeTimeElement.BondPostionsVertically.Top;
+                else if (this.Text == LifeTimeV3TextList.GetText(Enum.GetName(typeof(LifeTimeDiagramEditor.LifeTimeElement.BondPostionsVertically), 2)))
+                    value = LifeTimeDiagramEditor.LifeTimeElement.BondPostionsVertically.Middle;
+                else if (this.Text == LifeTimeV3TextList.GetText(Enum.GetName(typeof(LifeTimeDiagramEditor.LifeTimeElement.BondPostionsVertically), 3)))
+                    value = LifeTimeDiagramEditor.LifeTimeElement.BondPostionsVertically.Bottom;
+                else
+                {
+                    value = LifeTimeDiagramEditor.LifeTimeElement.BondPostionsVertically.None;
+                    this.Text = LifeTimeV3TextList.GetText(Enum.GetName(typeof(LifeTimeDiagramEditor.LifeTimeElement.BondPostionsVertically), 0));
                 }
             }
             #endregion

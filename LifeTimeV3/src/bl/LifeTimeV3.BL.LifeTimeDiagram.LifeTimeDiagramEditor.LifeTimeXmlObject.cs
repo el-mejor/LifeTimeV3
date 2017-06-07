@@ -65,8 +65,8 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
                         if (node.Attributes["Type"].Value == "Event") type = LifeTimeElement.LifeTimeObjectType.Event;
                         if (node.Attributes["Type"].Value == "TimeSpan") type = LifeTimeElement.LifeTimeObjectType.TimeSpan;
                         if (node.Attributes["Type"].Value == "Text") type = LifeTimeElement.LifeTimeObjectType.Text;
-
-                        o = new LifeTimeElement(node.Attributes["Name"].Value, type);                        
+                        
+                        o = new LifeTimeElement(node.Attributes["Name"].Value, type);
                         break;
 
                     case LifeTimeGroup.XmlNodeNameDefinition:
@@ -87,7 +87,7 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
 
                 Type t = o.GetType();
 
-                foreach (String property in o.Properties(true))
+                foreach (string property in o.Properties(true))
                 {
                     if (node.Attributes[property] == null) continue;
 
@@ -105,6 +105,28 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
                         t.GetProperty(property).SetValue(o, GetColorFromArgbString(node.Attributes[property].Value));
                     else if (t.GetProperty(property).PropertyType == typeof(DateTime))
                         t.GetProperty(property).SetValue(o, Convert.ToDateTime(node.Attributes[property].Value));
+                    else if (t.GetProperty(property).PropertyType == typeof(LifeTimeElement.BondPositionsHorizontally))
+                    {   
+                        if (node.Attributes[property].Value == Enum.GetName(typeof(LifeTimeElement.BondPositionsHorizontally), 0))
+                            t.GetProperty(property).SetValue(o, 0);
+                        if (node.Attributes[property].Value == Enum.GetName(typeof(LifeTimeElement.BondPositionsHorizontally), 1))
+                            t.GetProperty(property).SetValue(o, 1);
+                        if (node.Attributes[property].Value == Enum.GetName(typeof(LifeTimeElement.BondPositionsHorizontally), 2))
+                            t.GetProperty(property).SetValue(o, 2);
+                        if (node.Attributes[property].Value == Enum.GetName(typeof(LifeTimeElement.BondPositionsHorizontally), 3))
+                            t.GetProperty(property).SetValue(o, 3);
+                    }
+                    else if (t.GetProperty(property).PropertyType == typeof(LifeTimeElement.BondPostionsVertically))
+                    {
+                        if (node.Attributes[property].Value == Enum.GetName(typeof(LifeTimeElement.BondPostionsVertically), 0))
+                            t.GetProperty(property).SetValue(o, 0);
+                        if (node.Attributes[property].Value == Enum.GetName(typeof(LifeTimeElement.BondPostionsVertically), 1))
+                            t.GetProperty(property).SetValue(o, 1);
+                        if (node.Attributes[property].Value == Enum.GetName(typeof(LifeTimeElement.BondPostionsVertically), 2))
+                            t.GetProperty(property).SetValue(o, 2);
+                        if (node.Attributes[property].Value == Enum.GetName(typeof(LifeTimeElement.BondPostionsVertically), 3))
+                            t.GetProperty(property).SetValue(o, 3);
+                    }
                 }
 
                 return o;

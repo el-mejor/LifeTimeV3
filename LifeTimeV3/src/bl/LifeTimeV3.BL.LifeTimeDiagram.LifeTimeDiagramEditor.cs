@@ -100,10 +100,51 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
         {
             if (_toolbox != null) _toolbox.Dispose();
             Diagram = new LifeTimeDiagram();
+            Diagram.Settings.Begin = DateTime.Now.AddYears(-1);
+            Diagram.Settings.End = DateTime.Now;
+            Diagram.Settings.Width = 800;
+            Diagram.Settings.Height = 600;
+            Diagram.Settings.ShowRefLine = true;
+
+            Diagram.Groups.Add(new LifeTimeGroup("Marker", Color.Green));
+            Diagram.Groups.Add(new LifeTimeGroup("MyGroup", Color.Green));
+
+            LifeTimeElement begMarker = new LifeTimeElement("", LifeTimeElement.LifeTimeObjectType.Marker);
+            begMarker.Begin = Diagram.Settings.Begin;
+            begMarker.Name = begMarker.Begin.ToShortDateString();
+
+            LifeTimeElement endMarker = new LifeTimeElement("", LifeTimeElement.LifeTimeObjectType.Marker);
+            endMarker.Begin = Diagram.Settings.End;
+            endMarker.Name = endMarker.Begin.ToShortDateString();
+
+            Diagram.Groups.Groups[0].Add(begMarker);
+            Diagram.Groups.Groups[0].Add(endMarker);
+
+            Diagram.Groups.Groups[1].Add(new LifeTimeElement("Start", LifeTimeElement.LifeTimeObjectType.Event));
+            Diagram.Groups.Groups[1].Objects[0].Begin = Diagram.Settings.Begin;
+            Diagram.Groups.Groups[1].Objects[0].FixedColor = Color.Red;
+
+            LifeTimeElement header = new LifeTimeElement("Header", LifeTimeElement.LifeTimeObjectType.Text);
+            header.Text = "My Diagram";
+            header.HorizontallyBonding = LifeTimeElement.BondPositionsHorizontally.Center;
+            header.VerticallyBonding = LifeTimeElement.BondPostionsVertically.Top;
+            header.TextInBox = true;
+            header.Size = 20;
+            Diagram.Groups.Groups[1].Add(header);
+
+            LifeTimeElement credits = new LifeTimeElement("credits", LifeTimeElement.LifeTimeObjectType.Text);
+            credits.Text = "powered by LifeTimeV3 by Lars Becker" + Environment.NewLine + "https://github.com/el-mejor/LifeTimeV3";
+            credits.HorizontallyBonding = LifeTimeElement.BondPositionsHorizontally.Right;
+            credits.VerticallyBonding = LifeTimeElement.BondPostionsVertically.Bottom;
+            credits.TextInBox = false;
+            credits.Size = 8;
+            Diagram.Groups.Groups[1].Add(credits);
+            
 
             LoadToolbox();
+            GetToolBoxForm().Show();
 
-            if (DiagramChanged != null) DiagramChanged(this, null);
+            DiagramChanged?.Invoke(this, null);
         }
 
         /// <summary>
@@ -393,7 +434,12 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
 
             //draw reference line
             if (Diagram.Settings.ShowRefLine && ReferenceLine > 0 && ReferenceLine < Diagram.Settings.Width)
-                e.Graphics.DrawLine(new Pen(Color.Black, 1.0f), ReferenceLine, 0, ReferenceLine, Diagram.Settings.Height);
+                using (Pen refline = new Pen(Color.Black, 1.0f))
+                {
+                    refline.DashPattern = new float[] { 5.0f, 5.0f };
+                    e.Graphics.DrawLine(refline, ReferenceLine, 0, ReferenceLine, Diagram.Settings.Height);
+                }
+            
             
             RequestNewRandomColors = DrawNewRandomColor.No;
         }

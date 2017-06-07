@@ -103,6 +103,16 @@ namespace LifeTimeV3.Src
                               "TextInBox", "Rahmen",
                               "Text", "Text",
                               "Locked", "Fixiert",
+                              "None", "Ohne",
+                              "Left", "Links",
+                              "Center", "Zentriert",
+                              "Right", "Rechts",
+                              "Top", "Oben",
+                              "Middle", "Mitte",
+                              "Bottom", "Unten",
+                              "HorizontallyBonding", "Ausrichtung H",
+                              "VerticallyBonding", "Ausrichtung V",
+
 
                               "GroupColor", "Gruppenfarbe", //LifeTimeGroup Properties
                               "OwnColor", "Eigene Farbe",
@@ -211,6 +221,16 @@ namespace LifeTimeV3.Src
                               "TextInBox", "Box",
                               "Text", "Text",
                               "Locked", "Locked",
+                              "None", "None",
+                              "Left", "Left",
+                              "Center", "Center",
+                              "Right", "Right",
+                              "Top", "Top",
+                              "Middle", "Middle",
+                              "Bottom", "Bottom",
+                              "HorizontallyBonding", "Bond hor.",
+                              "VerticallyBonding", "Bon vert.",
+
 
                               "GroupColor", "Group Color", //LifeTimeGroup Properties
                               "OwnColor", "Own Color",           

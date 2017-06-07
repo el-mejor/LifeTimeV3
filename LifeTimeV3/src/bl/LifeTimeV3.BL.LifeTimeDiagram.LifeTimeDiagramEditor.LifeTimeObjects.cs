@@ -96,6 +96,8 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
             #region Enumerators
             public enum LifeTimeObjectType { TimeSpan, Event, Marker, Text };
             public enum TimeSpanBase { Minutes, Days };
+            public enum BondPositionsHorizontally { None = 0, Left = 1, Center = 2, Right = 3 }
+            public enum BondPostionsVertically { None = 0, Top = 1, Middle = 2, Bottom = 3}
             #endregion
 
             #region properties
@@ -119,6 +121,8 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
                 properties.Add("Opacity");
                 if (All || Type != LifeTimeObjectType.Marker) properties.Add("Size");
                 if (All || Type != LifeTimeObjectType.Text) properties.Add("LineDeviation");
+                if (Type == LifeTimeObjectType.Text || All) properties.Add("HorizontallyBonding");
+                if (Type == LifeTimeObjectType.Text || All) properties.Add("VerticallyBonding");
                 properties.Add("TextPosX");
                 properties.Add("TextPosY");
                 if (All) properties.Add("Color");
@@ -217,6 +221,8 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
             public bool TextInBox { get; set; }
             public string Text { get; set; }
             public bool Locked { get; set; }
+            public BondPositionsHorizontally HorizontallyBonding { get; set; }
+            public BondPostionsVertically VerticallyBonding { get; set; }
             #endregion
 
             #region Fields
@@ -252,6 +258,8 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
                 Text = "Text";
                 TextInBox = true;
                 Locked = false;
+                HorizontallyBonding = BondPositionsHorizontally.None;
+                VerticallyBonding = BondPostionsVertically.None;
 
                 Objects = new List<LifeTimeElement>();
                 Groups = new List<LifeTimeGroup>();

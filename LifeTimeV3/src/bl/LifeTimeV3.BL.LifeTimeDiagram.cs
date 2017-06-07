@@ -298,13 +298,32 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
 
                 private Rectangle DrawObjectText(Graphics g, LifeTimeElement o, DrawComponent components)
                 {
+                    SizeF s = g.MeasureString(o.Text, new Font("Arial Narrow", Convert.ToSingle(o.Size)));
+
                     int x = Settings.Border + o.TextPosX;
                     int y = Settings.Border + o.TextPosY;
-                    int border = 0;
-                    if (o.TextInBox)
-                        border = 2;
 
-                    SizeF s = g.MeasureString(o.Text, new Font("Arial Narrow", Convert.ToSingle(o.Size)));
+                    if (o.HorizontallyBonding == LifeTimeElement.BondPositionsHorizontally.Left)
+                        x = Settings.Border;
+                    if (o.HorizontallyBonding == LifeTimeElement.BondPositionsHorizontally.Right)
+                        x = Settings.Width - Settings.Border - Convert.ToInt32(s.Width);
+                    if (o.HorizontallyBonding == LifeTimeElement.BondPositionsHorizontally.Center)
+                        x = (Settings.Width / 2) - Convert.ToInt32(s.Width / 2);
+
+                    if (o.VerticallyBonding == LifeTimeElement.BondPostionsVertically.Top)
+                        y = Settings.Border;
+                    if (o.VerticallyBonding == LifeTimeElement.BondPostionsVertically.Bottom)
+                        y = Settings.Height - Settings.Border - Convert.ToInt32(s.Height);
+                    if (o.VerticallyBonding == LifeTimeElement.BondPostionsVertically.Middle)
+                        y = (Settings.Height / 2) - Convert.ToInt32(s.Height / 2);
+
+                    if (o.HorizontallyBonding != LifeTimeElement.BondPositionsHorizontally.None)
+                        o.TextPosX = x - Settings.Border;
+                    if (o.VerticallyBonding != LifeTimeElement.BondPostionsVertically.None)
+                        o.TextPosY = y - Settings.Border;
+
+                    int border = o.TextInBox ? 2 : 0;
+                    
                     Rectangle r = new Rectangle(x, y, Convert.ToInt32(s.Width) + 2 * border, Convert.ToInt32(s.Height) + 2 * border);
 
                     Color c = Color.FromArgb(Convert.ToInt16(255.0 * o.Opacity),
@@ -312,21 +331,21 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
                             GetColorOfObject(o).G,
                             GetColorOfObject(o).B);
 
-                    if ((components == DrawComponent.Shadow || components == DrawComponent.All) && Style == DrawStyle.WithShadow)
-                    {
-                        if (o.TextInBox)
-                        {
-                            g.FillRectangle(new SolidBrush(Color.DarkGray),
-                                r.X + 2, r.Y + 2, r.Width, r.Height);
+                    //if ((components == DrawComponent.Shadow || components == DrawComponent.All) && Style == DrawStyle.WithShadow)
+                    //{
+                    //    if (o.TextInBox)
+                    //    {
+                    //        g.FillRectangle(new SolidBrush(Color.DarkGray),
+                    //            r.X + 2, r.Y + 2, r.Width, r.Height);
 
-                            g.FillRectangle(new SolidBrush(Settings.BackColor),
-                                r);
-                        }
-                        else
-                        {
-                            g.DrawString(o.Text, new Font("Arial Narrow", o.Size), new SolidBrush(Color.DarkGray), x + border + 1, y + border + 1);
-                        }
-                    }
+                    //        g.FillRectangle(new SolidBrush(Settings.BackColor),
+                    //            r);
+                    //    }
+                    //    else
+                    //    {
+                    //        g.DrawString(o.Text, new Font("Arial Narrow", o.Size), new SolidBrush(Color.DarkGray), x + border + 1, y + border + 1);
+                    //    }
+                    //}
 
                     if (components == DrawComponent.Text || components == DrawComponent.All)
                     {
