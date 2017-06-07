@@ -102,6 +102,7 @@ namespace LifeTimeV3.Src
                               "TextPosY", "Textposition Y",
                               "TextInBox", "Rahmen",
                               "Text", "Text",
+                              "Locked", "Fixiert",
 
                               "GroupColor", "Gruppenfarbe", //LifeTimeGroup Properties
                               "OwnColor", "Eigene Farbe",
@@ -209,6 +210,7 @@ namespace LifeTimeV3.Src
                               "TextPosY", "Textposition Y",
                               "TextInBox", "Box",
                               "Text", "Text",
+                              "Locked", "Locked",
 
                               "GroupColor", "Group Color", //LifeTimeGroup Properties
                               "OwnColor", "Own Color",           

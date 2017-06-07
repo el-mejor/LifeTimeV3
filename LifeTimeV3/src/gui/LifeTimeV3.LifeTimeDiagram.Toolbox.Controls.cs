@@ -1162,9 +1162,8 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
                 c = new DateTimePicker();
                 DateTimePicker d = c as DateTimePicker;
                 d.Name = name;
-                d.Value = (DateTime)value;
-
-                d.ValueChanged += new EventHandler(DateTimeChanged);
+                d.Value = (DateTime)value;                
+                d.CloseUp += new EventHandler(DateTimeChanged);                
             }
             #endregion
             #region Color

@@ -124,6 +124,7 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
                 if (All) properties.Add("Color");
                 if (All) properties.Add("BaseColor");
                 if (Type == LifeTimeObjectType.Text || All) properties.Add("TextInBox");
+                if (Type == LifeTimeObjectType.Text || All) properties.Add("Locked");
                 if (Type == LifeTimeObjectType.Text || All) properties.Add("Text");
 
                 return properties;
@@ -215,6 +216,7 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
             public int TextPosY { get; set; }
             public bool TextInBox { get; set; }
             public string Text { get; set; }
+            public bool Locked { get; set; }
             #endregion
 
             #region Fields
@@ -249,6 +251,7 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
                 TextPosY = Size;
                 Text = "Text";
                 TextInBox = true;
+                Locked = false;
 
                 Objects = new List<LifeTimeElement>();
                 Groups = new List<LifeTimeGroup>();

@@ -226,6 +226,8 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
                     {
                         g.FillEllipse(new SolidBrush(Color.DarkGray),
                             x - (o.Size / 2) + 2, y - (o.Size / 2) + 2, o.Size, o.Size);
+                        g.FillEllipse(new SolidBrush(Settings.BackColor),
+                            x - (o.Size / 2), y - (o.Size / 2), o.Size, o.Size);
                     }
 
                     if (components == DrawComponent.Object || components == DrawComponent.All)
@@ -251,6 +253,9 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
                     {
                         g.FillRectangle(new SolidBrush(Color.DarkGray),
                             x + 2, y + 2, GetWidth(o.Begin, o.End), o.Size);
+
+                        g.FillRectangle(new SolidBrush(Settings.BackColor),
+                            x, y, GetWidth(o.Begin, o.End), o.Size);
                     }
 
                     if (components == DrawComponent.Object || components == DrawComponent.All)
@@ -306,6 +311,22 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
                             GetColorOfObject(o).R,
                             GetColorOfObject(o).G,
                             GetColorOfObject(o).B);
+
+                    if ((components == DrawComponent.Shadow || components == DrawComponent.All) && Style == DrawStyle.WithShadow)
+                    {
+                        if (o.TextInBox)
+                        {
+                            g.FillRectangle(new SolidBrush(Color.DarkGray),
+                                r.X + 2, r.Y + 2, r.Width, r.Height);
+
+                            g.FillRectangle(new SolidBrush(Settings.BackColor),
+                                r);
+                        }
+                        else
+                        {
+                            g.DrawString(o.Text, new Font("Arial Narrow", o.Size), new SolidBrush(Color.DarkGray), x + border + 1, y + border + 1);
+                        }
+                    }
 
                     if (components == DrawComponent.Text || components == DrawComponent.All)
                     {

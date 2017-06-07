@@ -409,7 +409,7 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
 
             ILifeTimeObject o = SelectObjectByPosition(e.X, e.Y);
 
-            if (o == null || (!(o is LifeTimeElement) || (o as LifeTimeElement).Type != LifeTimeElement.LifeTimeObjectType.Text))
+            if (o == null || (!(o is LifeTimeElement) || (o as LifeTimeElement).Type != LifeTimeElement.LifeTimeObjectType.Text || (o as LifeTimeElement).Locked))
                 DiagramViewer.BeginMouse(e);
             else
             {
