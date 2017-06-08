@@ -57,7 +57,7 @@ namespace LifeTimeV3.MainUI
             _diagramEditor.DiagramViewer.MouseDoubleClick += new MouseEventHandler(DiagramDoubleClick);
             _diagramEditor.DiagramViewer.DiagramZoomed += new LifeTimeDiagram.DiagramBox.LifeTimeDiagramBox.DiagramZoomedEventHandler(DiagramZoomed);
 
-            _diagramEditor.NewDiagram(null);
+            //_diagramEditor.NewDiagram(null);
         }
         
         /// <summary>

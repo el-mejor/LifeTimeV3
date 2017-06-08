@@ -77,7 +77,7 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
         /// <param name="filename"></param>
         public void LoadDiagram(String filename)
         {            
-            if (_toolbox != null) _toolbox.Dispose();                
+            if (_toolbox != null) _toolbox.Close();                
 
             LifeTimeDiagramFileHandler open = new LifeTimeDiagramFileHandler(filename);            
 
@@ -87,9 +87,9 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
             DiagramViewer.OffsetX = Diagram.Settings.OffsetX;
             DiagramViewer.OffsetY = Diagram.Settings.OffsetY;
 
-            LoadToolbox();
+            LoadToolbox();            
 
-            if (DiagramChanged != null) DiagramChanged(this, null);            
+            DiagramChanged?.Invoke(this, null);
         }
 
         /// <summary>
@@ -98,7 +98,8 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
         /// <param name="filename"></param>
         public void NewDiagram(String filename)
         {
-            if (_toolbox != null) _toolbox.Dispose();
+            if (_toolbox != null) _toolbox.Close();
+
             Diagram = new LifeTimeDiagram();
             Diagram.Settings.Begin = DateTime.Now.AddYears(-1);
             Diagram.Settings.End = DateTime.Now;
@@ -107,28 +108,34 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
             Diagram.Settings.ShowRefLine = true;
 
             Diagram.Groups.Add(new LifeTimeGroup("Marker", Color.Green));
-            Diagram.Groups.Add(new LifeTimeGroup("MyGroup", Color.Green));
+            Diagram.Groups.Add(new LifeTimeGroup("Spacer", Color.Green));
+            Diagram.Groups.Add(new LifeTimeGroup("MyGroup", Color.Blue));
 
             LifeTimeElement begMarker = new LifeTimeElement("", LifeTimeElement.LifeTimeObjectType.Marker);
             begMarker.Begin = Diagram.Settings.Begin;
             begMarker.Name = begMarker.Begin.ToShortDateString();
+            begMarker.FixedColor = Color.Black;
 
             LifeTimeElement endMarker = new LifeTimeElement("", LifeTimeElement.LifeTimeObjectType.Marker);
             endMarker.Begin = Diagram.Settings.End;
             endMarker.Name = endMarker.Begin.ToShortDateString();
+            endMarker.FixedColor = Color.Black;
 
             Diagram.Groups.Groups[0].Add(begMarker);
             Diagram.Groups.Groups[0].Add(endMarker);
 
-            Diagram.Groups.Groups[1].Add(new LifeTimeElement("Start", LifeTimeElement.LifeTimeObjectType.Event));
-            Diagram.Groups.Groups[1].Objects[0].Begin = Diagram.Settings.Begin;
-            Diagram.Groups.Groups[1].Objects[0].FixedColor = Color.Red;
+            Diagram.Groups.Groups[2].Add(new LifeTimeElement("MyElement", LifeTimeElement.LifeTimeObjectType.TimeSpan));
+            Diagram.Groups.Groups[2].Objects[0].Begin = Diagram.Settings.Begin;
+            Diagram.Groups.Groups[2].Objects[0].End = Diagram.Settings.End;
+            Diagram.Groups.Groups[2].Objects[0].FixedColor = Color.Red;
+            Diagram.Groups.Groups[2].Objects[0].GetRandomColor = true;
 
             LifeTimeElement header = new LifeTimeElement("Header", LifeTimeElement.LifeTimeObjectType.Text);
             header.Text = "My Diagram";
             header.HorizontallyBonding = LifeTimeElement.BondPositionsHorizontally.Center;
             header.VerticallyBonding = LifeTimeElement.BondPostionsVertically.Top;
             header.TextInBox = true;
+            header.FixedColor = Color.LightYellow;
             header.Size = 20;
             Diagram.Groups.Groups[1].Add(header);
 
@@ -137,12 +144,11 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
             credits.HorizontallyBonding = LifeTimeElement.BondPositionsHorizontally.Right;
             credits.VerticallyBonding = LifeTimeElement.BondPostionsVertically.Bottom;
             credits.TextInBox = false;
-            credits.Size = 8;
+            credits.Size = 6;
             Diagram.Groups.Groups[1].Add(credits);
             
-
-            LoadToolbox();
-            GetToolBoxForm().Show();
+            
+            LoadToolbox();            
 
             DiagramChanged?.Invoke(this, null);
         }
@@ -280,7 +286,7 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
         private void LoadToolbox()
         {
             if(_toolbox != null && !_toolbox.IsDisposed)
-                _toolbox.Dispose();
+                _toolbox.Close();
 
             _toolbox = GetToolBoxForm();
             _toolbox.Visible = false;            
