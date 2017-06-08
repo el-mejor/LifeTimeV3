@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Drawing;
+using System.Drawing.Printing;
 
 namespace LifeTimeV3.BL.LifeTimeDiagram
 {
@@ -77,6 +78,12 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
                 }
                 else
                     DrawDiagramComponent(draw, o, g, rndColor, components);
+            }
+
+            public void PrintDiagram(PrintDocument prntDoc)
+            {   
+                prntDoc.PrintPage += PrintPage;
+                prntDoc.Print();
             }
 
             /// <summary>
@@ -164,6 +171,18 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
             private void AddObjectFenceToDictionary(Rectangle fence, LifeTimeElement _o)
             {
                 if (!ObjectFences.Keys.Any(n => n == fence)) ObjectFences.Add(fence, _o);
+            }
+
+            private void PrintPage(object sender, PrintPageEventArgs e)
+            {
+                float scaleX = Convert.ToSingle(e.PageBounds.Width) / Convert.ToSingle(Settings.Width);
+                float scaleY = Convert.ToSingle(e.PageBounds.Height) / Convert.ToSingle(Settings.Height);
+                scaleX = scaleX < scaleY ? scaleX : scaleY;
+
+                e.Graphics.ScaleTransform(scaleX, scaleX);
+                e.Graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.HighQuality;
+                e.Graphics.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
+                DrawDiagram(e.Graphics, Settings.Width, Settings.Height, DrawNewRandomColor.No, DrawComponent.All, Settings.DrawShadows ? DrawStyle.WithShadow : DrawStyle.WithoutShadow);
             }
             #endregion
 

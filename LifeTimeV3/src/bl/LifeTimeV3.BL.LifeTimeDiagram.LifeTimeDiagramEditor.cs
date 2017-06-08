@@ -202,7 +202,7 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
             }
             
             return _toolbox;
-        }        
+        }
 
         /// <summary>
         /// Export the LifeTimeDiagram to a PNG file
@@ -425,15 +425,18 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
 
         private void diagramViewer_Paint(object sender, PaintEventArgs e)
         {
-            if (Diagram == null) return;
+            if (Diagram == null) return;            
 
-            PictureBox p = sender as PictureBox;
-            
-            e.Graphics.ScaleTransform(DiagramViewer.Zoom, DiagramViewer.Zoom);
-            e.Graphics.TranslateTransform(DiagramViewer.OffsetX, DiagramViewer.OffsetY);
-            e.Graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.HighQuality;
-            
-            Diagram.DrawDiagram(e.Graphics, Diagram.Settings.Width, Diagram.Settings.Height,
+            GetDiagramGraphic(e.Graphics);
+        }
+
+        private Graphics GetDiagramGraphic(Graphics g)
+        {
+            g.ScaleTransform(DiagramViewer.Zoom, DiagramViewer.Zoom);
+            g.TranslateTransform(DiagramViewer.OffsetX, DiagramViewer.OffsetY);
+            g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.HighQuality;
+
+            Diagram.DrawDiagram(g, Diagram.Settings.Width, Diagram.Settings.Height,
                 RequestNewRandomColors,
                 DrawComponent.All,
                 DrawStyle.WithShadow);
@@ -443,11 +446,13 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
                 using (Pen refline = new Pen(Color.Black, 1.0f))
                 {
                     refline.DashPattern = new float[] { 5.0f, 5.0f };
-                    e.Graphics.DrawLine(refline, ReferenceLine, 0, ReferenceLine, Diagram.Settings.Height);
+                    g.DrawLine(refline, ReferenceLine, 0, ReferenceLine, Diagram.Settings.Height);
                 }
-            
-            
+
+
             RequestNewRandomColors = DrawNewRandomColor.No;
+
+            return g;
         }
 
         private void diagramViewer_Resize(object sender, EventArgs e)

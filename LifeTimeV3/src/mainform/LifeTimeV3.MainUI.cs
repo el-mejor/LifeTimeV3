@@ -4,6 +4,7 @@ using System.Windows.Forms;
 using LifeTimeV3.BL.LifeTimeDiagram;
 using LifeTimeV3.Src;
 using System.Collections.Generic;
+using System.Drawing.Printing;
 
 namespace LifeTimeV3.MainUI
 {
@@ -29,6 +30,7 @@ namespace LifeTimeV3.MainUI
             toolStripMenuItemSwitchLang.Text = LifeTimeV3TextList.GetText(toolStripMenuItemSwitchLang.Text);
             aboutToolStripMenuItem.Text = LifeTimeV3TextList.GetText(aboutToolStripMenuItem.Text);
             RefLineToolStripMenuItem.Text = LifeTimeV3TextList.GetText(RefLineToolStripMenuItem.Text);
+            printToolStripMenuItem.Text = LifeTimeV3TextList.GetText(printToolStripMenuItem.Text);
 
             _diagramEditor = new LifeTimeDiagramEditor();
             _diagramEditor.ObjectSelected += new EventHandler(ObjectSelected);
@@ -275,6 +277,16 @@ namespace LifeTimeV3.MainUI
             RefLineToolStripMenuItem.Checked = _diagramEditor.Diagram.Settings.ShowRefLine;
         }
 
+        private void printToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            PrintDocument prntDoc = new PrintDocument();
+            PrintDialog prntDlg = new PrintDialog();
+            prntDlg.Document = prntDoc;            
+            DialogResult prntDlgRes = prntDlg.ShowDialog();
+            
+            if(prntDlgRes == DialogResult.OK)
+                _diagramEditor.Diagram.PrintDiagram(prntDoc);
+        }
         #endregion
 
 

@@ -197,10 +197,20 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
             {
                 d = diagram;
 
+                float scaleX = Convert.ToSingle(width) / Convert.ToSingle(d.Settings.Width);
+                float scaleY = Convert.ToSingle(height) / Convert.ToSingle(d.Settings.Height);
+
+                scaleX = scaleX < scaleY ? scaleX : scaleY;
+
                 Bitmap b = new Bitmap(width, height);
 
-                d.DrawDiagram(Graphics.FromImage(b), width, height,
-                    LifeTimeDiagramEditor.DrawNewRandomColor.Yes, LifeTimeDiagramEditor.DrawComponent.All, LifeTimeDiagramEditor.DrawStyle.WithShadow);
+                Graphics g = Graphics.FromImage(b);
+                g.ScaleTransform(scaleX, scaleX);
+                g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.HighQuality;
+                g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
+
+                d.DrawDiagram(g, d.Settings.Width, d.Settings.Height,
+                    DrawNewRandomColor.Yes, DrawComponent.All, d.Settings.DrawShadows ? DrawStyle.WithShadow : DrawStyle.WithoutShadow);
 
                 b.Save(FileName, System.Drawing.Imaging.ImageFormat.Png);
             }
