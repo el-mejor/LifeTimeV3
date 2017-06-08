@@ -1205,7 +1205,8 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
                 DateTimePicker d = c as DateTimePicker;
                 d.Name = name;
                 d.Value = (DateTime)value;                
-                d.CloseUp += new EventHandler(DateTimeChanged);                
+                d.CloseUp += new EventHandler(DateTimeChanged);                  
+                d.TextChanged += new EventHandler(DateTimeChanged);
             }
             #endregion
             #region Color
@@ -1381,13 +1382,12 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
             try
             {
                 t.GetProperty(c.Name).SetValue(_lifeTimeObject, c.Value);
-                SetObject(_lifeTimeObject);
-
+                
                 ObjectChangedArgs objChangedArgs = new ObjectChangedArgs();
                 objChangedArgs.NewColorsRequested = true;
                 objChangedArgs.DiagramChanged = _allowDiagramChanging;
                 objChangedArgs.ObjectChangedByPropertyGrid = true;
-                if (ObjectChanged != null) ObjectChanged(_lifeTimeObject, objChangedArgs);
+                ObjectChanged?.Invoke(this, objChangedArgs);              
             }
             catch { c.BackColor = ErrorBackColor; }
         }
