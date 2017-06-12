@@ -36,6 +36,9 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
                 {
                     if (o.GetType().GetProperty(property).GetValue(o) is Color)
                         e.SetAttribute(property, ConvertColorToString((Color)(o.GetType().GetProperty(property).GetValue(o))));
+                    else if (o.GetType().GetProperty(property).GetValue(o) is FontFamily)
+                        e.SetAttribute(property, (o.GetType().GetProperty(property).GetValue(o) as FontFamily).Name);
+                        
                     else
                         e.SetAttribute(property, o.GetType().GetProperty(property).GetValue(o).ToString());
                 }
@@ -92,7 +95,7 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
                     if (node.Attributes[property] == null) continue;
 
                     if (t.GetProperty(property).PropertyType == typeof(bool))
-                        t.GetProperty(property).SetValue(o, node.Attributes[property].Value.ToString().ToLower() == "true" ? true: false);
+                        t.GetProperty(property).SetValue(o, node.Attributes[property].Value.ToString().ToLower() == "true" ? true : false);
                     else if (t.GetProperty(property).PropertyType == typeof(string))
                         t.GetProperty(property).SetValue(o, node.Attributes[property].Value);
                     else if (t.GetProperty(property).PropertyType == typeof(int))
@@ -105,8 +108,19 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
                         t.GetProperty(property).SetValue(o, GetColorFromArgbString(node.Attributes[property].Value));
                     else if (t.GetProperty(property).PropertyType == typeof(DateTime))
                         t.GetProperty(property).SetValue(o, Convert.ToDateTime(node.Attributes[property].Value));
+                    else if (t.GetProperty(property).PropertyType == typeof(FontFamily))
+                    {
+                        try
+                        {
+                            t.GetProperty(property).SetValue(o, new FontFamily(node.Attributes[property].Value));
+                        }
+                        catch
+                        {
+                            t.GetProperty(property).SetValue(o, new FontFamily("Arial Narrow"));
+                        }                        
+                    }
                     else if (t.GetProperty(property).PropertyType == typeof(LifeTimeElement.BondPositionsHorizontally))
-                    {   
+                    {
                         if (node.Attributes[property].Value == Enum.GetName(typeof(LifeTimeElement.BondPositionsHorizontally), 0))
                             t.GetProperty(property).SetValue(o, 0);
                         if (node.Attributes[property].Value == Enum.GetName(typeof(LifeTimeElement.BondPositionsHorizontally), 1))

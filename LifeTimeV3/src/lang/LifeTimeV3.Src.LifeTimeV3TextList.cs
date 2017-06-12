@@ -113,6 +113,9 @@ namespace LifeTimeV3.Src
                               "Bottom", "Unten",
                               "HorizontallyBonding", "Ausrichtung H",
                               "VerticallyBonding", "Ausrichtung V",
+                              "GlobalFont", "Schriftart",
+                              "Font", "Schriftart",
+                              "GlobalFontSize", "Schriftgröße",
 
 
                               "GroupColor", "Gruppenfarbe", //LifeTimeGroup Properties
@@ -232,6 +235,9 @@ namespace LifeTimeV3.Src
                               "Bottom", "Bottom",
                               "HorizontallyBonding", "Bond hor.",
                               "VerticallyBonding", "Bon vert.",
+                              "GlobalFont", "Global font",
+                              "GlobalFontSize", "Global font size",
+                              "Font", "Font",
 
 
                               "GroupColor", "Group Color", //LifeTimeGroup Properties

@@ -317,7 +317,7 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
 
                 private Rectangle DrawObjectText(Graphics g, LifeTimeElement o, DrawComponent components)
                 {
-                    SizeF s = g.MeasureString(o.Text, new Font("Arial Narrow", Convert.ToSingle(o.Size)));
+                    SizeF s = g.MeasureString(o.Text, new Font(o.Font, Convert.ToSingle(o.Size)));
 
                     int x = Settings.Border + o.TextPosX;
                     int y = Settings.Border + o.TextPosY;
@@ -374,7 +374,7 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
                             g.DrawRectangle(new Pen(Settings.LabelColor, 1.0f), r);
                         }
                         
-                        g.DrawString(o.Text, new Font("Arial Narrow", o.Size), new SolidBrush(GetPenColor(o)), x + border, y + border);
+                        g.DrawString(o.Text, new Font(o.Font, o.Size), new SolidBrush(GetPenColor(o)), x + border, y + border);
                     }
                     
                     return r;
@@ -392,7 +392,7 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
 
                 private void DrawLabelText(Graphics g, LifeTimeElement o, int x, int y, float size = 8.0f)
                 {
-                    g.DrawString(o.GetLabel(), new Font("Arial Narrow", size), new SolidBrush(GetPenColor(o)), x + o.TextPosX, y + o.TextPosY);
+                    g.DrawString(o.GetLabel(), new Font(Settings.Font, size), new SolidBrush(GetPenColor(o)), x + o.TextPosX, y + o.TextPosY);
                 }
 
                 private void DrawLineToLabel(Graphics g, LifeTimeElement o, int x, int y)

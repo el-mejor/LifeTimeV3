@@ -119,6 +119,7 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
                 properties.Add("GetRandomColor");
                 if (All || !GetRandomColor) properties.Add("FixedColor");
                 properties.Add("Opacity");
+                if (Type == LifeTimeObjectType.Text || All) properties.Add("Font");
                 if (All || Type != LifeTimeObjectType.Marker) properties.Add("Size");
                 if (All || Type != LifeTimeObjectType.Text) properties.Add("LineDeviation");
                 if (Type == LifeTimeObjectType.Text || All) properties.Add("HorizontallyBonding");
@@ -126,7 +127,7 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
                 properties.Add("TextPosX");
                 properties.Add("TextPosY");
                 if (All) properties.Add("Color");
-                if (All) properties.Add("BaseColor");
+                if (All) properties.Add("BaseColor");                
                 if (Type == LifeTimeObjectType.Text || All) properties.Add("TextInBox");
                 if (Type == LifeTimeObjectType.Text || All) properties.Add("Locked");
                 if (Type == LifeTimeObjectType.Text || All) properties.Add("Text");
@@ -214,6 +215,7 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
                 }
             }
             public int Size { get; set; }
+            public FontFamily Font { get; set; }
             public int LineDeviation { get; set; }
             public int Row { get; set; }
             public int TextPosX { get; set; }
@@ -252,6 +254,7 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
                 Color = Color.Red;
                 Opacity = 1.0;
                 Size = 10;
+                Font = new FontFamily("Arial Narrow");
                 LineDeviation = 0;
                 TextPosX = 0;
                 TextPosY = Size;
@@ -459,6 +462,8 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
                 properties.Add("BackColor");
                 properties.Add("LabelColor");
                 if (All) properties.Add("ShowRefLine");
+                properties.Add("Font");
+                properties.Add("GlobalFontSize");
                 return properties;
             }
             public const String XmlNodeNameDefinition = "DiagramSettings";
@@ -485,6 +490,9 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
             public Color BackColor { get; set; }
             public Color LabelColor { get; set; }
             public bool ShowRefLine { get; set; }
+            public FontFamily Font { get; set; }
+
+            public int GlobalFontSize { get; set; }
             #endregion
 
             #region Constructors
@@ -504,6 +512,8 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
                 BackColor = Color.White;
                 LabelColor = Color.Black;
                 DrawShadows = true;
+                Font = new FontFamily("Arial Narrow");
+                GlobalFontSize = 8;
             }
             #endregion
 

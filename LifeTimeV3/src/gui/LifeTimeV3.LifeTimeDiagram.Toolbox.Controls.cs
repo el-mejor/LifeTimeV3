@@ -1123,6 +1123,18 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
                 d.TextChanged += new EventHandler(TypeSelectorChanged);
             }
             #endregion
+            #region FontFamily
+            else if (value is FontFamily)
+            {
+                c = new FontFamilySelectorBox();
+                FontFamilySelectorBox d = c as FontFamilySelectorBox;
+                d.Name = name;
+
+                d.Text = (value as FontFamily).Name;
+
+                d.TextChanged += new EventHandler(ObjectFontChanged);
+            }
+            #endregion
             #region BondH
             else if (value is LifeTimeDiagramEditor.LifeTimeElement.BondPositionsHorizontally)
             {
@@ -1252,6 +1264,23 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
                 o.Type = c.value;
                 SetObject(_lifeTimeObject);
 
+                ObjectChangedArgs objChangedArgs = new ObjectChangedArgs();
+                objChangedArgs.NewColorsRequested = true;
+                objChangedArgs.DiagramChanged = _allowDiagramChanging;
+                objChangedArgs.ObjectChangedByPropertyGrid = true;
+                ObjectChanged?.Invoke(_lifeTimeObject, objChangedArgs);
+            }
+            catch { c.BackColor = ErrorBackColor; }
+        }
+        private void ObjectFontChanged(object sender, EventArgs e)
+        {
+            FontFamilySelectorBox c = sender as FontFamilySelectorBox;
+            c.BackColor = Color.White;
+            try
+            {
+                LifeTimeDiagramEditor.LifeTimeDiagramSettings o = _lifeTimeObject as LifeTimeDiagramEditor.LifeTimeDiagramSettings;
+                o.Font = c.value;
+                
                 ObjectChangedArgs objChangedArgs = new ObjectChangedArgs();
                 objChangedArgs.NewColorsRequested = true;
                 objChangedArgs.DiagramChanged = _allowDiagramChanging;
@@ -1460,6 +1489,31 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
                     value = LifeTimeDiagramEditor.LifeTimeElement.LifeTimeObjectType.Event;
                     this.Text = LifeTimeV3TextList.GetText("[11]");
                 }
+            }
+            #endregion
+        }
+
+        public class FontFamilySelectorBox : ComboBox
+        {
+            #region properties
+            public FontFamily value { get; set; }
+            #endregion
+
+            #region constructor
+            public FontFamilySelectorBox()
+            {
+                foreach (FontFamily font in System.Drawing.FontFamily.Families)
+                    Items.Add(font.Name);
+                
+                this.AutoCompleteMode = System.Windows.Forms.AutoCompleteMode.SuggestAppend;
+                this.TextChanged += new EventHandler(SelectionChanged);
+            }
+            #endregion
+
+            #region private methods
+            private void SelectionChanged(object sender, EventArgs e)
+            {
+                value = new FontFamily(Text);
             }
             #endregion
         }

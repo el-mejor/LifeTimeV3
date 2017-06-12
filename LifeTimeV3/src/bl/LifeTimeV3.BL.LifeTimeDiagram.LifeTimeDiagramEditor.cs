@@ -465,7 +465,7 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
             //DiagramViewer.ContextMenuStrip = null;
 
             ILifeTimeObject o = SelectObjectByPosition(e.X, e.Y);
-
+            
             if (o == null || (!(o is LifeTimeElement) || (o as LifeTimeElement).Type != LifeTimeElement.LifeTimeObjectType.Text || (o as LifeTimeElement).Locked))
                 DiagramViewer.BeginMouse(e);
             else
@@ -487,9 +487,8 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
                 {
                     ILifeTimeObject o = SelectObjectByPosition(e.X, e.Y);
 
-                    PropertyGrid.SetObject(o);
-
                     CurrentObject = o;
+                    PropertyGrid.SetObject(o);                    
 
                     TreeNode t = ObjectBrowser.ShowItemInObjectBrowser(o);
 
@@ -503,6 +502,9 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
             }   
             else
             {
+                CurrentObject = _moveObject.Object;
+                PropertyGrid.SetObject(_moveObject.Object);
+
                 TreeNode t = ObjectBrowser.ShowItemInObjectBrowser(_moveObject.Object);
 
                 if (t != null && e.Button == MouseButtons.Right)
