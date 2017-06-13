@@ -1292,8 +1292,6 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
                 c.BackColor = ErrorBackColor;
             }
         }
-
-
         private void ObjectFontChanged(object sender, EventArgs e)
         {
             FontFamilySelectorBox c = sender as FontFamilySelectorBox;
@@ -1312,7 +1310,7 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
                 t.GetProperty(c.Name).SetValue(o, c.Value);
 
                 ObjectChangedArgs objChangedArgs = new ObjectChangedArgs();
-                objChangedArgs.NewColorsRequested = true;
+                objChangedArgs.NewColorsRequested = false;
                 objChangedArgs.DiagramChanged = _allowDiagramChanging;
                 objChangedArgs.ObjectChangedByPropertyGrid = true;
                 ObjectChanged?.Invoke(_lifeTimeObject, objChangedArgs);
@@ -1332,7 +1330,7 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
                 o.FontStyle = c.Value;
 
                 ObjectChangedArgs objChangedArgs = new ObjectChangedArgs();
-                objChangedArgs.NewColorsRequested = true;
+                objChangedArgs.NewColorsRequested = false;
                 objChangedArgs.DiagramChanged = _allowDiagramChanging;
                 objChangedArgs.ObjectChangedByPropertyGrid = true;
                 ObjectChanged?.Invoke(_lifeTimeObject, objChangedArgs);
@@ -1352,7 +1350,8 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
                 o.HorizontallyBonding = c.value;
                 SetObject(_lifeTimeObject);
 
-                ObjectChangedArgs objChangedArgs = new ObjectChangedArgs();                
+                ObjectChangedArgs objChangedArgs = new ObjectChangedArgs();
+                objChangedArgs.NewColorsRequested = false;
                 objChangedArgs.DiagramChanged = _allowDiagramChanging;
                 objChangedArgs.ObjectChangedByPropertyGrid = true;
                 ObjectChanged?.Invoke(_lifeTimeObject, objChangedArgs);
@@ -1371,6 +1370,7 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
                 SetObject(_lifeTimeObject);
 
                 ObjectChangedArgs objChangedArgs = new ObjectChangedArgs();
+                objChangedArgs.NewColorsRequested = false;
                 objChangedArgs.DiagramChanged = _allowDiagramChanging;
                 objChangedArgs.ObjectChangedByPropertyGrid = true;
                 ObjectChanged?.Invoke(_lifeTimeObject, objChangedArgs);
@@ -1472,7 +1472,7 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
                 t.GetProperty(c.Name).SetValue(_lifeTimeObject, c.Value);
                 
                 ObjectChangedArgs objChangedArgs = new ObjectChangedArgs();
-                objChangedArgs.NewColorsRequested = true;
+                objChangedArgs.NewColorsRequested = false;
                 objChangedArgs.DiagramChanged = _allowDiagramChanging;
                 objChangedArgs.ObjectChangedByPropertyGrid = true;
                 ObjectChanged?.Invoke(this, objChangedArgs);              
@@ -1499,7 +1499,7 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
                 objChangedArgs.NewColorsRequested = true;
                 objChangedArgs.DiagramChanged = _allowDiagramChanging;
                 objChangedArgs.ObjectChangedByPropertyGrid = true;
-                if (ObjectChanged != null) ObjectChanged(_lifeTimeObject, objChangedArgs);
+                ObjectChanged?.Invoke(_lifeTimeObject, objChangedArgs);
             }
             catch { }
         }
@@ -1776,14 +1776,17 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
                 Height = 22;
                 ColumnCount = 3;
                 B = new CheckBox();
+                B.AutoSize = true;
                 B.Name = "B";
                 B.Text = "B";
                 B.Font = new Font(this.Font, FontStyle.Bold);
                 U = new CheckBox();
+                U.AutoSize = true;
                 U.Name = "U";
                 U.Text = "U";
                 U.Font = new Font(this.Font, FontStyle.Underline);
                 I = new CheckBox();
+                I.AutoSize = true;
                 I.Name = "I";
                 I.Text = "I";
                 I.Font = new Font(this.Font, FontStyle.Italic);
