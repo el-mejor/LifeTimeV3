@@ -115,7 +115,9 @@ namespace LifeTimeV3.Src
                               "VerticallyBonding", "Ausrichtung V",
                               "GlobalFont", "Schriftart",
                               "Font", "Schriftart",
+                              "UseDiagFont", "Diagram Schriftart",
                               "GlobalFontSize", "Schriftgröße",
+                              "FontStyle", "Stil",
 
 
                               "GroupColor", "Gruppenfarbe", //LifeTimeGroup Properties
@@ -236,9 +238,10 @@ namespace LifeTimeV3.Src
                               "HorizontallyBonding", "Bond hor.",
                               "VerticallyBonding", "Bon vert.",
                               "GlobalFont", "Global font",
-                              "GlobalFontSize", "Global font size",
                               "Font", "Font",
-
+                              "UseDiagFont", "Use diagram font",
+                              "GlobalFontSize", "Global font size",
+                              "FontStyle", "Style",
 
                               "GroupColor", "Group Color", //LifeTimeGroup Properties
                               "OwnColor", "Own Color",           

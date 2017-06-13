@@ -78,8 +78,11 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
         public void LoadDiagram(String filename)
         {            
             if (_toolbox != null) _toolbox.Close();                
+            if (Diagram != null) Diagram.Dispose();
 
-            LifeTimeDiagramFileHandler open = new LifeTimeDiagramFileHandler(filename);            
+            LifeTimeDiagramFileHandler open = new LifeTimeDiagramFileHandler(filename);
+
+            
 
             Diagram = open.OpenFile();
 
@@ -87,7 +90,8 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
             DiagramViewer.OffsetX = Diagram.Settings.OffsetX;
             DiagramViewer.OffsetY = Diagram.Settings.OffsetY;
 
-            LoadToolbox();            
+            LoadToolbox();  
+                      
 
             DiagramChanged?.Invoke(this, null);
         }
@@ -99,6 +103,7 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
         public void NewDiagram(String filename)
         {
             if (_toolbox != null) _toolbox.Close();
+            if (Diagram != null) Diagram.Dispose();
 
             Diagram = new LifeTimeDiagram();
             Diagram.Settings.Begin = DateTime.Now.AddYears(-1);
@@ -106,6 +111,11 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
             Diagram.Settings.Width = 800;
             Diagram.Settings.Height = 600;
             Diagram.Settings.ShowRefLine = true;
+            Diagram.Settings.OffsetX = 0;
+            Diagram.Settings.OffsetY = 0;
+            Diagram.Settings.Zoom = 1.0f;
+
+            DiagramViewer.Reset();
 
             Diagram.Groups.Add(new LifeTimeGroup("Marker", Color.Green));
             Diagram.Groups.Add(new LifeTimeGroup("Spacer", Color.Green));
@@ -194,13 +204,13 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
                 ExportGrid,
                 ObjectBrowser
                 );
-
-                ObjectBrowser.UpdateObjectBrowser(Diagram.Groups);
-                SettingsGrid.SetObject(Diagram.Settings);
-
-                if (CurrentObject != null) PropertyGrid.SetObject(CurrentObject);
             }
-            
+
+            ObjectBrowser.UpdateObjectBrowser(Diagram.Groups);
+            SettingsGrid.SetObject(Diagram.Settings);
+
+            if (CurrentObject != null) PropertyGrid.SetObject(CurrentObject);
+
             return _toolbox;
         }
 
@@ -289,6 +299,12 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
                 _toolbox.Close();
 
             _toolbox = GetToolBoxForm();
+
+            //_toolbox.ObjectBrowser.ShowItemInObjectBrowser(null as ILifeTimeObject);
+            PropertyGrid.SetObject(null);
+            CurrentObject = null;
+            ObjectSelected?.Invoke(null, null);
+
             _toolbox.Visible = false;            
         }
 
@@ -418,8 +434,8 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
 
             if (DiagramChanged != null && e.DiagramChanged)
             {
-                DiagramChanged(this, null);
                 Diagram.Changed = true;
+                DiagramChanged.Invoke(this, null);                
             }
         }
 

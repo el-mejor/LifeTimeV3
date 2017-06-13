@@ -36,7 +36,7 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.SizableToolWindow;
             //this.ControlBox = false;
             this.TopMost = false;
-            this.Width = 350; this.Height = 700;
+            this.Width = 350; this.Height = 900;
             this.StartPosition = FormStartPosition.Manual;
             this.ShowInTaskbar = false;
             this.FormClosing += new FormClosingEventHandler(Toolbox_Closing);
@@ -47,6 +47,7 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox
             SplitContainer _split = new SplitContainer();
             _split.Dock = DockStyle.Fill;
             _split.Orientation = Orientation.Horizontal;
+            _split.SplitterDistance = 700;
 
             _split.Panel1.Controls.Add(PropertyGridTab());
 
@@ -57,9 +58,7 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox
             _split.Panel2.Controls.Add(ObjectBrowser.FindObjectControl);
             
 
-            this.Controls.Add(_split);
-
-            _split.SplitterDistance = 420;
+            this.Controls.Add(_split);            
         }
         #endregion
 

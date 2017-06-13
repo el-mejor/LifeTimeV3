@@ -152,7 +152,7 @@ namespace LifeTimeV3.MainUI
 
         private void ObjectSelectedInBrowser(object sender, LifeTimeDiagram.Toolbox.Controls.LifeTimeObjectBrowser.ItemSelectedArgs e)
         {
-            ObjectSelected(sender, null);
+                ObjectSelected(sender, null);
         }
 
         private void ObjectSelected(object sender, EventArgs e)
@@ -186,6 +186,8 @@ namespace LifeTimeV3.MainUI
                 toolStripObjectStatusLabel.Text = "";
 
                 ClearAndAddMainMenuElementGenericItems();
+
+                eLEMENTToolStripMenuItem.Text = "ELEMENT";
 
                 eLEMENTToolStripMenuItem.Enabled = false;
             }

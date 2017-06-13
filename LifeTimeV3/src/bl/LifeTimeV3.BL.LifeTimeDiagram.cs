@@ -13,7 +13,7 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
         /// <summary>
         /// The class containing and modelling the diagram itself
         /// </summary>
-        public class LifeTimeDiagram
+        public class LifeTimeDiagram : IDisposable
         {
             #region Enums
             #endregion
@@ -46,6 +46,13 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
                 ExportSettings = new LifeTimeExportSettings();
                 Changed = false;
                 RandomColor = new CreateRandomColor();
+            }
+
+            public void Dispose()
+            {
+                this.Settings = null;
+                this.ExportSettings = null;
+                this.Groups = null;                
             }
             #endregion
 
@@ -317,7 +324,7 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
 
                 private Rectangle DrawObjectText(Graphics g, LifeTimeElement o, DrawComponent components)
                 {
-                    SizeF s = g.MeasureString(o.Text, new Font(o.Font, Convert.ToSingle(o.Size)));
+                    SizeF s = g.MeasureString(o.Text, new Font(o.UseDiagFont? Settings.Font : o.Font, Convert.ToSingle(o.Size), o.FontStyle));
 
                     int x = Settings.Border + o.TextPosX;
                     int y = Settings.Border + o.TextPosY;
@@ -350,22 +357,6 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
                             GetColorOfObject(o).G,
                             GetColorOfObject(o).B);
 
-                    //if ((components == DrawComponent.Shadow || components == DrawComponent.All) && Style == DrawStyle.WithShadow)
-                    //{
-                    //    if (o.TextInBox)
-                    //    {
-                    //        g.FillRectangle(new SolidBrush(Color.DarkGray),
-                    //            r.X + 2, r.Y + 2, r.Width, r.Height);
-
-                    //        g.FillRectangle(new SolidBrush(Settings.BackColor),
-                    //            r);
-                    //    }
-                    //    else
-                    //    {
-                    //        g.DrawString(o.Text, new Font("Arial Narrow", o.Size), new SolidBrush(Color.DarkGray), x + border + 1, y + border + 1);
-                    //    }
-                    //}
-
                     if (components == DrawComponent.Text || components == DrawComponent.All)
                     {
                         if (o.TextInBox)
@@ -374,7 +365,7 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
                             g.DrawRectangle(new Pen(Settings.LabelColor, 1.0f), r);
                         }
                         
-                        g.DrawString(o.Text, new Font(o.Font, o.Size), new SolidBrush(GetPenColor(o)), x + border, y + border);
+                        g.DrawString(o.Text, new Font(o.UseDiagFont? Settings.Font : o.Font, o.Size, o.FontStyle), new SolidBrush(GetPenColor(o)), x + border, y + border);
                     }
                     
                     return r;
@@ -390,9 +381,9 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
                     DrawLabelText(g, o, x, y);
                 }
 
-                private void DrawLabelText(Graphics g, LifeTimeElement o, int x, int y, float size = 8.0f)
+                private void DrawLabelText(Graphics g, LifeTimeElement o, int x, int y)
                 {
-                    g.DrawString(o.GetLabel(), new Font(Settings.Font, size), new SolidBrush(GetPenColor(o)), x + o.TextPosX, y + o.TextPosY);
+                    g.DrawString(o.GetLabel(), new Font(o.UseDiagFont? Settings.Font : o.Font, Settings.GlobalFontSize, o.FontStyle), new SolidBrush(GetPenColor(o)), x + o.TextPosX, y + o.TextPosY);
                 }
 
                 private void DrawLineToLabel(Graphics g, LifeTimeElement o, int x, int y)

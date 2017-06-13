@@ -38,7 +38,7 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
                         e.SetAttribute(property, ConvertColorToString((Color)(o.GetType().GetProperty(property).GetValue(o))));
                     else if (o.GetType().GetProperty(property).GetValue(o) is FontFamily)
                         e.SetAttribute(property, (o.GetType().GetProperty(property).GetValue(o) as FontFamily).Name);
-                        
+
                     else
                         e.SetAttribute(property, o.GetType().GetProperty(property).GetValue(o).ToString());
                 }
@@ -121,25 +121,55 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
                     }
                     else if (t.GetProperty(property).PropertyType == typeof(LifeTimeElement.BondPositionsHorizontally))
                     {
-                        if (node.Attributes[property].Value == Enum.GetName(typeof(LifeTimeElement.BondPositionsHorizontally), 0))
-                            t.GetProperty(property).SetValue(o, 0);
-                        if (node.Attributes[property].Value == Enum.GetName(typeof(LifeTimeElement.BondPositionsHorizontally), 1))
-                            t.GetProperty(property).SetValue(o, 1);
-                        if (node.Attributes[property].Value == Enum.GetName(typeof(LifeTimeElement.BondPositionsHorizontally), 2))
-                            t.GetProperty(property).SetValue(o, 2);
-                        if (node.Attributes[property].Value == Enum.GetName(typeof(LifeTimeElement.BondPositionsHorizontally), 3))
-                            t.GetProperty(property).SetValue(o, 3);
+                        foreach (LifeTimeElement.BondPositionsHorizontally e in Enum.GetValues(typeof(LifeTimeElement.BondPositionsHorizontally)))
+                        {
+                            if (node.Attributes[property].Value == Enum.GetName(typeof(LifeTimeElement.BondPositionsHorizontally), e))
+                            {
+                                t.GetProperty(property).SetValue(o, e);
+                                break;
+                            }
+                        }
+
+                        
+                        //if (node.Attributes[property].Value == Enum.GetName(typeof(LifeTimeElement.BondPositionsHorizontally), 1))
+                        //    t.GetProperty(property).SetValue(o, 1);
+                        //if (node.Attributes[property].Value == Enum.GetName(typeof(LifeTimeElement.BondPositionsHorizontally), 2))
+                        //    t.GetProperty(property).SetValue(o, 2);
+                        //if (node.Attributes[property].Value == Enum.GetName(typeof(LifeTimeElement.BondPositionsHorizontally), 3))
+                        //    t.GetProperty(property).SetValue(o, 3);
                     }
                     else if (t.GetProperty(property).PropertyType == typeof(LifeTimeElement.BondPostionsVertically))
                     {
-                        if (node.Attributes[property].Value == Enum.GetName(typeof(LifeTimeElement.BondPostionsVertically), 0))
-                            t.GetProperty(property).SetValue(o, 0);
-                        if (node.Attributes[property].Value == Enum.GetName(typeof(LifeTimeElement.BondPostionsVertically), 1))
-                            t.GetProperty(property).SetValue(o, 1);
-                        if (node.Attributes[property].Value == Enum.GetName(typeof(LifeTimeElement.BondPostionsVertically), 2))
-                            t.GetProperty(property).SetValue(o, 2);
-                        if (node.Attributes[property].Value == Enum.GetName(typeof(LifeTimeElement.BondPostionsVertically), 3))
-                            t.GetProperty(property).SetValue(o, 3);
+                        foreach (LifeTimeElement.BondPostionsVertically e in Enum.GetValues(typeof(LifeTimeElement.BondPostionsVertically)))
+                        {
+                            if (node.Attributes[property].Value == Enum.GetName(typeof(LifeTimeElement.BondPostionsVertically), e))
+                            {
+                                t.GetProperty(property).SetValue(o, e);
+                                break;
+                            }
+                        }
+
+                        //if (node.Attributes[property].Value == Enum.GetName(typeof(LifeTimeElement.BondPostionsVertically), 0))
+                        //    t.GetProperty(property).SetValue(o, 0);
+                        //if (node.Attributes[property].Value == Enum.GetName(typeof(LifeTimeElement.BondPostionsVertically), 1))
+                        //    t.GetProperty(property).SetValue(o, 1);
+                        //if (node.Attributes[property].Value == Enum.GetName(typeof(LifeTimeElement.BondPostionsVertically), 2))
+                        //    t.GetProperty(property).SetValue(o, 2);
+                        //if (node.Attributes[property].Value == Enum.GetName(typeof(LifeTimeElement.BondPostionsVertically), 3))
+                        //    t.GetProperty(property).SetValue(o, 3);
+                    }
+                    else if (t.GetProperty(property).PropertyType == typeof(FontStyle))
+                    {
+                        t.GetProperty(property).SetValue(o, FontStyle.Regular);
+
+                        foreach (FontStyle st in Enum.GetValues(typeof(FontStyle)))
+                        {
+                            string b = Enum.GetName(typeof(FontStyle), st);
+                            if (!string.IsNullOrEmpty(b) && node.Attributes[property].Value.Contains(b))
+                            {
+                                t.GetProperty(property).SetValue(o, (int)(t.GetProperty(property).GetValue(o)) + (int)st);                                
+                            }
+                        }
                     }
                 }
 

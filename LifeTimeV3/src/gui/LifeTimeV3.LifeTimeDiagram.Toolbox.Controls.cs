@@ -116,7 +116,12 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
         /// <param name="o"></param>
         public LifeTimeObjectTreeNode ShowItemInObjectBrowser(LifeTimeDiagramEditor.ILifeTimeObject o)
         {
-            if (o == null) return null;
+            if (o == null)
+            {
+                ItemSelectedArgs e = new ItemSelectedArgs(o);
+                ItemSelected?.Invoke(null, e);
+                return null;
+            }
 
             TreeNode t = null;
 
@@ -127,7 +132,7 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
             SelectedObject = t as LifeTimeObjectTreeNode;
 
             ItemSelectedArgs args = new ItemSelectedArgs(o);
-            ItemSelected?.Invoke(this, args);
+            ItemSelected?.Invoke(o, args);
             
             return t as LifeTimeObjectTreeNode;
         }
@@ -1135,6 +1140,18 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
                 d.TextChanged += new EventHandler(ObjectFontChanged);
             }
             #endregion
+            #region FontStyle
+            else if (value is FontStyle)
+            {
+                c = new FontStyleSelector();
+                FontStyleSelector d = c as FontStyleSelector;
+                d.Name = name;
+
+                d.SetValue((int)(value));
+
+                d.FontStyleChanged += new EventHandler(FontStyleChanged);             
+            }
+            #endregion
             #region BondH
             else if (value is LifeTimeDiagramEditor.LifeTimeElement.BondPositionsHorizontally)
             {
@@ -1270,24 +1287,60 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
                 objChangedArgs.ObjectChangedByPropertyGrid = true;
                 ObjectChanged?.Invoke(_lifeTimeObject, objChangedArgs);
             }
-            catch { c.BackColor = ErrorBackColor; }
+            catch
+            {
+                c.BackColor = ErrorBackColor;
+            }
         }
+
+
         private void ObjectFontChanged(object sender, EventArgs e)
         {
             FontFamilySelectorBox c = sender as FontFamilySelectorBox;
             c.BackColor = Color.White;
+            if (_lifeTimeObject is LifeTimeDiagramEditor.LifeTimeElement)
+                ObjectFontChanged(c, _lifeTimeObject as LifeTimeDiagramEditor.LifeTimeElement);
+            if (_lifeTimeObject is LifeTimeDiagramEditor.LifeTimeDiagramSettings)
+                ObjectFontChanged(c, _lifeTimeObject as LifeTimeDiagramEditor.LifeTimeDiagramSettings);
+        }
+        private void ObjectFontChanged<T>(FontFamilySelectorBox c, T o)
+        {
+            Type t = typeof(T);
+
             try
             {
-                LifeTimeDiagramEditor.LifeTimeDiagramSettings o = _lifeTimeObject as LifeTimeDiagramEditor.LifeTimeDiagramSettings;
-                o.Font = c.value;
-                
+                t.GetProperty(c.Name).SetValue(o, c.Value);
+
                 ObjectChangedArgs objChangedArgs = new ObjectChangedArgs();
                 objChangedArgs.NewColorsRequested = true;
                 objChangedArgs.DiagramChanged = _allowDiagramChanging;
                 objChangedArgs.ObjectChangedByPropertyGrid = true;
                 ObjectChanged?.Invoke(_lifeTimeObject, objChangedArgs);
             }
-            catch { c.BackColor = ErrorBackColor; }
+            catch
+            {
+                c.BackColor = ErrorBackColor;
+            }
+        }
+        private void FontStyleChanged(object sender, EventArgs e)
+        {
+            FontStyleSelector c = sender as FontStyleSelector;            
+
+            try
+            {
+                LifeTimeDiagramEditor.LifeTimeElement o = _lifeTimeObject as LifeTimeDiagramEditor.LifeTimeElement;
+                o.FontStyle = c.Value;
+
+                ObjectChangedArgs objChangedArgs = new ObjectChangedArgs();
+                objChangedArgs.NewColorsRequested = true;
+                objChangedArgs.DiagramChanged = _allowDiagramChanging;
+                objChangedArgs.ObjectChangedByPropertyGrid = true;
+                ObjectChanged?.Invoke(_lifeTimeObject, objChangedArgs);
+            }
+            catch
+            {
+                
+            }
         }
         private void BondHorSelectorChanged(object sender, EventArgs e)
         {
@@ -1356,18 +1409,24 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
         {
             AdvancedTextBox c = sender as AdvancedTextBox;
             c.TextBox.BackColor = Color.White;
-            if (_lifeTimeObject is LifeTimeDiagramEditor.LifeTimeElement) TextBoxChanged<LifeTimeDiagramEditor.LifeTimeElement>(c, _lifeTimeObject as LifeTimeDiagramEditor.LifeTimeElement);
-            if (_lifeTimeObject is LifeTimeDiagramEditor.LifeTimeGroup) TextBoxChanged<LifeTimeDiagramEditor.LifeTimeGroup>(c, _lifeTimeObject as LifeTimeDiagramEditor.LifeTimeGroup);
-            if (_lifeTimeObject is LifeTimeDiagramEditor.LifeTimeDiagramSettings) TextBoxChanged<LifeTimeDiagramEditor.LifeTimeDiagramSettings>(c, _lifeTimeObject as LifeTimeDiagramEditor.LifeTimeDiagramSettings);
+            if (_lifeTimeObject is LifeTimeDiagramEditor.LifeTimeElement)
+                TextBoxChanged(c, _lifeTimeObject as LifeTimeDiagramEditor.LifeTimeElement);
+            if (_lifeTimeObject is LifeTimeDiagramEditor.LifeTimeGroup)
+                TextBoxChanged(c, _lifeTimeObject as LifeTimeDiagramEditor.LifeTimeGroup);
+            if (_lifeTimeObject is LifeTimeDiagramEditor.LifeTimeDiagramSettings)
+                TextBoxChanged(c, _lifeTimeObject as LifeTimeDiagramEditor.LifeTimeDiagramSettings);
         }
         private void TextBoxIntChanged(object sender, EventArgs e)
         {
             AdvancedTextBox c = sender as AdvancedTextBox;
             c.BackColor = Color.White;
 
-            if (_lifeTimeObject is LifeTimeDiagramEditor.LifeTimeElement) TextBoxChanged<LifeTimeDiagramEditor.LifeTimeElement>(c, _lifeTimeObject as LifeTimeDiagramEditor.LifeTimeElement);
-            if (_lifeTimeObject is LifeTimeDiagramEditor.LifeTimeGroup) TextBoxChanged<LifeTimeDiagramEditor.LifeTimeGroup>(c, _lifeTimeObject as LifeTimeDiagramEditor.LifeTimeGroup);
-            if (_lifeTimeObject is LifeTimeDiagramEditor.LifeTimeDiagramSettings) TextBoxChanged<LifeTimeDiagramEditor.LifeTimeDiagramSettings>(c, _lifeTimeObject as LifeTimeDiagramEditor.LifeTimeDiagramSettings);
+            if (_lifeTimeObject is LifeTimeDiagramEditor.LifeTimeElement)
+                TextBoxChanged(c, _lifeTimeObject as LifeTimeDiagramEditor.LifeTimeElement);
+            if (_lifeTimeObject is LifeTimeDiagramEditor.LifeTimeGroup)
+                TextBoxChanged(c, _lifeTimeObject as LifeTimeDiagramEditor.LifeTimeGroup);
+            if (_lifeTimeObject is LifeTimeDiagramEditor.LifeTimeDiagramSettings)
+                TextBoxChanged(c, _lifeTimeObject as LifeTimeDiagramEditor.LifeTimeDiagramSettings);
         }
         private void TextBoxDoubleChanged(object sender, EventArgs e)
         {
@@ -1496,7 +1555,7 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
         public class FontFamilySelectorBox : ComboBox
         {
             #region properties
-            public FontFamily value { get; set; }
+            public FontFamily Value { get; set; }
             #endregion
 
             #region constructor
@@ -1513,7 +1572,7 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
             #region private methods
             private void SelectionChanged(object sender, EventArgs e)
             {
-                value = new FontFamily(Text);
+                Value = new FontFamily(Text);
             }
             #endregion
         }
@@ -1696,6 +1755,85 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
             public event ValueChangedHandler ValueChanged;
             #endregion
 
+        }
+
+        public class FontStyleSelector : TableLayoutPanel
+        {
+            #region properties
+            public FontStyle Value { get; set; }
+            #endregion
+
+            #region fields
+            private bool _dontFireEvent = false;
+            private CheckBox B;
+            private CheckBox U;
+            private CheckBox I;
+            #endregion
+
+            #region constructor
+            public FontStyleSelector()
+            {
+                Height = 22;
+                ColumnCount = 3;
+                B = new CheckBox();
+                B.Name = "B";
+                B.Text = "B";
+                B.Font = new Font(this.Font, FontStyle.Bold);
+                U = new CheckBox();
+                U.Name = "U";
+                U.Text = "U";
+                U.Font = new Font(this.Font, FontStyle.Underline);
+                I = new CheckBox();
+                I.Name = "I";
+                I.Text = "I";
+                I.Font = new Font(this.Font, FontStyle.Italic);
+
+                Controls.Add(B, 0, 0);
+                Controls.Add(U, 1, 0);
+                Controls.Add(I, 2, 0);
+
+                B.CheckedChanged += new EventHandler(_fontStyleChanged);
+                U.CheckedChanged += new EventHandler(_fontStyleChanged);
+                I.CheckedChanged += new EventHandler(_fontStyleChanged);
+            }
+            #endregion
+
+            #region public
+            public void SetValue(int style)
+            {
+                _dontFireEvent = true;
+
+                if ((style & (int)FontStyle.Bold) == (int)FontStyle.Bold)
+                    B.Checked = true;
+                if ((style & (int)FontStyle.Underline) == (int)FontStyle.Underline)
+                    U.Checked = true;
+                if ((style & (int)FontStyle.Italic) == (int)FontStyle.Italic)
+                    I.Checked = true;
+
+                _dontFireEvent = false;
+            }
+            #endregion
+
+            #region private
+            private void _fontStyleChanged(object sender, EventArgs e)
+            {
+                Value = FontStyle.Regular;
+                if (B.Checked)
+                    Value |= FontStyle.Bold;
+                if (U.Checked)
+                    Value |= FontStyle.Underline;
+                if (I.Checked)
+                    Value |= FontStyle.Italic;
+
+
+                if (!_dontFireEvent)
+                    FontStyleChanged?.Invoke(this, e);
+            }
+            #endregion
+
+            #region value changed event
+            public event EventHandler FontStyleChanged;
+            #endregion
         }
         #endregion
     }
