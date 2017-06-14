@@ -122,6 +122,8 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
                 properties.Add("UseDiagFont");
                 if (All || !UseDiagFont) properties.Add("Font");
                 properties.Add("FontStyle");
+                properties.Add("UseGlobalTextColor");
+                if (All || !UseGlobalTextColor) properties.Add("TextColor");
                 if (All || Type != LifeTimeObjectType.Marker) properties.Add("Size");
                 if (All || Type != LifeTimeObjectType.Text) properties.Add("LineDeviation");
                 if (Type == LifeTimeObjectType.Text || All) properties.Add("HorizontallyBonding");
@@ -206,6 +208,8 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
                     CheckColorBehavior();
                 }
             }
+            public Color TextColor { get; set; }
+            public bool UseGlobalTextColor { get; set; }
             public bool GetRandomColor { get; set; }
             public double Opacity
             {
@@ -243,7 +247,7 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
             #endregion
 
             #region Constructor
-            public LifeTimeElement(String name, LifeTimeObjectType type)
+            public LifeTimeElement(LifeTimeDiagramSettings settings, string name, LifeTimeObjectType type)
             {                
                 Name = name;
                 Enabled = true;
@@ -256,9 +260,11 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
                 _fixedColor = Color.White;
                 GetRandomColor = false;
                 Color = Color.Red;
+                UseGlobalTextColor = true;
+                TextColor = settings != null? settings.LabelColor : Color.Black;
                 Opacity = 1.0;
-                Size = 10;
-                Font = new FontFamily("Arial Narrow");
+                Size = settings != null ? settings.BlockHeight : 10;
+                Font = settings != null ? settings.Font : new FontFamily("Arial Narrow");
                 FontStyle = FontStyle.Regular;
                 UseDiagFont = true;
                 LineDeviation = 0;

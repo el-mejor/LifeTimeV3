@@ -26,6 +26,7 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
         #endregion
 
         #region fields
+        private LifeTimeDiagramEditor.LifeTimeDiagramSettings _settings;
         private LifeTimeDiagramEditor.LifeTimeGroup _root;
         private Dictionary<int, LifeTimeDiagramEditor.ILifeTimeObject> _objectsByIndex;
         private Dictionary<LifeTimeDiagramEditor.ILifeTimeObject, TreeNode> _treenodesByObject;
@@ -35,8 +36,9 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
         #endregion
 
         #region Constructor
-        public LifeTimeObjectBrowser()
+        public LifeTimeObjectBrowser(LifeTimeDiagramEditor.LifeTimeDiagramSettings settings)
         {
+            _settings = settings;
             _objectsByIndex = new Dictionary<int, LifeTimeDiagramEditor.ILifeTimeObject>();
             _treenodesByObject = new Dictionary<LifeTimeDiagramEditor.ILifeTimeObject, TreeNode>();
             FindObjectControl = new LifeTimeFindObjectControl();
@@ -77,7 +79,7 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
 
             int index = 0;
 
-            LifeTimeObjectTreeNode root = new LifeTimeObjectTreeNode(_root, true);
+            LifeTimeObjectTreeNode root = new LifeTimeObjectTreeNode(_settings, _root, true);
             root.Expand();
             root.Text = LifeTimeV3TextList.GetText("[101]");
             root.Name = (-1).ToString();
@@ -195,7 +197,7 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
 
         private LifeTimeObjectTreeNode AddGroupNode(LifeTimeDiagramEditor.LifeTimeGroup _g, ref int i)
         {
-            LifeTimeObjectTreeNode grpNode = new LifeTimeObjectTreeNode(_g, false);
+            LifeTimeObjectTreeNode grpNode = new LifeTimeObjectTreeNode(_settings, _g, false);
             grpNode.Name = i.ToString();
             grpNode.Checked = _g.Enabled;
             grpNode.Text = string.Format("{0}", _g.Name);
@@ -217,7 +219,7 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
 
         private void AddElementNode(LifeTimeDiagramEditor.LifeTimeElement _o, LifeTimeObjectTreeNode _g, ref int i)
         {
-            LifeTimeObjectTreeNode objNode = new LifeTimeObjectTreeNode(_o, false);
+            LifeTimeObjectTreeNode objNode = new LifeTimeObjectTreeNode(_settings, _o, false);
             objNode.Name = i.ToString();
             objNode.Checked = _o.Enabled;
             objNode.Text = string.Format("{0}", _o.Name);
@@ -373,11 +375,13 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
 
             #region fields
             private LifeTimeDiagramEditor.ILifeTimeObject _object;
+            private LifeTimeDiagramEditor.LifeTimeDiagramSettings _settings;
             #endregion
 
             #region constructor
-            public LifeTimeObjectTreeNode(LifeTimeDiagramEditor.ILifeTimeObject o, Boolean IsRoot)
+            public LifeTimeObjectTreeNode(LifeTimeDiagramEditor.LifeTimeDiagramSettings settings, LifeTimeDiagramEditor.ILifeTimeObject o, Boolean IsRoot)
             {
+                _settings = settings;
                 _object = o;                
 
                 this.ContextMenuStrip = new ContextMenuStrip();
@@ -555,7 +559,7 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
             private void CopyObjectToClipboard(LifeTimeDiagramEditor.ILifeTimeObject o)
             {
                 Clipboard.Clear();
-                LifeTimeDiagramEditor.LifeTimeXmlObject xml = new LifeTimeDiagramEditor.LifeTimeXmlObject(new XmlDocument());
+                LifeTimeDiagramEditor.LifeTimeXmlObject xml = new LifeTimeDiagramEditor.LifeTimeXmlObject(new XmlDocument(), _settings);
                 XmlNode n = null;
                 if (_object is LifeTimeDiagramEditor.LifeTimeElement)
                 {
@@ -575,7 +579,7 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
             {
                 LifeTimeDiagramEditor.LifeTimeGroup o = Object as LifeTimeDiagramEditor.LifeTimeGroup;
 
-                LifeTimeDiagramEditor.LifeTimeElement newObj = new LifeTimeDiagramEditor.LifeTimeElement(LifeTimeV3TextList.GetText("[102]"), LifeTimeDiagramEditor.LifeTimeElement.LifeTimeObjectType.Event); //new element
+                LifeTimeDiagramEditor.LifeTimeElement newObj = new LifeTimeDiagramEditor.LifeTimeElement(_settings, LifeTimeV3TextList.GetText("[102]"), LifeTimeDiagramEditor.LifeTimeElement.LifeTimeObjectType.Event); //new element
 
                 o.Objects.Add(newObj);
 
@@ -633,7 +637,7 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
             {
                 LifeTimeDiagramEditor.ILifeTimeObject o = null;
                 XmlDocument xmldoc = new XmlDocument();
-                LifeTimeDiagramEditor.LifeTimeXmlObject xml = new LifeTimeDiagramEditor.LifeTimeXmlObject(xmldoc);
+                LifeTimeDiagramEditor.LifeTimeXmlObject xml = new LifeTimeDiagramEditor.LifeTimeXmlObject(xmldoc, _settings);
                 XmlNode n = xmldoc.CreateElement("object");
 
                 if (Clipboard.ContainsData("LifeTimeElement"))

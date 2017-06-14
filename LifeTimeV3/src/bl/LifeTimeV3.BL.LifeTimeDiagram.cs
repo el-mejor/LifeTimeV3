@@ -245,8 +245,8 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
 
                 private Rectangle DrawObjectEvent(Graphics g, LifeTimeElement o, DrawComponent components)
                 {
-                    Int32 x = GetX(o.Begin);
-                    Int32 y = GetY(o.Row) + (Settings.BlockHeight / 2) + o.LineDeviation;
+                    int x = GetX(o.Begin);
+                    int y = GetY(o.Row) + (Settings.BlockHeight / 2) + o.LineDeviation;
 
                     if ((components == DrawComponent.Shadow || components == DrawComponent.All) && Style == DrawStyle.WithShadow)
                     {
@@ -272,8 +272,8 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
 
                 private Rectangle DrawObjectTimeSpan(Graphics g, LifeTimeElement o, DrawComponent components)
                 {
-                    Int32 x = GetX(o.Begin);
-                    Int32 y = GetY(o.Row) + o.LineDeviation;
+                    int x = GetX(o.Begin);
+                    int y = GetY(o.Row) + o.LineDeviation;
 
                     if ((components == DrawComponent.Shadow || components == DrawComponent.All) && Style == DrawStyle.WithShadow)
                     {
@@ -362,7 +362,7 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
                         if (o.TextInBox)
                         {
                             g.FillRectangle(new SolidBrush(c), r);
-                            g.DrawRectangle(new Pen(Settings.LabelColor, 1.0f), r);
+                            g.DrawRectangle(GetFramePen(o), r);
                         }
                         
                         g.DrawString(o.Text, new Font(o.UseDiagFont? Settings.Font : o.Font, o.Size, o.FontStyle), new SolidBrush(GetPenColor(o)), x + border, y + border);
@@ -373,23 +373,39 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
 
                 private void DrawObjectLabel(Graphics g, LifeTimeElement o)
                 {
-                    if (o.GetLabel() == "") return;
-
+                    if (o.GetLabel() == "")
+                        return;
+                    
                     int x = GetX(o.Begin);
                     int y = GetY(o.Row) + o.LineDeviation;
-                    DrawLineToLabel(g, o, x, y);
+
                     DrawLabelText(g, o, x, y);
+                    DrawLineToLabel(g, o, x, y);
+                    
                 }
 
                 private void DrawLabelText(Graphics g, LifeTimeElement o, int x, int y)
                 {
-                    g.DrawString(o.GetLabel(), new Font(o.UseDiagFont? Settings.Font : o.Font, Settings.GlobalFontSize, o.FontStyle), new SolidBrush(GetPenColor(o)), x + o.TextPosX, y + o.TextPosY);
+                    g.DrawString(o.GetLabel(), new Font(o.UseDiagFont? Settings.Font : o.Font, Settings.GlobalFontSize, o.FontStyle), new SolidBrush(GetPenColor(o)), 
+                        x + o.TextPosX, y + o.TextPosY);
                 }
 
                 private void DrawLineToLabel(Graphics g, LifeTimeElement o, int x, int y)
                 {
-                    g.DrawLine(new Pen(Settings.LabelColor, 1.0f), x, y, x + o.TextPosX, y + o.TextPosY + 14);
-                    g.DrawLine(new Pen(Settings.LabelColor, 1.0f), x + o.TextPosX, y + o.TextPosY + 14, x + o.TextPosX + 20, y + o.TextPosY + 14);
+                    if (o.TextPosY < o.Size && o.TextPosY >= 0)
+                        return;
+
+                    int origin = y;
+                    if (o.Type == LifeTimeElement.LifeTimeObjectType.Event)
+                        origin = (o.TextPosY > 0 ? y + o.Size / 2 : y - o.Size / 2) + Settings.BlockHeight / 2;
+                    else
+                        origin = o.TextPosY > 0 ? y + o.Size : y;
+
+                    int target = o.TextPosY;
+                    
+
+                    g.DrawLine(new Pen(GetPenColor(o), 1.0f), x, origin, x + o.TextPosX, y + target + Settings.GlobalFontSize * 2);
+                    g.DrawLine(new Pen(GetPenColor(o), 1.0f), x + o.TextPosX, y + target + Settings.GlobalFontSize * 2, x + o.TextPosX + 20, y + target + Settings.GlobalFontSize * 2);
                 }
 
                 private Pen GetFramePen(LifeTimeElement o)
@@ -399,9 +415,8 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
 
                 private Color GetPenColor(LifeTimeElement o)
                 {
-                    return o.Highlight ? Color.Red : Settings.LabelColor;
+                    return o.Highlight ? Color.Red : o.UseGlobalTextColor? Settings.LabelColor : o.TextColor;
                 }
-
                 #endregion
 
                 #region Private Methods

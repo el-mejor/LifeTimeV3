@@ -14,9 +14,17 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
             public XmlDocument Xml { get; set; }
             #endregion
 
+            #region fields
+            LifeTimeDiagramSettings _settings;
+            #endregion
+
             #region constructor
-            public LifeTimeXmlObject(XmlDocument xml)
+            public LifeTimeXmlObject(XmlDocument xml, LifeTimeDiagramSettings settings) : this(xml)
             {
+                _settings = settings;               
+            }
+            public LifeTimeXmlObject(XmlDocument xml)
+            {                
                 Xml = xml;
             }
             #endregion
@@ -69,7 +77,7 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
                         if (node.Attributes["Type"].Value == "TimeSpan") type = LifeTimeElement.LifeTimeObjectType.TimeSpan;
                         if (node.Attributes["Type"].Value == "Text") type = LifeTimeElement.LifeTimeObjectType.Text;
                         
-                        o = new LifeTimeElement(node.Attributes["Name"].Value, type);
+                        o = new LifeTimeElement(_settings, node.Attributes["Name"].Value, type);
                         break;
 
                     case LifeTimeGroup.XmlNodeNameDefinition:
@@ -128,15 +136,7 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
                                 t.GetProperty(property).SetValue(o, e);
                                 break;
                             }
-                        }
-
-                        
-                        //if (node.Attributes[property].Value == Enum.GetName(typeof(LifeTimeElement.BondPositionsHorizontally), 1))
-                        //    t.GetProperty(property).SetValue(o, 1);
-                        //if (node.Attributes[property].Value == Enum.GetName(typeof(LifeTimeElement.BondPositionsHorizontally), 2))
-                        //    t.GetProperty(property).SetValue(o, 2);
-                        //if (node.Attributes[property].Value == Enum.GetName(typeof(LifeTimeElement.BondPositionsHorizontally), 3))
-                        //    t.GetProperty(property).SetValue(o, 3);
+                        }                        
                     }
                     else if (t.GetProperty(property).PropertyType == typeof(LifeTimeElement.BondPostionsVertically))
                     {
@@ -148,15 +148,6 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
                                 break;
                             }
                         }
-
-                        //if (node.Attributes[property].Value == Enum.GetName(typeof(LifeTimeElement.BondPostionsVertically), 0))
-                        //    t.GetProperty(property).SetValue(o, 0);
-                        //if (node.Attributes[property].Value == Enum.GetName(typeof(LifeTimeElement.BondPostionsVertically), 1))
-                        //    t.GetProperty(property).SetValue(o, 1);
-                        //if (node.Attributes[property].Value == Enum.GetName(typeof(LifeTimeElement.BondPostionsVertically), 2))
-                        //    t.GetProperty(property).SetValue(o, 2);
-                        //if (node.Attributes[property].Value == Enum.GetName(typeof(LifeTimeElement.BondPostionsVertically), 3))
-                        //    t.GetProperty(property).SetValue(o, 3);
                     }
                     else if (t.GetProperty(property).PropertyType == typeof(FontStyle))
                     {

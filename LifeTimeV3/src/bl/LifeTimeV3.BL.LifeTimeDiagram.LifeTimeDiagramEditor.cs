@@ -114,6 +114,7 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
             Diagram.Settings.OffsetX = 0;
             Diagram.Settings.OffsetY = 0;
             Diagram.Settings.Zoom = 1.0f;
+            Diagram.Settings.BlockHeight = 15;
 
             DiagramViewer.Reset();
 
@@ -121,12 +122,12 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
             Diagram.Groups.Add(new LifeTimeGroup("Spacer", Color.Green));
             Diagram.Groups.Add(new LifeTimeGroup("MyGroup", Color.Blue));
 
-            LifeTimeElement begMarker = new LifeTimeElement("", LifeTimeElement.LifeTimeObjectType.Marker);
+            LifeTimeElement begMarker = new LifeTimeElement(Diagram.Settings, "", LifeTimeElement.LifeTimeObjectType.Marker);
             begMarker.Begin = Diagram.Settings.Begin;
             begMarker.Name = begMarker.Begin.ToShortDateString();
             begMarker.FixedColor = Color.Black;
 
-            LifeTimeElement endMarker = new LifeTimeElement("", LifeTimeElement.LifeTimeObjectType.Marker);
+            LifeTimeElement endMarker = new LifeTimeElement(Diagram.Settings, "", LifeTimeElement.LifeTimeObjectType.Marker);
             endMarker.Begin = Diagram.Settings.End;
             endMarker.Name = endMarker.Begin.ToShortDateString();
             endMarker.FixedColor = Color.Black;
@@ -134,13 +135,13 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
             Diagram.Groups.Groups[0].Add(begMarker);
             Diagram.Groups.Groups[0].Add(endMarker);
 
-            Diagram.Groups.Groups[2].Add(new LifeTimeElement("MyElement", LifeTimeElement.LifeTimeObjectType.TimeSpan));
+            Diagram.Groups.Groups[2].Add(new LifeTimeElement(Diagram.Settings, "MyElement", LifeTimeElement.LifeTimeObjectType.TimeSpan));
             Diagram.Groups.Groups[2].Objects[0].Begin = Diagram.Settings.Begin;
             Diagram.Groups.Groups[2].Objects[0].End = Diagram.Settings.End;
             Diagram.Groups.Groups[2].Objects[0].FixedColor = Color.Red;
             Diagram.Groups.Groups[2].Objects[0].GetRandomColor = true;
 
-            LifeTimeElement header = new LifeTimeElement("Header", LifeTimeElement.LifeTimeObjectType.Text);
+            LifeTimeElement header = new LifeTimeElement(Diagram.Settings, "Header", LifeTimeElement.LifeTimeObjectType.Text);
             header.Text = "My Diagram";
             header.HorizontallyBonding = LifeTimeElement.BondPositionsHorizontally.Center;
             header.VerticallyBonding = LifeTimeElement.BondPostionsVertically.Top;
@@ -149,7 +150,7 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
             header.Size = 20;
             Diagram.Groups.Groups[1].Add(header);
 
-            LifeTimeElement credits = new LifeTimeElement("credits", LifeTimeElement.LifeTimeObjectType.Text);
+            LifeTimeElement credits = new LifeTimeElement(Diagram.Settings, "credits", LifeTimeElement.LifeTimeObjectType.Text);
             credits.Text = "powered by LifeTimeV3 by Lars Becker" + Environment.NewLine + "https://github.com/el-mejor/LifeTimeV3";
             credits.HorizontallyBonding = LifeTimeElement.BondPositionsHorizontally.Right;
             credits.VerticallyBonding = LifeTimeElement.BondPostionsVertically.Bottom;
@@ -338,7 +339,7 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
             PropertyGrid = new LifeTimeObjectPropertyGrid();
             SettingsGrid = new LifeTimeObjectPropertyGrid();
             ExportGrid = new LifeTimeExportPNGPropertyGrid();
-            ObjectBrowser = new LifeTimeObjectBrowser();
+            ObjectBrowser = new LifeTimeObjectBrowser(Diagram.Settings);
 
             PropertyGrid.ObjectChanged += new LifeTimeObjectPropertyGrid.ObjectChangedEvent(ObjectChanged);
             SettingsGrid.ObjectChanged += new LifeTimeObjectPropertyGrid.ObjectChangedEvent(ObjectChanged);

@@ -156,7 +156,7 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
                     GetGroupDeep(group, d.Groups);
             }
 
-            private void GetGroupDeep(XmlNode group, LifeTimeGroup d)
+            private void GetGroupDeep(XmlNode group, LifeTimeGroup grp)
             {
                 LifeTimeXmlObject get = new LifeTimeXmlObject(xml);
                 LifeTimeGroup g = get.GetObjectFromXml(group) as LifeTimeGroup;
@@ -170,7 +170,7 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
                         GetGroupDeep(child, g);
                 }
 
-                d.Add(g);
+                grp.Add(g);
             }
 
             private enum settingsType

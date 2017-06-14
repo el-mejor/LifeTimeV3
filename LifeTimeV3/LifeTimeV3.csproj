@@ -166,6 +166,7 @@
   <ItemGroup>
     <None Include="Resources\el-mejor.png" />
     <Content Include="Resources\_text.bmp" />
+    <Content Include="SampleDiagrams\z750.png" />
     <Content Include="SampleDiagrams\Z750.xml" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
