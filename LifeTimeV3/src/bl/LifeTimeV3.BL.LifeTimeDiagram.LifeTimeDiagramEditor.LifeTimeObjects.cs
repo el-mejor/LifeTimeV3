@@ -133,7 +133,7 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
                 if (All) properties.Add("Color");
                 if (All) properties.Add("BaseColor");                
                 if (Type == LifeTimeObjectType.Text || All) properties.Add("TextInBox");
-                if (Type == LifeTimeObjectType.Text || All) properties.Add("Locked");
+                properties.Add("Locked");
                 if (Type == LifeTimeObjectType.Text || All) properties.Add("Text");
 
                 return properties;
@@ -476,6 +476,7 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
                 if (All) properties.Add("ShowRefLine");
                 properties.Add("Font");
                 properties.Add("GlobalFontSize");
+                properties.Add("Locked");
                 return properties;
             }
             public const String XmlNodeNameDefinition = "DiagramSettings";
@@ -503,8 +504,8 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
             public Color LabelColor { get; set; }
             public bool ShowRefLine { get; set; }
             public FontFamily Font { get; set; }
-
             public int GlobalFontSize { get; set; }
+            public bool Locked { get; set; }
             #endregion
 
             #region Constructors
@@ -526,6 +527,7 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
                 DrawShadows = true;
                 Font = new FontFamily("Arial Narrow");
                 GlobalFontSize = 8;
+                Locked = true;
             }
             #endregion
 

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Drawing;
+using System.Drawing.Drawing2D;
 using System.Drawing.Printing;
 
 namespace LifeTimeV3.BL.LifeTimeDiagram
@@ -142,15 +143,25 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
 
             private void DrawObjectsOfType(LifeTimeElement.LifeTimeObjectType type, DiagramDrawer draw, List<LifeTimeElement> o, Graphics g, DrawComponent components)
             {
-                Rectangle fence = new Rectangle();
-
                 foreach (LifeTimeElement _o in o)
                 {
                     if (!_o.Deleted && _o.Type == type)
                     {
-                        fence = draw.DrawObject(g, _o, components);
-                        if (components == DrawComponent.Object || components == DrawComponent.Text)
-                            AddObjectFenceToDictionary(fence, _o);
+                        foreach (Rectangle fence in draw.DrawObject(g, _o, components))
+                            if (fence.Width > 0 && fence.Height > 0)//components == DrawComponent.Object || components == DrawComponent.Text)
+                            {
+                                AddObjectFenceToDictionary(fence, _o);
+
+                                if (Properties.Settings.Default.DebugMode)
+                                {
+                                    Pen fenceMarker = new Pen(Color.OrangeRed);
+                                    fenceMarker.DashPattern = new float[]{ 3.0f, 3.0f};
+                                    
+                                    g.DrawRectangle(fenceMarker, fence);
+                                    g.DrawString($"{fence.X} {fence.Y} {fence.Width} {fence.Height}", new Font(new FontFamily("Courier New"), 6.0f),
+                                    new SolidBrush(Color.OrangeRed), fence.X, fence.Y);
+                                }
+                            }
                     }
                 }
             }
@@ -222,29 +233,36 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
                 #endregion
 
                 #region Public Methods
-                public Rectangle DrawObject(Graphics g, LifeTimeElement o, DrawComponent components)
+                public List<Rectangle> DrawObject(Graphics g, LifeTimeElement o, DrawComponent components)
                 {
+                    List<Rectangle> rColl = new List<Rectangle>();
+
                     if (o.Type == LifeTimeElement.LifeTimeObjectType.Event)
                     {
-                        return DrawObjectEvent(g, o, components);
+                        rColl.AddRange(DrawObjectEvent(g, o, components));
                     }
                     if (o.Type == LifeTimeElement.LifeTimeObjectType.TimeSpan)
                     {
-                        return DrawObjectTimeSpan(g, o, components);
+                        rColl.AddRange(DrawObjectTimeSpan(g, o, components));
                     }
                     if (o.Type == LifeTimeElement.LifeTimeObjectType.Marker)
                     {
-                        return DrawObjectMarker(g, o, components);
+                        rColl.AddRange(DrawObjectMarker(g, o, components));
                     }
                     if (o.Type == LifeTimeElement.LifeTimeObjectType.Text)
                     {
-                        return DrawObjectText(g, o, components);
+                        rColl.AddRange(DrawObjectText(g, o, components));
                     }
-                    return new Rectangle();
+                    else
+                        rColl.Add(new Rectangle());
+
+                    return rColl;
                 }
 
-                private Rectangle DrawObjectEvent(Graphics g, LifeTimeElement o, DrawComponent components)
+                private List<Rectangle> DrawObjectEvent(Graphics g, LifeTimeElement o, DrawComponent components)
                 {
+                    List<Rectangle> rColl = new List<Rectangle>();
+
                     int x = GetX(o.Begin);
                     int y = GetY(o.Row) + (Settings.BlockHeight / 2) + o.LineDeviation;
 
@@ -265,13 +283,17 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
                     }
 
                     if (components == DrawComponent.Label || components == DrawComponent.All)
-                        DrawObjectLabel(g, o);
+                        rColl.Add(DrawObjectLabel(g, o));
 
-                    return new Rectangle(x - o.Size, y - o.Size, o.Size * 2, o.Size * 2);
+                    rColl.Add(new Rectangle(x - o.Size, y - o.Size, o.Size * 2, o.Size * 2));
+
+                    return rColl;
                 }
 
-                private Rectangle DrawObjectTimeSpan(Graphics g, LifeTimeElement o, DrawComponent components)
+                private List<Rectangle> DrawObjectTimeSpan(Graphics g, LifeTimeElement o, DrawComponent components)
                 {
+                    List<Rectangle> rColl = new List<Rectangle>();
+
                     int x = GetX(o.Begin);
                     int y = GetY(o.Row) + o.LineDeviation;
 
@@ -299,14 +321,18 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
                     }
 
                     if (components == DrawComponent.Label || components == DrawComponent.All)
-                        DrawObjectLabel(g, o);
+                        rColl.Add(DrawObjectLabel(g, o));
 
-                    return new Rectangle(x, y, GetWidth(o.Begin, o.End), o.Size);
+                    rColl.Add(new Rectangle(x, y, GetWidth(o.Begin, o.End), o.Size));
+
+                    return rColl;
                 }
 
-                private Rectangle DrawObjectMarker(Graphics g, LifeTimeElement o, DrawComponent components)
+                private List<Rectangle> DrawObjectMarker(Graphics g, LifeTimeElement o, DrawComponent components)
                 {
-                    Int32 x = GetX(o.Begin);
+                    List<Rectangle> rColl = new List<Rectangle>();
+
+                    int x = GetX(o.Begin);
                     if (components != DrawComponent.Shadow)
                     {
                         if (components == DrawComponent.Object || components == DrawComponent.All)
@@ -316,14 +342,18 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
                         }
 
                         if (components == DrawComponent.Label || components == DrawComponent.All)
-                            DrawObjectLabel(g, o);
+                            rColl.Add(DrawObjectLabel(g, o));
                     }
 
-                    return new Rectangle(x - 4, 0, 8, Height - Settings.Border);
+                    rColl.Add(new Rectangle(x - 4, 0, 8, Height - Settings.Border));
+
+                    return rColl;
                 }
 
-                private Rectangle DrawObjectText(Graphics g, LifeTimeElement o, DrawComponent components)
+                private List<Rectangle> DrawObjectText(Graphics g, LifeTimeElement o, DrawComponent components)
                 {
+                    List<Rectangle> rColl = new List<Rectangle>();
+
                     SizeF s = g.MeasureString(o.Text, new Font(o.UseDiagFont? Settings.Font : o.Font, Convert.ToSingle(o.Size), o.FontStyle));
 
                     int x = Settings.Border + o.TextPosX;
@@ -350,7 +380,7 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
 
                     int border = o.TextInBox ? 2 : 0;
                     
-                    Rectangle r = new Rectangle(x, y, Convert.ToInt32(s.Width) + 2 * border, Convert.ToInt32(s.Height) + 2 * border);
+                    rColl.Add(new Rectangle(x, y, Convert.ToInt32(s.Width) + 2 * border, Convert.ToInt32(s.Height) + 2 * border));
 
                     Color c = Color.FromArgb(Convert.ToInt16(255.0 * o.Opacity),
                             GetColorOfObject(o).R,
@@ -361,33 +391,38 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
                     {
                         if (o.TextInBox)
                         {
-                            g.FillRectangle(new SolidBrush(c), r);
-                            g.DrawRectangle(GetFramePen(o), r);
+                            g.FillRectangle(new SolidBrush(c), rColl[0]);
+                            g.DrawRectangle(GetFramePen(o), rColl[0]);
                         }
                         
                         g.DrawString(o.Text, new Font(o.UseDiagFont? Settings.Font : o.Font, o.Size, o.FontStyle), new SolidBrush(GetPenColor(o)), x + border, y + border);
                     }
                     
-                    return r;
+                    return rColl;
                 }
 
-                private void DrawObjectLabel(Graphics g, LifeTimeElement o)
+                private Rectangle DrawObjectLabel(Graphics g, LifeTimeElement o)
                 {
                     if (o.GetLabel() == "")
-                        return;
+                        return new Rectangle();
                     
                     int x = GetX(o.Begin);
                     int y = GetY(o.Row) + o.LineDeviation;
-
-                    DrawLabelText(g, o, x, y);
-                    DrawLineToLabel(g, o, x, y);
                     
+                    DrawLineToLabel(g, o, x, y);
+
+                    return DrawLabelText(g, o, x, y);
+
                 }
 
-                private void DrawLabelText(Graphics g, LifeTimeElement o, int x, int y)
+                private Rectangle DrawLabelText(Graphics g, LifeTimeElement o, int x, int y)
                 {
                     g.DrawString(o.GetLabel(), new Font(o.UseDiagFont? Settings.Font : o.Font, Settings.GlobalFontSize, o.FontStyle), new SolidBrush(GetPenColor(o)), 
                         x + o.TextPosX, y + o.TextPosY);
+
+                    SizeF s = g.MeasureString(o.GetLabel(), new Font(o.UseDiagFont ? Settings.Font : o.Font, Settings.GlobalFontSize, o.FontStyle));
+
+                    return new Rectangle(x + o.TextPosX, y + o.TextPosY, Convert.ToInt32(s.Width), Convert.ToInt32(s.Height));
                 }
 
                 private void DrawLineToLabel(Graphics g, LifeTimeElement o, int x, int y)
