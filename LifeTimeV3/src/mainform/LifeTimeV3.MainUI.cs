@@ -30,6 +30,7 @@ namespace LifeTimeV3.MainUI
             toolStripMenuItemSwitchLang.Text = LifeTimeV3TextList.GetText(toolStripMenuItemSwitchLang.Text);
             aboutToolStripMenuItem.Text = LifeTimeV3TextList.GetText(aboutToolStripMenuItem.Text);
             RefLineToolStripMenuItem.Text = LifeTimeV3TextList.GetText(RefLineToolStripMenuItem.Text);
+            lockAllToolStripMenuItem.Text = LifeTimeV3TextList.GetText(lockAllToolStripMenuItem.Text);
             printToolStripMenuItem.Text = LifeTimeV3TextList.GetText(printToolStripMenuItem.Text);
 
             _diagramEditor = new LifeTimeDiagramEditor();
@@ -267,6 +268,14 @@ namespace LifeTimeV3.MainUI
         {
             RefLineToolStripMenuItem.Checked = !RefLineToolStripMenuItem.Checked;            
             _diagramEditor.Diagram.Settings.ShowRefLine = RefLineToolStripMenuItem.Checked;
+            _diagramEditor.SettingsGrid.UpdateProperties();
+        }
+
+        private void lockAllToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            lockAllToolStripMenuItem.Checked = !lockAllToolStripMenuItem.Checked;
+            _diagramEditor.Diagram.Settings.Locked = lockAllToolStripMenuItem.Checked;
+            _diagramEditor.SettingsGrid.UpdateProperties();
         }
 
         private void Mouse_Moved(object sender, MouseEventArgs e)
@@ -277,6 +286,7 @@ namespace LifeTimeV3.MainUI
         private void eXTRASToolStripMenuItem_Click(object sender, EventArgs e)
         {
             RefLineToolStripMenuItem.Checked = _diagramEditor.Diagram.Settings.ShowRefLine;
+            lockAllToolStripMenuItem.Checked = _diagramEditor.Diagram.Settings.Locked;
         }
 
         private void printToolStripMenuItem_Click(object sender, EventArgs e)
@@ -289,8 +299,7 @@ namespace LifeTimeV3.MainUI
             if(prntDlgRes == DialogResult.OK)
                 _diagramEditor.Diagram.PrintDiagram(prntDoc);
         }
+
         #endregion
-
-
     }
 }

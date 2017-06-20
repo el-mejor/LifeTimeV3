@@ -1060,6 +1060,14 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
         {
             return _lifeTimeObject;
         }
+
+        /// <summary>
+        /// Update properties when changed external
+        /// </summary>
+        public void UpdateProperties()
+        {
+            SetObject(_lifeTimeObject);
+        }
         #endregion
 
         #region private Methods

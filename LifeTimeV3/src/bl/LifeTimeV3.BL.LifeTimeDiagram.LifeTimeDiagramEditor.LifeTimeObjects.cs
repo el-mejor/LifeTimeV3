@@ -472,11 +472,11 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
                 properties.Add("Border");
                 properties.Add("DrawShadows");
                 properties.Add("BackColor");
-                properties.Add("LabelColor");
-                if (All) properties.Add("ShowRefLine");
+                properties.Add("LabelColor");                
                 properties.Add("Font");
                 properties.Add("GlobalFontSize");
                 properties.Add("Locked");
+                properties.Add("ShowRefLine");
                 return properties;
             }
             public const String XmlNodeNameDefinition = "DiagramSettings";

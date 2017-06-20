@@ -63,8 +63,8 @@ namespace LifeTimeV3.Src
                               "[222]", "Ergebnis {0} von {1}",
                               "[223]", "Switch to english",
                               "[224]", "To switch language LifeTimeV3 needs to be closed.",
-                              "[225]", "Über...",
-                              "[226]", "Hilfsline",
+                              "[225]", "Über...",                              
+                              "[227]", "Alles fixieren",
 
                               "[300]", "Soll das ausgewählte Element \"{0}\" wirklich gelöscht werden?",
                               "[301]", "Soll die ausgewählte Gruppe \"{0}\" wirklich gelöscht werden? Alle darin befindlichen Elemente und Gruppen gehen dabei verloren!",
@@ -120,6 +120,7 @@ namespace LifeTimeV3.Src
                               "UseDiagFont", "Diagram Schriftart",
                               "GlobalFontSize", "Schriftgröße",
                               "FontStyle", "Stil",
+                              "ShowRefLine", "Hilfsline",
 
 
                               "GroupColor", "Gruppenfarbe", //LifeTimeGroup Properties
@@ -188,8 +189,8 @@ namespace LifeTimeV3.Src
                               "[222]", "Result {0} of {1}",
                               "[223]", "Switch to german",                              
                               "[224]", "To switch language LifeTimeV3 needs to be closed.",
-                              "[225]", "About...",
-                              "[226]", "Referenceline",
+                              "[225]", "About...",                              
+                              "[227]", "Lock all",
 
 
                               "[300]", "Would you really delete the element \"{0}\"?",
@@ -246,6 +247,7 @@ namespace LifeTimeV3.Src
                               "UseDiagFont", "Use diagram font",
                               "GlobalFontSize", "Global font size",
                               "FontStyle", "Style",
+                              "ShowRefLine", "Referenceline",
 
                               "GroupColor", "Group Color", //LifeTimeGroup Properties
                               "OwnColor", "Own Color",           
