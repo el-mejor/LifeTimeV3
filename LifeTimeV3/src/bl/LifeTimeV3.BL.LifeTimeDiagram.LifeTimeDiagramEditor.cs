@@ -409,7 +409,7 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
         {
             if (e.Object != null)
             {
-                PropertyGrid.SetObject(e.Object);
+                PropertyGrid.SetObject(e.Object, e.ObjectCollection);
                 ObjectSelected?.Invoke(e.Object, null);
             }
 

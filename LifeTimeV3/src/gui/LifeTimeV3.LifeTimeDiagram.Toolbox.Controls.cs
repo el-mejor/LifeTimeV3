@@ -122,7 +122,7 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
         {
             if (o == null)
             {
-                ItemSelectedArgs e = new ItemSelectedArgs(o, SelectedNodes);
+                ItemSelectedArgs e = new ItemSelectedArgs(o, SelectedObjects);
                 ItemSelected?.Invoke(null, e);
                 return null;
             }
@@ -135,7 +135,7 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
 
             SelectedObject = t as LifeTimeObjectTreeNode;
 
-            ItemSelectedArgs args = new ItemSelectedArgs(o, SelectedNodes);
+            ItemSelectedArgs args = new ItemSelectedArgs(o, SelectedObjects);
             ItemSelected?.Invoke(o, args);
             
             return t as LifeTimeObjectTreeNode;
@@ -278,8 +278,8 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
         public class ItemSelectedArgs
         {
             public LifeTimeDiagramEditor.ILifeTimeObject Object { get; private set; }
-            public List<LifeTimeObjectTreeNode> ObjectCollection { get; private set; }
-            public ItemSelectedArgs(LifeTimeDiagramEditor.ILifeTimeObject o, List<LifeTimeObjectTreeNode> coll)
+            public List<LifeTimeDiagramEditor.ILifeTimeObject> ObjectCollection { get; private set; }
+            public ItemSelectedArgs(LifeTimeDiagramEditor.ILifeTimeObject o, List<LifeTimeDiagramEditor.ILifeTimeObject> coll)
             {
                 Object = o;
                 ObjectCollection = coll;         
@@ -299,7 +299,7 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
 
             _objectsByIndex.TryGetValue(Convert.ToInt16(n.Name), out o);
 
-            ItemSelectedArgs args = new ItemSelectedArgs(o, SelectedNodes);
+            ItemSelectedArgs args = new ItemSelectedArgs(o, SelectedObjects);
             if (ItemSelected != null && o != null) this.ItemSelected(this, args);
         }
 
@@ -311,7 +311,7 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
 
             UpdateObjectBrowser(_root);
 
-            ItemSelectedArgs args = new ItemSelectedArgs(e.NewObject, SelectedNodes);
+            ItemSelectedArgs args = new ItemSelectedArgs(e.NewObject, SelectedObjects);
             if (ItemSelected != null && e.NewObject != null) this.ItemSelected(this, args);
             if (ObjectCollectionChanged != null) this.ObjectCollectionChanged(this, null);
         }
@@ -386,6 +386,19 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
                 m_coll.Clear();
                 m_coll = value;
                 paintSelectedNodes();
+            }
+        }
+
+        public List<LifeTimeDiagramEditor.ILifeTimeObject> SelectedObjects
+        {
+            get
+            {
+                List<LifeTimeDiagramEditor.ILifeTimeObject> coll = new List<LifeTimeDiagramEditor.ILifeTimeObject>();
+                foreach (LifeTimeObjectTreeNode n in m_coll)
+                    if(n.Object is LifeTimeDiagramEditor.LifeTimeElement)
+                        coll.Add(n.Object);
+
+                return coll;
             }
         }
         
@@ -527,6 +540,13 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
                     selectionHighlightingAfterChanging(true);
 
                 }
+
+                if (m_coll.Count > 0)
+                {
+                    ItemSelectedArgs isa = new ItemSelectedArgs(m_coll[0].Object, SelectedObjects);
+
+                    ItemSelected?.Invoke(this, isa);
+                }
             }
         }
 
@@ -537,13 +557,6 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
                 if(n.Object is LifeTimeDiagramEditor.LifeTimeElement)
                 {
                     (n.Object as LifeTimeDiagramEditor.LifeTimeElement).Highlight = highlight;
-                }
-
-                if (m_coll.Count > 0)
-                {
-                    ItemSelectedArgs e = new ItemSelectedArgs(m_coll[0].Object, SelectedNodes);
-
-                    ItemSelected?.Invoke(this, e);
                 }
             }
         }
@@ -1210,6 +1223,7 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
         private LifeTimeDiagramEditor.ILifeTimeObject _lifeTimeObject;
         private Color ErrorBackColor = Color.Orange;
         private bool _allowDiagramChanging = true;
+        private List<LifeTimeDiagramEditor.ILifeTimeObject> _multiselection;
         #endregion
 
         #region Constructor
@@ -1221,12 +1235,19 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
         #endregion
 
         #region Public Methods
+        public void SetObject(LifeTimeDiagramEditor.ILifeTimeObject o, List<LifeTimeDiagramEditor.ILifeTimeObject> coll)
+        {
+            _multiselection = coll;
+
+            SetObject(o);
+        }
+
         /// <summary>
         /// Set a LifeTimeObjet
         /// </summary>
         /// <param name="o"></param>
         public void SetObject(LifeTimeDiagramEditor.ILifeTimeObject o)
-        {
+        {            
             _allowDiagramChanging = false;
             this.Controls.Clear();
 
@@ -1516,6 +1537,12 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
                 o.Type = c.value;
                 SetObject(_lifeTimeObject);
 
+                foreach(LifeTimeDiagramEditor.LifeTimeElement ms in _multiselection)
+                {
+                    if (ms is LifeTimeDiagramEditor.LifeTimeElement)
+                        (ms as LifeTimeDiagramEditor.LifeTimeElement).Type = o.Type;
+                }
+
                 ObjectChangedArgs objChangedArgs = new ObjectChangedArgs();
                 objChangedArgs.NewColorsRequested = true;
                 objChangedArgs.DiagramChanged = _allowDiagramChanging;
@@ -1531,6 +1558,7 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
         {
             FontFamilySelectorBox c = sender as FontFamilySelectorBox;
             c.BackColor = Color.White;
+
             if (_lifeTimeObject is LifeTimeDiagramEditor.LifeTimeElement)
                 ObjectFontChanged(c, _lifeTimeObject as LifeTimeDiagramEditor.LifeTimeElement);
             if (_lifeTimeObject is LifeTimeDiagramEditor.LifeTimeDiagramSettings)
@@ -1544,6 +1572,9 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
             {
                 t.GetProperty(c.Name).SetValue(o, c.Value);
 
+                foreach (T ms in _multiselection)
+                    t.GetProperty(c.Name).SetValue(ms, c.Value);
+                
                 ObjectChangedArgs objChangedArgs = new ObjectChangedArgs();
                 objChangedArgs.NewColorsRequested = false;
                 objChangedArgs.DiagramChanged = _allowDiagramChanging;
@@ -1564,6 +1595,12 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
                 LifeTimeDiagramEditor.LifeTimeElement o = _lifeTimeObject as LifeTimeDiagramEditor.LifeTimeElement;
                 o.FontStyle = c.Value;
 
+                foreach (LifeTimeDiagramEditor.LifeTimeElement ms in _multiselection)
+                {
+                    if (ms is LifeTimeDiagramEditor.LifeTimeElement)
+                        (ms as LifeTimeDiagramEditor.LifeTimeElement).FontStyle = o.FontStyle;
+                }
+
                 ObjectChangedArgs objChangedArgs = new ObjectChangedArgs();
                 objChangedArgs.NewColorsRequested = false;
                 objChangedArgs.DiagramChanged = _allowDiagramChanging;
@@ -1583,6 +1620,13 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
             {
                 LifeTimeDiagramEditor.LifeTimeElement o = _lifeTimeObject as LifeTimeDiagramEditor.LifeTimeElement;
                 o.HorizontallyBonding = c.value;
+
+                foreach (LifeTimeDiagramEditor.LifeTimeElement ms in _multiselection)
+                {
+                    if (ms is LifeTimeDiagramEditor.LifeTimeElement)
+                        (ms as LifeTimeDiagramEditor.LifeTimeElement).HorizontallyBonding = o.HorizontallyBonding;
+                }
+
                 SetObject(_lifeTimeObject);
 
                 ObjectChangedArgs objChangedArgs = new ObjectChangedArgs();
@@ -1601,7 +1645,13 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
             {
                 LifeTimeDiagramEditor.LifeTimeElement o = _lifeTimeObject as LifeTimeDiagramEditor.LifeTimeElement;
                 o.VerticallyBonding = c.value;
-                
+
+                foreach (LifeTimeDiagramEditor.LifeTimeElement ms in _multiselection)
+                {
+                    if (ms is LifeTimeDiagramEditor.LifeTimeElement)
+                        (ms as LifeTimeDiagramEditor.LifeTimeElement).VerticallyBonding = o.VerticallyBonding;
+                }
+
                 SetObject(_lifeTimeObject);
 
                 ObjectChangedArgs objChangedArgs = new ObjectChangedArgs();
@@ -1630,8 +1680,12 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
             try
             {
                 t.GetProperty(c.Name).SetValue(o, c.Checked);
-                SetObject(o as LifeTimeDiagramEditor.ILifeTimeObject);
 
+                foreach (T ms in _multiselection)
+                    t.GetProperty(c.Name).SetValue(ms, c.Checked);
+
+                SetObject(o as LifeTimeDiagramEditor.ILifeTimeObject);
+                
                 ObjectChangedArgs objChangedArgs = new ObjectChangedArgs();
                 objChangedArgs.NewColorsRequested = true;
                 objChangedArgs.DiagramChanged = _allowDiagramChanging;
@@ -1677,12 +1731,27 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
             Type t = typeof(T);
             try
             {
-                if (t.GetProperty(c.Name).PropertyType == typeof(String))
+                if (t.GetProperty(c.Name).PropertyType == typeof(string))
+                {
                     t.GetProperty(c.Name).SetValue(o, c.Text);
-                if (t.GetProperty(c.Name).PropertyType == typeof(Int32))
-                    t.GetProperty(c.Name).SetValue(o, Convert.ToInt16(c.Text));
-                if (t.GetProperty(c.Name).PropertyType == typeof(Double))
+
+                    foreach (T ms in _multiselection)
+                        t.GetProperty(c.Name).SetValue(ms, c.Text);
+                }
+                if (t.GetProperty(c.Name).PropertyType == typeof(int))
+                {
+                    t.GetProperty(c.Name).SetValue(o, Convert.ToInt32(c.Text));
+
+                    foreach (T ms in _multiselection)
+                        t.GetProperty(c.Name).SetValue(ms, Convert.ToInt16(c.Text));
+                }
+                if (t.GetProperty(c.Name).PropertyType == typeof(double))
+                {
                     t.GetProperty(c.Name).SetValue(o, Convert.ToDouble(c.Text));
+
+                    foreach (T ms in _multiselection)
+                        t.GetProperty(c.Name).SetValue(ms, Convert.ToDouble(c.Text));
+                }
 
                 SetObject(o as LifeTimeDiagramEditor.ILifeTimeObject);
 
@@ -1705,7 +1774,11 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
             try
             {
                 t.GetProperty(c.Name).SetValue(_lifeTimeObject, c.Value);
-                
+
+                foreach (LifeTimeDiagramEditor.ILifeTimeObject ms in _multiselection)
+                    if(ms.GetType() == _lifeTimeObject.GetType())
+                        t.GetProperty(c.Name).SetValue(ms, c.Value);
+
                 ObjectChangedArgs objChangedArgs = new ObjectChangedArgs();
                 objChangedArgs.NewColorsRequested = false;
                 objChangedArgs.DiagramChanged = _allowDiagramChanging;
@@ -1728,6 +1801,10 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
             try
             {
                 t.GetProperty(c.Name).SetValue(o, c.Value);
+
+                foreach (T ms in _multiselection)
+                    t.GetProperty(c.Name).SetValue(ms, c.Value);
+
                 SetObject(o as LifeTimeDiagramEditor.ILifeTimeObject);
 
                 ObjectChangedArgs objChangedArgs = new ObjectChangedArgs();
