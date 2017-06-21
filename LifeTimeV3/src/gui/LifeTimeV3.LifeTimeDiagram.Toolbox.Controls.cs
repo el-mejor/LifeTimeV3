@@ -8,7 +8,7 @@ using System.Xml;
 using LifeTimeV3.BL.LifeTimeDiagram;
 using LifeTimeV3.LifeTimeDiagram;
 using LifeTimeV3.Src;
-
+using System.Collections;
 
 namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
 {
@@ -38,6 +38,8 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
         #region Constructor
         public LifeTimeObjectBrowser(LifeTimeDiagramEditor.LifeTimeDiagramSettings settings)
         {
+            m_coll = new List<LifeTimeObjectTreeNode>();
+
             _settings = settings;
             _objectsByIndex = new Dictionary<int, LifeTimeDiagramEditor.ILifeTimeObject>();
             _treenodesByObject = new Dictionary<LifeTimeDiagramEditor.ILifeTimeObject, TreeNode>();
@@ -46,7 +48,7 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
             FindObjectControl.FindNextOrPrev += new LifeTimeFindObjectControl.FindEventHandler(FindNextOrPrevious_Clicked);
 
             this.HideSelection = false;
-            this.CheckBoxes = true;
+            this.CheckBoxes = true;            
 
             this.AfterSelect += new TreeViewEventHandler(TreeViewObjectSelected);
             this.AfterCheck += new TreeViewEventHandler(CheckedStateChanged);            
@@ -120,7 +122,7 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
         {
             if (o == null)
             {
-                ItemSelectedArgs e = new ItemSelectedArgs(o);
+                ItemSelectedArgs e = new ItemSelectedArgs(o, SelectedNodes);
                 ItemSelected?.Invoke(null, e);
                 return null;
             }
@@ -133,7 +135,7 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
 
             SelectedObject = t as LifeTimeObjectTreeNode;
 
-            ItemSelectedArgs args = new ItemSelectedArgs(o);
+            ItemSelectedArgs args = new ItemSelectedArgs(o, SelectedNodes);
             ItemSelected?.Invoke(o, args);
             
             return t as LifeTimeObjectTreeNode;
@@ -276,9 +278,11 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
         public class ItemSelectedArgs
         {
             public LifeTimeDiagramEditor.ILifeTimeObject Object { get; private set; }
-            public ItemSelectedArgs(LifeTimeDiagramEditor.ILifeTimeObject o)
+            public List<LifeTimeObjectTreeNode> ObjectCollection { get; private set; }
+            public ItemSelectedArgs(LifeTimeDiagramEditor.ILifeTimeObject o, List<LifeTimeObjectTreeNode> coll)
             {
-                Object = o;                
+                Object = o;
+                ObjectCollection = coll;         
             }
         }
         #endregion
@@ -295,7 +299,7 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
 
             _objectsByIndex.TryGetValue(Convert.ToInt16(n.Name), out o);
 
-            ItemSelectedArgs args = new ItemSelectedArgs(o);
+            ItemSelectedArgs args = new ItemSelectedArgs(o, SelectedNodes);
             if (ItemSelected != null && o != null) this.ItemSelected(this, args);
         }
 
@@ -307,7 +311,7 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
 
             UpdateObjectBrowser(_root);
 
-            ItemSelectedArgs args = new ItemSelectedArgs(e.NewObject);
+            ItemSelectedArgs args = new ItemSelectedArgs(e.NewObject, SelectedNodes);
             if (ItemSelected != null && e.NewObject != null) this.ItemSelected(this, args);
             if (ObjectCollectionChanged != null) this.ObjectCollectionChanged(this, null);
         }
@@ -361,6 +365,227 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
             FindObjectControl.UpdateStatusLabel(r.Count, _findResultsIndex + 1);
         }
 
+        #endregion
+
+        #region TreeView with Multiselection Addon
+        // TreeView modification to enable multi selection
+        // Comes from http://www.arstdesign.com/articles/treeviewms.html
+        
+        private List<LifeTimeObjectTreeNode> m_coll;
+        private LifeTimeObjectTreeNode m_lastNode, m_firstNode;
+
+        public List<LifeTimeObjectTreeNode> SelectedNodes
+        {
+            get
+            {
+                return m_coll;
+            }
+            set
+            {
+                removePaintFromNodes();
+                m_coll.Clear();
+                m_coll = value;
+                paintSelectedNodes();
+            }
+        }
+        
+        protected override void OnBeforeSelect(TreeViewCancelEventArgs e)
+        {
+            // e.Node is the current node exposed by the base TreeView control
+            base.OnBeforeSelect(e);
+
+            bool bControl = (ModifierKeys == Keys.Control);
+            bool bShift = (ModifierKeys == Keys.Shift);
+
+            // selecting twice the node while pressing CTRL ?
+            if (bControl && m_coll.Contains(e.Node as LifeTimeObjectTreeNode))
+            {
+                // unselect it (let framework know we don't want selection this time)
+                e.Cancel = true;
+
+                // update nodes
+                removePaintFromNodes();
+                m_coll.Remove(e.Node as LifeTimeObjectTreeNode);
+                paintSelectedNodes();
+                return;
+            }
+
+            m_lastNode = e.Node as LifeTimeObjectTreeNode;
+            if (!bShift) m_firstNode = e.Node as LifeTimeObjectTreeNode; // store begin of shift sequence
+        }
+
+        protected override void OnAfterSelect(TreeViewEventArgs e)
+        {
+            // e.Node is the current node exposed by the base TreeView control
+
+            base.OnAfterSelect(e);
+
+            bool bControl = (ModifierKeys == Keys.Control);
+            bool bShift = (ModifierKeys == Keys.Shift);
+
+            if (bControl)
+            {
+                if (!m_coll.Contains(e.Node as LifeTimeObjectTreeNode)) // new node ?
+                {
+                    m_coll.Add(e.Node as LifeTimeObjectTreeNode);
+                    selectionHighlightingAfterChanging(true);
+                }
+                else  // not new, remove it from the collection
+                {
+                    removePaintFromNodes();
+                    m_coll.Remove(e.Node as LifeTimeObjectTreeNode);
+                    selectionHighlightingAfterChanging(true);
+                }
+                paintSelectedNodes();
+            }
+            else
+            {
+                if (bShift)
+                {
+                    Queue<LifeTimeObjectTreeNode> myQueue = new Queue<LifeTimeObjectTreeNode>();
+
+                    LifeTimeObjectTreeNode uppernode = m_firstNode;
+                    LifeTimeObjectTreeNode bottomnode = e.Node as LifeTimeObjectTreeNode;
+
+                    // case 1 : begin and end nodes are parent
+                    bool bParent = isParent(m_firstNode, e.Node as LifeTimeObjectTreeNode); // is m_firstNode parent (direct or not) of e.Node
+                    if (!bParent)
+                    {
+                        bParent = isParent(bottomnode, uppernode);
+                        if (bParent) // swap nodes
+                        {
+                            LifeTimeObjectTreeNode t = uppernode;
+                            uppernode = bottomnode;
+                            bottomnode = t;
+                        }
+                    }
+                    if (bParent)
+                    {
+                        LifeTimeObjectTreeNode n = bottomnode;
+                        while (n != uppernode.Parent)
+                        {
+                            if (!m_coll.Contains(n)) // new node ?
+                                myQueue.Enqueue(n);
+
+                            n = n.Parent as LifeTimeObjectTreeNode;
+                        }
+                    }
+                    // case 2 : nor the begin nor the end node are descendant one another
+                    else
+                    {
+                        if ((uppernode.Parent == null && bottomnode.Parent == null) || (uppernode.Parent != null && uppernode.Parent.Nodes.Contains(bottomnode))) // are they siblings ?
+                        {
+                            int nIndexUpper = uppernode.Index;
+                            int nIndexBottom = bottomnode.Index;
+                            if (nIndexBottom < nIndexUpper) // reversed?
+                            {
+                                LifeTimeObjectTreeNode t = uppernode;
+                                uppernode = bottomnode;
+                                bottomnode = t;
+                                nIndexUpper = uppernode.Index;
+                                nIndexBottom = bottomnode.Index;
+                            }
+
+                            LifeTimeObjectTreeNode n = uppernode;
+                            while (nIndexUpper <= nIndexBottom)
+                            {
+                                if (!m_coll.Contains(n)) // new node ?
+                                    myQueue.Enqueue(n);
+
+                                n = n.NextNode as LifeTimeObjectTreeNode;
+
+                                nIndexUpper++;
+                            } // end while
+
+                        }
+                        else
+                        {
+                            if (!m_coll.Contains(uppernode)) myQueue.Enqueue(uppernode);
+                            if (!m_coll.Contains(bottomnode)) myQueue.Enqueue(bottomnode);
+                        }
+
+                    }
+
+                    m_coll.AddRange(myQueue);
+                    selectionHighlightingAfterChanging(true);
+
+                    paintSelectedNodes();
+                    m_firstNode = e.Node as LifeTimeObjectTreeNode; // let us chain several SHIFTs if we like it
+
+                } // end if m_bShift
+                else
+                {
+                    // in the case of a simple click, just add this item
+                    if (m_coll != null && m_coll.Count > 0)
+                    {
+                        selectionHighlightingAfterChanging(false);
+
+                        removePaintFromNodes();
+                        m_coll.Clear();
+                    }
+                    m_coll.Add(e.Node as LifeTimeObjectTreeNode);
+                    selectionHighlightingAfterChanging(true);
+
+                }
+            }
+        }
+
+        private void selectionHighlightingAfterChanging(bool highlight)
+        {
+            foreach(LifeTimeObjectTreeNode n in m_coll)
+            {
+                if(n.Object is LifeTimeDiagramEditor.LifeTimeElement)
+                {
+                    (n.Object as LifeTimeDiagramEditor.LifeTimeElement).Highlight = highlight;
+                }
+
+                if (m_coll.Count > 0)
+                {
+                    ItemSelectedArgs e = new ItemSelectedArgs(m_coll[0].Object, SelectedNodes);
+
+                    ItemSelected?.Invoke(this, e);
+                }
+            }
+        }
+
+        private bool isParent(LifeTimeObjectTreeNode p, LifeTimeObjectTreeNode c)
+        {
+            foreach(LifeTimeObjectTreeNode n in p.Nodes)
+            {
+                if(n == c)
+                {
+                    return true;
+                }
+
+                if (isParent(n, c))
+                    return true;
+            }
+
+            return false;
+        }
+
+        protected void paintSelectedNodes()
+        {
+            foreach (TreeNode n in m_coll)
+            {
+                n.BackColor = SystemColors.Highlight;
+                n.ForeColor = SystemColors.HighlightText;
+            }
+        }
+
+        protected void removePaintFromNodes()
+        {
+            if (m_coll.Count == 0) return;
+            
+            Color back = BackColor;
+            Color fore = ForeColor;
+
+            foreach (TreeNode n in m_coll)
+            {
+                n.BackColor = back;
+                n.ForeColor = fore;
+            }
+        }
         #endregion
 
         #region LifeTimeObjectTreeNode Class
@@ -1007,8 +1232,7 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
 
             if (_lifeTimeObject != null && _lifeTimeObject is LifeTimeDiagramEditor.LifeTimeElement)
             {
-                LifeTimeDiagramEditor.LifeTimeElement currObj = _lifeTimeObject as LifeTimeDiagramEditor.LifeTimeElement;
-                currObj.Highlight = false;
+                LifeTimeDiagramEditor.LifeTimeElement currObj = _lifeTimeObject as LifeTimeDiagramEditor.LifeTimeElement;                
             }
 
             if (o == null)
@@ -1022,8 +1246,7 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
 
                 LifeTimeDiagramEditor.LifeTimeElement currObj = _lifeTimeObject as LifeTimeDiagramEditor.LifeTimeElement;
 
-                LoadObjectProperties(currObj);
-                currObj.Highlight = true;
+                LoadObjectProperties(currObj);                
 
                 ObjectChangedArgs objChangedArgs = new ObjectChangedArgs();
                 objChangedArgs.DiagramChanged = false;
