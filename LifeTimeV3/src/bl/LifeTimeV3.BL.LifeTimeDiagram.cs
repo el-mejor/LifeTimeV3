@@ -66,9 +66,9 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
             /// <param name="height"></param>
             /// <param name="rndColor"></param>
             /// <param name="components"></param>
-            public List<Exception> DrawDiagram(Graphics g, int width, int height, DrawNewRandomColor rndColor, DrawComponent components, DrawStyle style)
+            public List<string> DrawDiagram(Graphics g, int width, int height, DrawNewRandomColor rndColor, DrawComponent components, DrawStyle style)
             {
-                List<Exception> exColl = new List<Exception>();
+                List<string> exColl = new List<string>();
 
                 ObjectFences.Clear();
 
@@ -90,7 +90,26 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
                 else
                     exColl.AddRange(DrawDiagramComponent(draw, o, g, rndColor, components));
 
-                return exColl;            
+                if (exColl.Count > 0)
+                    errOutputOnDiag(g, exColl);
+
+                return exColl;
+            }
+
+            private void errOutputOnDiag(Graphics g, List<string> exColl)
+            {   
+                StringBuilder sb = new StringBuilder();
+                sb.Append(exColl.Count).Append(Environment.NewLine);
+                foreach (var ex in exColl)
+                {
+                    sb.Append(ex).Append(Environment.NewLine);
+                }
+
+                SizeF s = g.MeasureString(sb.ToString(), new Font(new FontFamily("Arial"), 8.0f, FontStyle.Bold));
+
+                g.FillRectangle(new SolidBrush(Color.Red), Settings.Border, Settings.Border, s.Width + 20, s.Height + 20);
+
+                g.DrawString(sb.ToString(), new Font(new FontFamily("Arial"), 8.0f, FontStyle.Bold), new SolidBrush(Color.White), new PointF(Settings.Border + 10, Settings.Border + 10));
             }
 
             public void PrintDiagram(PrintDocument prntDoc)
@@ -128,9 +147,9 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
             #endregion
 
             #region Private Methods
-            private List<Exception> DrawDiagramComponent(DiagramDrawer draw, List<LifeTimeElement> o, Graphics g, DrawNewRandomColor rndColor, DrawComponent components)
+            private List<string> DrawDiagramComponent(DiagramDrawer draw, List<LifeTimeElement> o, Graphics g, DrawNewRandomColor rndColor, DrawComponent components)
             {
-                List<Exception> exColl = new List<Exception>();
+                List<string> exColl = new List<string>();
                 //New random color
                 foreach (LifeTimeElement _o in o)
                 {
@@ -145,43 +164,50 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
                                                                 LifeTimeElement.LifeTimeObjectType.Text
                                                             };
                 foreach (LifeTimeElement.LifeTimeObjectType type in types)
-                {
-                    try
-                    {
-                        DrawObjectsOfType(type, draw, o, g, components);
-                    }
-                    catch (Exception ex)
-                    {
-                        exColl.Add(ex);
-                    }
+                {   
+                    exColl.AddRange(DrawObjectsOfType(type, draw, o, g, components));                    
                 }
 
                 return exColl;
             }
 
-            private void DrawObjectsOfType(LifeTimeElement.LifeTimeObjectType type, DiagramDrawer draw, List<LifeTimeElement> o, Graphics g, DrawComponent components)
+            private List<string> DrawObjectsOfType(LifeTimeElement.LifeTimeObjectType type, DiagramDrawer draw, List<LifeTimeElement> o, Graphics g, DrawComponent components)
             {
+                List<string> exColl = new List<string>();
+
                 foreach (LifeTimeElement _o in o)
                 {
                     if (!_o.Deleted && _o.Type == type)
                     {
-                        foreach (Rectangle fence in draw.DrawObject(g, _o, components))
-                            if (fence.Width > 0 && fence.Height > 0)//components == DrawComponent.Object || components == DrawComponent.Text)
-                            {
-                                AddObjectFenceToDictionary(fence, _o);
-
-                                if (Properties.Settings.Default.DebugMode)
+                        try
+                        {
+                            foreach (Rectangle fence in draw.DrawObject(g, _o, components))
+                                if (fence.Width > 0 && fence.Height > 0)//components == DrawComponent.Object || components == DrawComponent.Text)
                                 {
-                                    Pen fenceMarker = new Pen(Color.OrangeRed);
-                                    fenceMarker.DashPattern = new float[]{ 3.0f, 3.0f};
-                                    
-                                    g.DrawRectangle(fenceMarker, fence);
-                                    g.DrawString($"{fence.X} {fence.Y} {fence.Width} {fence.Height}", new Font(new FontFamily("Courier New"), 6.0f),
-                                    new SolidBrush(Color.OrangeRed), fence.X, fence.Y);
+                                    AddObjectFenceToDictionary(fence, _o);
+
+                                    if (Properties.Settings.Default.DebugMode)
+                                    {
+                                        Pen fenceMarker = new Pen(Color.OrangeRed);
+                                        fenceMarker.DashPattern = new float[] { 3.0f, 3.0f };
+
+                                        g.DrawRectangle(fenceMarker, fence);
+                                        g.DrawString($"{fence.X} {fence.Y} {fence.Width} {fence.Height}", new Font(new FontFamily("Courier New"), 6.0f),
+                                        new SolidBrush(Color.OrangeRed), fence.X, fence.Y);
+                                    }
                                 }
-                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            exColl.Add(ex.Message);
+                        }
+
+                        if (exColl.Count > 5)
+                            break;
                     }
                 }
+
+                return exColl;
             }
 
             private int GetAllObjectsDeep(List<LifeTimeElement> c, LifeTimeGroup g, int row, string path, Boolean SkipDisabled)
