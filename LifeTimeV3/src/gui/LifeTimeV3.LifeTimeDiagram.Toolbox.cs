@@ -15,20 +15,20 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox
     {
         #region Properties
         public LifeTimeObjectBrowser ObjectBrowser { get; private set; }
+        public LifeTimeObjectPropertyGrid PropertyGrid { get; set; }
+        public LifeTimeObjectPropertyGrid SettingsGrid { get; set; }
+        public LifeTimeExportPNGPropertyGrid ExportGrid { get; set; }
         #endregion
 
         #region Fields
-        private LifeTimeObjectPropertyGrid _propertyGrid { get; set; }
-        private LifeTimeObjectPropertyGrid _settingsGrid { get; set; }
-        private LifeTimeExportPNGPropertyGrid _exportGrid { get; set; }        
         #endregion
 
         #region constructor
         public LifeTimeToolBoxForm(LifeTimeObjectPropertyGrid propertyGrid, LifeTimeObjectPropertyGrid settingsGrid, LifeTimeExportPNGPropertyGrid exportGrid, LifeTimeObjectBrowser objectBrowser)
         {
-            _propertyGrid = propertyGrid;
-            _settingsGrid = settingsGrid;
-            _exportGrid = exportGrid;
+            PropertyGrid = propertyGrid;
+            SettingsGrid = settingsGrid;
+            ExportGrid = exportGrid;
             ObjectBrowser = objectBrowser;
 
             this.Text = LifeTimeV3TextList.GetText("[213]"); //Toolbox
@@ -41,8 +41,8 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox
             this.ShowInTaskbar = false;
             this.FormClosing += new FormClosingEventHandler(Toolbox_Closing);
 
-            _propertyGrid.Dock = DockStyle.Fill;
-            _propertyGrid.SetObject(null);
+            PropertyGrid.Dock = DockStyle.Fill;
+            PropertyGrid.SetObject(null);
 
             SplitContainer _split = new SplitContainer();
             _split.Dock = DockStyle.Fill;
@@ -72,21 +72,21 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox
             TabPage ObjPropGrid = new TabPage();
             tabs.TabPages.Add(ObjPropGrid);
             ObjPropGrid.Text = LifeTimeV3TextList.GetText("[214]"); //Element
-            _propertyGrid.Dock = DockStyle.Fill;
-            _propertyGrid.SetObject(null);
-            ObjPropGrid.Controls.Add(_propertyGrid);
+            PropertyGrid.Dock = DockStyle.Fill;
+            PropertyGrid.SetObject(null);
+            ObjPropGrid.Controls.Add(PropertyGrid);
 
             TabPage DiagSetGrid = new TabPage();
             tabs.TabPages.Add(DiagSetGrid);
             DiagSetGrid.Text = LifeTimeV3TextList.GetText("[215]"); //Settings
-            _settingsGrid.Dock = DockStyle.Fill;
-            DiagSetGrid.Controls.Add(_settingsGrid);
+            SettingsGrid.Dock = DockStyle.Fill;
+            DiagSetGrid.Controls.Add(SettingsGrid);
 
             TabPage ExpPNGGrid = new TabPage();
             tabs.TabPages.Add(ExpPNGGrid);
             ExpPNGGrid.Text = LifeTimeV3TextList.GetText("[216]"); //Export
-            _exportGrid.Dock = DockStyle.Fill;
-            ExpPNGGrid.Controls.Add(_exportGrid);
+            ExportGrid.Dock = DockStyle.Fill;
+            ExpPNGGrid.Controls.Add(ExportGrid);
 
             return tabs;
         }

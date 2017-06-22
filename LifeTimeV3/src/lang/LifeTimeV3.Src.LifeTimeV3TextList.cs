@@ -63,13 +63,16 @@ namespace LifeTimeV3.Src
                               "[222]", "Ergebnis {0} von {1}",
                               "[223]", "Switch to english",
                               "[224]", "To switch language LifeTimeV3 needs to be closed.",
-                              "[225]", "Über...",                              
+                              "[225]", "Über...",
                               "[227]", "Alles fixieren",
 
                               "[300]", "Soll das ausgewählte Element \"{0}\" wirklich gelöscht werden?",
                               "[301]", "Soll die ausgewählte Gruppe \"{0}\" wirklich gelöscht werden? Alle darin befindlichen Elemente und Gruppen gehen dabei verloren!",
                               "[302]", "Die Zieldatei existiert bereits. Soll sie überschrieben werden?",
                               "[303]", "Element: \"{0}\" - vor {1} jahren ({2} Tage), dauerte {3} Jahre ({4} Tage)",
+                              "[304]", "Grüne markierte Werte zeigen an, dass mindestens ein Element in der Auswahl unterschiedliche Werte hat.",
+                              "[305]", "Mehr als ein Element ausgewählt!",
+                              "[306]", "Fehlerhafter Wert!",
 
                               "[400]", "LifeTimeV3 - Element periodisch vervielfältigen",
                               "[401]", "Kopie erstellen alle",
@@ -197,6 +200,9 @@ namespace LifeTimeV3.Src
                               "[301]", "Would you really delete the group \"{0}\"? All containing elements and groups will be lost!",
                               "[302]", "The target file already exists. Would you overwrite it?",
                               "[303]", "Element: \"{0}\" - {1} years ({2} days) ago, lasted for {3} years ({4} days)",
+                              "[304]", "Green highlighted properties indicating that at least one element in the selection has different values.",
+                              "[305]", "You are editing multiple elements.",
+                              "[306]", "Faulty value!",
 
                               "[400]", "LifeTimeV3 - Add periodic copies of element",
                               "[401]", "Add copy every",

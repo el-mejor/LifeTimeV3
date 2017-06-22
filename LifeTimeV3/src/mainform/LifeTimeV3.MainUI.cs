@@ -192,6 +192,8 @@ namespace LifeTimeV3.MainUI
 
                 eLEMENTToolStripMenuItem.Enabled = false;
             }
+
+            Refresh();            
         }
 
         private void ClearAndAddMainMenuElementGenericItems()
