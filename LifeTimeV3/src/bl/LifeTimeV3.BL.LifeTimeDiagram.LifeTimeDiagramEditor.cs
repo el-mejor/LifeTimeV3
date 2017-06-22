@@ -306,7 +306,7 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
             CurrentObject = null;
             ObjectSelected?.Invoke(null, null);
 
-            _toolbox.Visible = false;            
+            _toolbox.Visible = false;                        
         }
 
         private static DateTime _addElementAndAddPeriod(LifeTimeElement element, PeriodBaseEnum periodBase, int value, List<LifeTimeElement> l)
@@ -409,7 +409,7 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
         {
             if (e.Object != null)
             {
-                PropertyGrid.SetObject(e.Object);
+                PropertyGrid.SetObject(e.Object, e.ObjectCollection);
                 ObjectSelected?.Invoke(e.Object, null);
             }
 
@@ -432,6 +432,7 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
             if (e.NewColorsRequested) RequestNewRandomColors = DrawNewRandomColor.Yes;
 
             DiagramViewer.Refresh();
+            _toolbox.Refresh();
 
             if (DiagramChanged != null && e.DiagramChanged)
             {
