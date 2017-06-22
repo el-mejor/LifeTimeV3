@@ -66,8 +66,10 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
             /// <param name="height"></param>
             /// <param name="rndColor"></param>
             /// <param name="components"></param>
-            public void DrawDiagram(Graphics g, int width, int height, DrawNewRandomColor rndColor, DrawComponent components, DrawStyle style)
+            public List<Exception> DrawDiagram(Graphics g, int width, int height, DrawNewRandomColor rndColor, DrawComponent components, DrawStyle style)
             {
+                List<Exception> exColl = new List<Exception>();
+
                 ObjectFences.Clear();
 
                 DiagramDrawer draw = new DiagramDrawer(width, height, Settings, style);
@@ -79,13 +81,16 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
                 //Draw Diagram components
                 if (components == DrawComponent.All)
                 {
-                    if (Settings.DrawShadows) DrawDiagramComponent(draw, o, g, rndColor, DrawComponent.Shadow);
-                    DrawDiagramComponent(draw, o, g, rndColor, DrawComponent.Object);
-                    DrawDiagramComponent(draw, o, g, rndColor, DrawComponent.Label);
-                    DrawDiagramComponent(draw, o, g, rndColor, DrawComponent.Text);
+                    if (Settings.DrawShadows)
+                        exColl.AddRange(DrawDiagramComponent(draw, o, g, rndColor, DrawComponent.Shadow));
+                    exColl.AddRange(DrawDiagramComponent(draw, o, g, rndColor, DrawComponent.Object));
+                    exColl.AddRange(DrawDiagramComponent(draw, o, g, rndColor, DrawComponent.Label));
+                    exColl.AddRange(DrawDiagramComponent(draw, o, g, rndColor, DrawComponent.Text));
                 }
                 else
-                    DrawDiagramComponent(draw, o, g, rndColor, components);
+                    exColl.AddRange(DrawDiagramComponent(draw, o, g, rndColor, components));
+
+                return exColl;            
             }
 
             public void PrintDiagram(PrintDocument prntDoc)
@@ -123,8 +128,9 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
             #endregion
 
             #region Private Methods
-            private void DrawDiagramComponent(DiagramDrawer draw, List<LifeTimeElement> o, Graphics g, DrawNewRandomColor rndColor, DrawComponent components)
+            private List<Exception> DrawDiagramComponent(DiagramDrawer draw, List<LifeTimeElement> o, Graphics g, DrawNewRandomColor rndColor, DrawComponent components)
             {
+                List<Exception> exColl = new List<Exception>();
                 //New random color
                 foreach (LifeTimeElement _o in o)
                 {
@@ -138,7 +144,19 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
                                                                 LifeTimeElement.LifeTimeObjectType.Event,
                                                                 LifeTimeElement.LifeTimeObjectType.Text
                                                             };
-                foreach (LifeTimeElement.LifeTimeObjectType type in types) DrawObjectsOfType(type, draw, o, g, components);
+                foreach (LifeTimeElement.LifeTimeObjectType type in types)
+                {
+                    try
+                    {
+                        DrawObjectsOfType(type, draw, o, g, components);
+                    }
+                    catch (Exception ex)
+                    {
+                        exColl.Add(ex);
+                    }
+                }
+
+                return exColl;
             }
 
             private void DrawObjectsOfType(LifeTimeElement.LifeTimeObjectType type, DiagramDrawer draw, List<LifeTimeElement> o, Graphics g, DrawComponent components)

@@ -1227,8 +1227,8 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
         #endregion
 
         #region Constructor
-        public LifeTimeObjectPropertyGrid()        {
-            
+        public LifeTimeObjectPropertyGrid()
+        {            
             this.AutoScroll = true;
             NoObjectSelected();
         }
@@ -1252,7 +1252,10 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
         /// </summary>
         /// <param name="o"></param>
         public void SetObject(LifeTimeDiagramEditor.ILifeTimeObject o)
-        {               
+        {
+            if (_multiselection == null)
+                _multiselection = new List<LifeTimeDiagramEditor.ILifeTimeObject>();
+               
             _allowDiagramChanging = false;
             this.Controls.Clear();
 
