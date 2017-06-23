@@ -98,13 +98,10 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
 
             private void errOutputOnDiag(Graphics g, List<string> exColl)
             {   
-                StringBuilder sb = new StringBuilder();
-                sb.Append(exColl.Count).Append(Environment.NewLine);
+                StringBuilder sb = new StringBuilder();                
                 foreach (var ex in exColl)
-                {
                     sb.Append(ex).Append(Environment.NewLine);
-                }
-
+                
                 SizeF s = g.MeasureString(sb.ToString(), new Font(new FontFamily("Arial"), 8.0f, FontStyle.Bold));
 
                 g.FillRectangle(new SolidBrush(Color.Red), Settings.Border, Settings.Border, s.Width + 20, s.Height + 20);

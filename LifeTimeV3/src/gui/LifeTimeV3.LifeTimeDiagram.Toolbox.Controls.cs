@@ -1223,12 +1223,19 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
         private LifeTimeDiagramEditor.ILifeTimeObject _lifeTimeObject;
         private Color ErrorBackColor = Color.Orange;
         private bool _allowDiagramChanging = true;
-        private List<LifeTimeDiagramEditor.ILifeTimeObject> _multiselection;        
+        private List<LifeTimeDiagramEditor.ILifeTimeObject> _multiselection;
+        private List<string> _avFonts;
+        
         #endregion
 
         #region Constructor
         public LifeTimeObjectPropertyGrid()
-        {            
+        {
+            _avFonts = new List<string>();
+
+            foreach (FontFamily font in FontFamily.Families)
+                _avFonts.Add(font.Name);
+
             this.AutoScroll = true;
             NoObjectSelected();
         }
@@ -1344,14 +1351,14 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
             {
                 object value = t.GetProperty(name).GetValue(o);
 
-                AddPropertyLabelToGgrid(name, 0, r);
+                Control l = AddPropertyLabelToGgrid(name, 0, r);
                 Control c = AddPropertyControlToGrid(name, value, ref r, t.GetProperty(name).CanWrite);
-
                 
                 if(_multiselection != null && _multiselection.Count > 1 && o is LifeTimeDiagramEditor.LifeTimeElement)
                 {
                     if (!checkAllElementsForSameValue(o, name, _multiselection))
                     {
+                        l.BackColor = Color.LightGreen;
                         c.BackColor = Color.LightGreen;
                         showInformMultiSelDiffLabel = true;                        
                     }
@@ -1401,12 +1408,14 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
             return true;
         }
 
-        private void AddPropertyLabelToGgrid(string name, int c, int r)
+        private Control AddPropertyLabelToGgrid(string name, int c, int r)
         {
             Label l = new Label();
             l.Text = LifeTimeV3TextList.GetText(name);
             l.TextAlign = ContentAlignment.MiddleRight;
             this.Controls.Add(l, c, r);
+
+            return l;
         }
 
         private Control AddPropertyControlToGrid(string name, object value, ref int r, Boolean ro)
@@ -1446,13 +1455,13 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
             #region FontFamily
             else if (value is FontFamily)
             {
-                c = new FontFamilySelectorBox();
+                c = new FontFamilySelectorBox(_avFonts);
                 FontFamilySelectorBox d = c as FontFamilySelectorBox;
                 d.Name = name;
 
-                d.Text = (value as FontFamily).Name;
+                d.Value = value as FontFamily;
 
-                d.TextChanged += new EventHandler(ObjectFontChanged);
+                d.SelectedIndexChanged += new EventHandler(ObjectFontChanged);
             }
             #endregion
             #region FontStyle
@@ -1950,25 +1959,32 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
         public class FontFamilySelectorBox : ComboBox
         {
             #region properties
-            public FontFamily Value { get; set; }
+            public FontFamily Value
+            {
+                get
+                {
+                    return new FontFamily((string)Items[SelectedIndex]);
+                }
+                set
+                {                    
+                    this.SelectedIndex = Items.IndexOf(value.Name);
+                }
+            }
+            #endregion
+
+            #region fields
             #endregion
 
             #region constructor
-            public FontFamilySelectorBox()
-            {
-                foreach (FontFamily font in System.Drawing.FontFamily.Families)
-                    Items.Add(font.Name);
-                
-                this.AutoCompleteMode = System.Windows.Forms.AutoCompleteMode.SuggestAppend;
-                this.TextChanged += new EventHandler(SelectionChanged);
+            public FontFamilySelectorBox(List<string> avFonts)
+            {   
+                this.Items.AddRange(avFonts.ToArray());                
+
+                this.DropDownStyle = ComboBoxStyle.DropDownList;                                
             }
             #endregion
 
             #region private methods
-            private void SelectionChanged(object sender, EventArgs e)
-            {
-                Value = new FontFamily(Text);
-            }
             #endregion
         }
 
