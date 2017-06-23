@@ -19,6 +19,11 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
             #region Enums
             #endregion
 
+            #region events
+            public delegate void DiagramMessageHandler(object sender, DiagramMessageArgs e);
+            public event DiagramMessageHandler DiagramMessage;
+            #endregion
+
             #region Properties
             //Basics
             public string Name { get; set; }
@@ -66,7 +71,7 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
             /// <param name="height"></param>
             /// <param name="rndColor"></param>
             /// <param name="components"></param>
-            public List<string> DrawDiagram(Graphics g, int width, int height, DrawNewRandomColor rndColor, DrawComponent components, DrawStyle style)
+            public void DrawDiagram(Graphics g, int width, int height, DrawNewRandomColor rndColor, DrawComponent components, DrawStyle style)
             {
                 List<string> exColl = new List<string>();
 
@@ -77,6 +82,26 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
 
                 //Draw Diagram Area
                 g.FillRectangle(new SolidBrush(Settings.BackColor), 0, 0, width, height);
+                
+                //Show hints if necessary
+                if (this.Groups.Groups.Count == 0)
+                {
+                    DiagramMessageArgs dma = new DiagramMessageArgs(Src.LifeTimeV3TextList.GetText("[308]"), DiagramMessageArgs.MsgPriorities.Info); //state that there is no group with elements
+                    DiagramMessage?.Invoke(this, dma);
+
+                    return;
+                }
+                else if (o.Count == 0)
+                {
+                    DiagramMessageArgs dma = new DiagramMessageArgs(Src.LifeTimeV3TextList.GetText("[307]"), DiagramMessageArgs.MsgPriorities.Info); //state that there is nothing to draw
+                    DiagramMessage?.Invoke(this, dma);
+
+                    return;
+                }
+                
+                DiagramMessageArgs e = new DiagramMessageArgs(DiagramMessageArgs.MsgPriorities.None); //no info label
+                DiagramMessage?.Invoke(this, e);
+                
 
                 //Draw Diagram components
                 if (components == DrawComponent.All)
@@ -90,10 +115,19 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
                 else
                     exColl.AddRange(DrawDiagramComponent(draw, o, g, rndColor, components));
 
+                //show hint that something went wrong
                 if (exColl.Count > 0)
+                {
                     errOutputOnDiag(g, exColl);
 
-                return exColl;
+                    DiagramMessageArgs dma = new DiagramMessageArgs($"{Src.LifeTimeV3TextList.GetText("[309]")} {exColl[0]}", DiagramMessageArgs.MsgPriorities.Error); //state that there was an error while drawing
+                    DiagramMessage?.Invoke(this, dma);
+                }
+                else
+                {
+                    DiagramMessageArgs dma = new DiagramMessageArgs(DiagramMessageArgs.MsgPriorities.None); //no info label
+                    DiagramMessage?.Invoke(this, dma);
+                }
             }
 
             private void errOutputOnDiag(Graphics g, List<string> exColl)
@@ -160,6 +194,7 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
                                                                 LifeTimeElement.LifeTimeObjectType.Event,
                                                                 LifeTimeElement.LifeTimeObjectType.Text
                                                             };
+
                 foreach (LifeTimeElement.LifeTimeObjectType type in types)
                 {   
                     exColl.AddRange(DrawObjectsOfType(type, draw, o, g, components));                    
@@ -196,7 +231,7 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
                         }
                         catch (Exception ex)
                         {
-                            exColl.Add(ex.Message);
+                            exColl.Add($"Element: \"{_o.Name}\" - \"{ex.Message}\"");
                         }
 
                         if (exColl.Count > 5)
@@ -242,6 +277,29 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
                 e.Graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.HighQuality;
                 e.Graphics.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
                 DrawDiagram(e.Graphics, Settings.Width, Settings.Height, DrawNewRandomColor.No, DrawComponent.All, Settings.DrawShadows ? DrawStyle.WithShadow : DrawStyle.WithoutShadow);
+            }
+            #endregion
+
+            #region DiagramMessageArgs Class
+            public class DiagramMessageArgs
+            {
+                public enum MsgPriorities { None, Info, Tip, Error }
+
+                public string Message
+                { get; set; }
+                public MsgPriorities MsgPriority
+                { get; set; }
+
+                public DiagramMessageArgs(string msg, MsgPriorities msgPrio) : this(msgPrio)
+                {
+                    Message = msg;                    
+                }
+
+                public DiagramMessageArgs(MsgPriorities msgPrio)
+                {
+                    MsgPriority = msgPrio;
+                }
+
             }
             #endregion
 
@@ -296,7 +354,7 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
                     }
                     else
                         rColl.Add(new Rectangle());
-
+                    
                     return rColl;
                 }
 

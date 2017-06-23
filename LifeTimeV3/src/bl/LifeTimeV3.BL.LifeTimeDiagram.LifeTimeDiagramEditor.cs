@@ -21,7 +21,7 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
         public enum DrawStyle { WithShadow, WithoutShadow }
         public enum PeriodBaseEnum { Days, Month, Years };
         #endregion
-
+        
         #region Properties
         public String FileName 
         {
@@ -55,6 +55,9 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
 
         public event EventHandler DiagramChanged;
         public event MouseEventHandler MouseMoved;
+
+        public delegate void DiagramMessageHandler(object sender, LifeTimeDiagram.DiagramMessageArgs e);
+        public event DiagramMessageHandler DiagramMessage;
         #endregion
 
         #region Constructor
@@ -81,10 +84,9 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
             if (Diagram != null) Diagram.Dispose();
 
             LifeTimeDiagramFileHandler open = new LifeTimeDiagramFileHandler(filename);
-
             
-
             Diagram = open.OpenFile();
+            Diagram.DiagramMessage += new LifeTimeDiagram.DiagramMessageHandler(DiagramMessageChanged);
 
             DiagramViewer.Zoom = Diagram.Settings.Zoom;
             DiagramViewer.OffsetX = Diagram.Settings.OffsetX;
@@ -94,6 +96,18 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
                       
 
             DiagramChanged?.Invoke(this, null);
+        }
+
+        /// <summary>
+        /// Creates an empty diagram
+        /// </summary>
+        public void EmptyDiagram()
+        {
+            if (_toolbox != null) _toolbox.Close();
+            if (Diagram != null) Diagram.Dispose();
+
+            Diagram = new LifeTimeDiagram();
+            Diagram.DiagramMessage += new LifeTimeDiagram.DiagramMessageHandler(DiagramMessageChanged);
         }
 
         /// <summary>
@@ -157,8 +171,9 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
             credits.TextInBox = false;
             credits.Size = 6;
             Diagram.Groups.Groups[1].Add(credits);
-            
-            
+
+            Diagram.DiagramMessage += new LifeTimeDiagram.DiagramMessageHandler(DiagramMessageChanged);
+
             LoadToolbox();            
 
             DiagramChanged?.Invoke(this, null);
@@ -560,6 +575,23 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
         private void ExportButtonClick(object sender, EventArgs e)
         {
             ExportPNG(Diagram.ExportSettings.FileName, Diagram.ExportSettings.Width, Diagram.ExportSettings.Height);
+        }
+
+        private void DiagramMessageChanged(object sender, LifeTimeDiagram.DiagramMessageArgs e)
+        {
+            //determine if toolbox is shown and if not send hint to main ui
+            if (e.MsgPriority == LifeTimeDiagram.DiagramMessageArgs.MsgPriorities.None && (_toolbox == null || _toolbox.IsDisposed || !_toolbox.Visible))
+            {
+                LifeTimeDiagram.DiagramMessageArgs dma = new LifeTimeDiagram.DiagramMessageArgs(LifeTimeV3TextList.GetText("[310]"), LifeTimeDiagram.DiagramMessageArgs.MsgPriorities.Tip);
+                DiagramMessage?.Invoke(this, dma);
+            }
+            else if (e.MsgPriority == LifeTimeDiagram.DiagramMessageArgs.MsgPriorities.None && !Diagram.Settings.Locked)
+            {
+                LifeTimeDiagram.DiagramMessageArgs dma = new LifeTimeDiagram.DiagramMessageArgs(LifeTimeV3TextList.GetText("[311]"), LifeTimeDiagram.DiagramMessageArgs.MsgPriorities.Info);
+                DiagramMessage?.Invoke(this, dma);
+            }
+            else
+                DiagramMessage?.Invoke(this, e);
         }
         #endregion
 

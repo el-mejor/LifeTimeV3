@@ -73,6 +73,11 @@ namespace LifeTimeV3.Src
                               "[304]", "Grüne markierte Werte zeigen an, dass mindestens ein Element in der Auswahl unterschiedliche Werte hat.",
                               "[305]", "Mehr als ein Element ausgewählt!",
                               "[306]", "Fehlerhafter Wert!",
+                              "[307]", "Diagram enthält keine (aktiven) Elemente - erstellen oder aktivieren Sie Elemente in der Toolbox",
+                              "[308]", "Diagram enthält keine Gruppe - erstellen Sie eine Gruppe in der Toolbox",
+                              "[309]", "Beim Zeichnen des Diagrams trat ein Fehler auf: ",
+                              "[310]", "Öffnen sie die Toolbox (EDITOR/Toolbox) um das Diagram zu bearbeiten.",
+                              "[311]", "Alles fixieren ist abgeschaltet - Elemente können mit der Maus verschoben werden (EDITOR/Alles fixieren)",
 
                               "[400]", "LifeTimeV3 - Element periodisch vervielfältigen",
                               "[401]", "Kopie erstellen alle",
@@ -203,6 +208,11 @@ namespace LifeTimeV3.Src
                               "[304]", "Green highlighted properties indicating that at least one element in the selection has different values.",
                               "[305]", "You are editing multiple elements.",
                               "[306]", "Faulty value!",
+                              "[307]", "Diagram contains no elements or no element enabled - add or enable elements in the Toolbox",
+                              "[308]", "Diagram contains no groups- add a group in the Toolbox",
+                              "[309]", "While drawing the diagram an error occured: ",
+                              "[310]", "Open the Toolbox (EDITOR/Toolbox) to start editing the diagram.",
+                              "[311]", "Lock elements master switch is off - you may move them by drag and drop (EDITOR/Lock all)",
 
                               "[400]", "LifeTimeV3 - Add periodic copies of element",
                               "[401]", "Add copy every",
