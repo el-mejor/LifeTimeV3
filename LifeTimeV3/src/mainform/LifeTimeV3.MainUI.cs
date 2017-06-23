@@ -38,7 +38,8 @@ namespace LifeTimeV3.MainUI
             _diagramEditor.ObjectBrowser.ItemSelected += new LifeTimeDiagram.Toolbox.Controls.LifeTimeObjectBrowser.ItemSelectedHandler(ObjectSelectedInBrowser);
             _diagramEditor.DiagramChanged += new EventHandler(DiagramChanged);
             _diagramEditor.MouseMoved += new MouseEventHandler(Mouse_Moved);
-            _diagramEditor.Diagram.DiagramMessage += new LifeTimeDiagramEditor.LifeTimeDiagram.DiagramMessageHandler(UpdateInfoLabel);
+            _diagramEditor.DiagramMessage += new LifeTimeDiagramEditor.DiagramMessageHandler(UpdateInfoLabel);
+            _diagramEditor.EmptyDiagram();
 
             labelInfo.Visible = false;
 
@@ -113,7 +114,7 @@ namespace LifeTimeV3.MainUI
             if(CheckForUnsavedChages()) return;             
             
             _diagramEditor.NewDiagram(null);
-
+            
             zoomSlider.Value = Convert.ToInt16(_diagramEditor.DiagramViewer.Zoom * 50);
 
             ShowToolbox();
@@ -143,7 +144,7 @@ namespace LifeTimeV3.MainUI
                 return;
             
             _diagramEditor.LoadDiagram(OpenLifeTimeFile.FileName);
-
+            
             zoomSlider.Value = Convert.ToInt16(_diagramEditor.DiagramViewer.Zoom * 50);
         }
 
@@ -305,28 +306,32 @@ namespace LifeTimeV3.MainUI
 
         private void UpdateInfoLabel(object sender, LifeTimeDiagramEditor.LifeTimeDiagram.DiagramMessageArgs e)
         {
-            if (string.IsNullOrEmpty(e.Message))
-                labelInfo.Visible = false;
-            else
+            switch (e.MsgPriority)
             {
-                labelInfo.Text = e.Message;
-                switch (e.MsgPriority)
-                {
-                    case (LifeTimeDiagramEditor.LifeTimeDiagram.DiagramMessageArgs.MsgPriorities.None):
-                        labelInfo.BackColor = System.Drawing.Color.LightYellow;
-                        break;
+                case (LifeTimeDiagramEditor.LifeTimeDiagram.DiagramMessageArgs.MsgPriorities.None):
+                    labelInfo.BackColor = System.Drawing.Color.LightYellow;
+                    labelInfo.Text = "?";
+                    labelInfo.Visible = false;
+                    break;
 
-                    case (LifeTimeDiagramEditor.LifeTimeDiagram.DiagramMessageArgs.MsgPriorities.Info):
-                        labelInfo.BackColor = System.Drawing.Color.LightYellow;
-                        break;
+                case (LifeTimeDiagramEditor.LifeTimeDiagram.DiagramMessageArgs.MsgPriorities.Info):
+                    labelInfo.BackColor = System.Drawing.Color.LightYellow;
+                    labelInfo.Text = e.Message;
+                    labelInfo.Visible = true;
+                    break;
 
-                    case (LifeTimeDiagramEditor.LifeTimeDiagram.DiagramMessageArgs.MsgPriorities.Error):
-                        labelInfo.BackColor = System.Drawing.Color.Red;
-                        break;
-                }
+                case (LifeTimeDiagramEditor.LifeTimeDiagram.DiagramMessageArgs.MsgPriorities.Tip):
+                    labelInfo.BackColor = System.Drawing.Color.LightSkyBlue;
+                    labelInfo.Text = e.Message;
+                    labelInfo.Visible = true;
+                    break;
 
-                labelInfo.Visible = true;
-            }                
+                case (LifeTimeDiagramEditor.LifeTimeDiagram.DiagramMessageArgs.MsgPriorities.Error):
+                    labelInfo.BackColor = System.Drawing.Color.Orange;
+                    labelInfo.Text = e.Message;
+                    labelInfo.Visible = true;
+                    break;
+            }
         }
         #endregion
     }
