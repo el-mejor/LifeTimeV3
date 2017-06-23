@@ -321,7 +321,7 @@ namespace LifeTimeV3.MainUI
                     break;
 
                 case (LifeTimeDiagramEditor.LifeTimeDiagram.DiagramMessageArgs.MsgPriorities.Tip):
-                    labelInfo.BackColor = System.Drawing.Color.LightSkyBlue;
+                    labelInfo.BackColor = System.Drawing.Color.LightGreen;
                     labelInfo.Text = e.Message;
                     labelInfo.Visible = true;
                     break;
