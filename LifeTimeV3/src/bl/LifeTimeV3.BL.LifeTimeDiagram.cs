@@ -19,6 +19,11 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
             #region Enums
             #endregion
 
+            #region events
+            public delegate void DiagramMessageHandler(object sender, DiagramMessageArgs e);
+            public event DiagramMessageHandler DiagramMessage;
+            #endregion
+
             #region Properties
             //Basics
             public string Name { get; set; }
@@ -75,6 +80,25 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
 
                 //Draw Diagram Area
                 g.FillRectangle(new SolidBrush(Settings.BackColor), 0, 0, width, height);
+                
+                if (this.Groups.Groups.Count == 0)
+                {
+                    DiagramMessageArgs dma = new DiagramMessageArgs(Src.LifeTimeV3TextList.GetText("[308]"), DiagramMessageArgs.MsgPriorities.Info); //state that there is no group with elements
+                    DiagramMessage?.Invoke(this, dma);
+
+                    return;
+                }
+                else if (o.Count == 0)
+                {
+                    DiagramMessageArgs dma = new DiagramMessageArgs(Src.LifeTimeV3TextList.GetText("[307]"), DiagramMessageArgs.MsgPriorities.Info); //state that there is nothing to draw
+                    DiagramMessage?.Invoke(this, dma);
+
+                    return;
+                }
+
+                DiagramMessageArgs e = new DiagramMessageArgs(DiagramMessageArgs.MsgPriorities.None); //no info label
+                DiagramMessage?.Invoke(this, e);
+                
 
                 //Draw Diagram components
                 if (components == DrawComponent.All)
@@ -86,6 +110,17 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
                 }
                 else
                     DrawDiagramComponent(draw, o, g, rndColor, components);
+
+                if (draw.DrawerError)
+                {
+                    DiagramMessageArgs dma = new DiagramMessageArgs(Src.LifeTimeV3TextList.GetText("[309]"), DiagramMessageArgs.MsgPriorities.Error); //state that there was an error while drawing
+                    DiagramMessage?.Invoke(this, dma);
+                }
+                else
+                {
+                    DiagramMessageArgs dma = new DiagramMessageArgs(DiagramMessageArgs.MsgPriorities.None); //no info label
+                    DiagramMessage?.Invoke(this, dma);
+                }
             }
 
             public void PrintDiagram(PrintDocument prntDoc)
@@ -204,6 +239,29 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
             }
             #endregion
 
+            #region DiagramMessageArgs Class
+            public class DiagramMessageArgs
+            {
+                public enum MsgPriorities { None, Info, Error }
+
+                public string Message
+                { get; set; }
+                public MsgPriorities MsgPriority
+                { get; set; }
+
+                public DiagramMessageArgs(string msg, MsgPriorities msgPrio) : this(msgPrio)
+                {
+                    Message = msg;                    
+                }
+
+                public DiagramMessageArgs(MsgPriorities msgPrio)
+                {
+                    MsgPriority = msgPrio;
+                }
+
+            }
+            #endregion
+
             #region DiagramDrawer Class
             private class DiagramDrawer
             {
@@ -219,6 +277,11 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
                 {
                     get { return Convert.ToDouble(Width - 2 * Settings.Border) / (Convert.ToDouble((Settings.End - Settings.Begin).Days)); }
                 }
+
+                public bool DrawerError
+                { get; private set; }
+                public string FirstErrMsg { get; private set; }
+                public List<string> ErrList { get; private set; }
                 #endregion
 
                 #region contructor
@@ -255,7 +318,7 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
                     }
                     else
                         rColl.Add(new Rectangle());
-
+                    
                     return rColl;
                 }
 
