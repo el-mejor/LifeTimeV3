@@ -579,17 +579,18 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
 
         private void DiagramMessageChanged(object sender, LifeTimeDiagram.DiagramMessageArgs e)
         {
-            //determine if toolbox is shown and if not send hint to main ui
-            if (e.MsgPriority == LifeTimeDiagram.DiagramMessageArgs.MsgPriorities.None && (_toolbox == null || _toolbox.IsDisposed || !_toolbox.Visible))
-            {
-                LifeTimeDiagram.DiagramMessageArgs dma = new LifeTimeDiagram.DiagramMessageArgs(LifeTimeV3TextList.GetText("[310]"), LifeTimeDiagram.DiagramMessageArgs.MsgPriorities.Tip);
-                DiagramMessage?.Invoke(this, dma);
-            }
-            else if (e.MsgPriority == LifeTimeDiagram.DiagramMessageArgs.MsgPriorities.None && !Diagram.Settings.Locked)
+            //hint that the lock master switch is disabled
+            if (e.MsgPriority == LifeTimeDiagram.DiagramMessageArgs.MsgPriorities.None && !Diagram.Settings.Locked)
             {
                 LifeTimeDiagram.DiagramMessageArgs dma = new LifeTimeDiagram.DiagramMessageArgs(LifeTimeV3TextList.GetText("[311]"), LifeTimeDiagram.DiagramMessageArgs.MsgPriorities.Info);
                 DiagramMessage?.Invoke(this, dma);
             }
+            //determine if toolbox is shown and if not send hint to main ui
+            else if (e.MsgPriority == LifeTimeDiagram.DiagramMessageArgs.MsgPriorities.None && (_toolbox == null || _toolbox.IsDisposed || !_toolbox.Visible))
+            {
+                LifeTimeDiagram.DiagramMessageArgs dma = new LifeTimeDiagram.DiagramMessageArgs(LifeTimeV3TextList.GetText("[310]"), LifeTimeDiagram.DiagramMessageArgs.MsgPriorities.Tip);
+                DiagramMessage?.Invoke(this, dma);
+            }            
             else
                 DiagramMessage?.Invoke(this, e);
         }
