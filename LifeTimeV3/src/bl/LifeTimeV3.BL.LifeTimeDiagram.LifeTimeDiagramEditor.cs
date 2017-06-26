@@ -254,8 +254,6 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
         /// <param name="y"></param>
         public LifeTimeElement SelectObjectByPosition(int x, int y)
         {
-            LifeTimeElement o;
-
             LifeTimeElement.LifeTimeObjectType[] types = { 
                                                             LifeTimeElement.LifeTimeObjectType.Event, //giving the order of searching
                                                             LifeTimeElement.LifeTimeObjectType.TimeSpan, 
@@ -265,8 +263,21 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
 
             foreach (LifeTimeElement.LifeTimeObjectType type in types)
             {
-                Diagram.ObjectFences.TryGetValue(SelectObjectByPositionSeeker(type, x, y), out o);
-                if (o != null) return o;
+                foreach (LifeTimeDiagram.ElementFence f in Diagram.ElementFences)
+                {                       
+                    if (f.LifeTimeObject is LifeTimeElement && (f.LifeTimeObject as LifeTimeElement).Type == type)
+                    {
+                        float refX = (f.FenceRectangle.X + DiagramViewer.OffsetX) * DiagramViewer.Zoom;
+                        float refWidth = f.FenceRectangle.Width * DiagramViewer.Zoom;
+                        float refY = (f.FenceRectangle.Y + DiagramViewer.OffsetY) * DiagramViewer.Zoom;
+                        float refHeight = f.FenceRectangle.Height * DiagramViewer.Zoom;
+
+                        if ((x > refX && x < refX + refWidth) && (y > refY && y < refY + refHeight))
+                        {
+                            if (!(f.LifeTimeObject as LifeTimeElement).Highlight) return f.LifeTimeObject as LifeTimeElement; //prefer an object which is not already selected                            
+                        }
+                    }
+                }
             }
 
             return null; 
@@ -373,33 +384,6 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
             DiagramViewer.MouseMove += new System.Windows.Forms.MouseEventHandler(this.diagramViewer_MouseMove);
             DiagramViewer.MouseUp += new System.Windows.Forms.MouseEventHandler(this.diagramViewer_MouseUp);
             DiagramViewer.Resize += new System.EventHandler(this.diagramViewer_Resize);
-        }
-
-        private Rectangle SelectObjectByPositionSeeker(LifeTimeElement.LifeTimeObjectType seekFor, int x, int y)
-        {
-            Rectangle s = new Rectangle();
-
-            foreach (Rectangle r in Diagram.ObjectFences.Keys)
-            {
-                LifeTimeElement o;
-                Diagram.ObjectFences.TryGetValue(r, out o);
-                if (o.Type == seekFor)
-                {
-                    float refX = (r.X + DiagramViewer.OffsetX) * DiagramViewer.Zoom;
-                    float refWidth = r.Width * DiagramViewer.Zoom;
-                    float refY = (r.Y + DiagramViewer.OffsetY) * DiagramViewer.Zoom;
-                    float refHeight = r.Height * DiagramViewer.Zoom;
-
-                    if ((x > refX && x < refX + refWidth) && (y > refY && y < refY + refHeight))
-                    {
-                        if(!o.Highlight) return r; //prefer an object which is not already selected
-                        else s = r; //if there's no alternate object return the object which is already selected
-                    }
-                }
-
-            }
-
-            return s; //return no object if none was found (an empty rectangle as key)
         }
 
         private void UpdateObjectBrowser(bool ReloadContent)
@@ -519,9 +503,12 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
                 if (!DiagramViewer.Scaling && !DiagramViewer.Moving)
                 {
                     ILifeTimeObject o = SelectObjectByPosition(e.X, e.Y);
-
-                    CurrentObject = o;
-                    PropertyGrid.SetObject(o);                    
+                                        
+                    if (o != null)
+                    {
+                        CurrentObject = o;
+                        PropertyGrid.SetObject(o);
+                    }
 
                     TreeNode t = ObjectBrowser.ShowItemInObjectBrowser(o);
 
