@@ -252,8 +252,10 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
         /// </summary>
         /// <param name="x"></param>
         /// <param name="y"></param>
-        public LifeTimeElement SelectObjectByPosition(int x, int y)
+        public LifeTimeDiagram.ElementFence SelectObjectByPosition(int x, int y)
         {
+            LifeTimeDiagram.ElementFence fence = null;
+
             LifeTimeElement.LifeTimeObjectType[] types = { 
                                                             LifeTimeElement.LifeTimeObjectType.Event, //giving the order of searching
                                                             LifeTimeElement.LifeTimeObjectType.TimeSpan, 
@@ -274,13 +276,15 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
 
                         if ((x > refX && x < refX + refWidth) && (y > refY && y < refY + refHeight))
                         {
-                            if (!(f.LifeTimeObject as LifeTimeElement).Highlight) return f.LifeTimeObject as LifeTimeElement; //prefer an object which is not already selected                            
+                            if (!(f.LifeTimeObject as LifeTimeElement).Highlight) return f; //prefer an object which is not already selected                            
+                            else
+                                fence = f;
                         }
                     }
                 }
             }
 
-            return null; 
+            return fence; 
         }
 
         public static List<LifeTimeElement> MultiplyElements(ILifeTimeObject element, PeriodBaseEnum periodBase, int period, int ammount)
@@ -481,13 +485,14 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
         {
             //DiagramViewer.ContextMenuStrip = null;
 
-            ILifeTimeObject o = SelectObjectByPosition(e.X, e.Y);
+            LifeTimeDiagram.ElementFence f = SelectObjectByPosition(e.X, e.Y);
             
-            if (o == null || (!(o is LifeTimeElement) || (o as LifeTimeElement).Locked || Diagram.Settings.Locked))
+
+            if (f == null || f.LifeTimeObject == null || (!(f.LifeTimeObject is LifeTimeElement) || (f.LifeTimeObject as LifeTimeElement).Locked || Diagram.Settings.Locked || !f.Movable))
                 DiagramViewer.BeginMouse(e);
             else
             {
-                _moveObject = new MoveObject(this, o as LifeTimeElement, DiagramViewer.Zoom);
+                _moveObject = new MoveObject(this, f.LifeTimeObject as LifeTimeElement, DiagramViewer.Zoom);
                 _moveObject.MoveObjectBegin(e);
             }
         }
@@ -502,22 +507,23 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
 
                 if (!DiagramViewer.Scaling && !DiagramViewer.Moving)
                 {
-                    ILifeTimeObject o = SelectObjectByPosition(e.X, e.Y);
-                                        
-                    if (o != null)
+                    LifeTimeDiagram.ElementFence f = SelectObjectByPosition(e.X, e.Y);
+
+                    if (f != null && f.LifeTimeObject != null)
                     {
-                        CurrentObject = o;
-                        PropertyGrid.SetObject(o);
+                        CurrentObject = f.LifeTimeObject;
+                        PropertyGrid.SetObject(f.LifeTimeObject);                        
+                        TreeNode t = ObjectBrowser.ShowItemInObjectBrowser(f.LifeTimeObject);
+
+                        if (t != null && e.Button == MouseButtons.Right)
+                        {
+                            DiagramViewer.ContextMenuStrip = t.ContextMenuStrip;
+                            DiagramViewer.ContextMenuStrip.Show(Cursor.Position);
+                        }
+                        else if (DiagramViewer.ContextMenuStrip != null) DiagramViewer.ContextMenuStrip.Hide();
                     }
 
-                    TreeNode t = ObjectBrowser.ShowItemInObjectBrowser(o);
-
-                    if (t != null && e.Button == MouseButtons.Right)
-                    {
-                        DiagramViewer.ContextMenuStrip = t.ContextMenuStrip;
-                        DiagramViewer.ContextMenuStrip.Show(Cursor.Position);
-                    }
-                    else if (DiagramViewer.ContextMenuStrip != null) DiagramViewer.ContextMenuStrip.Hide();
+                    
                 }
             }   
             else
