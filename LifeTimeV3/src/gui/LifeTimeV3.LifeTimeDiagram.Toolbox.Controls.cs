@@ -1231,6 +1231,9 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
         #region Constructor
         public LifeTimeObjectPropertyGrid()
         {
+            this.BackColor = Color.White;
+            this.CellBorderStyle = TableLayoutPanelCellBorderStyle.Single;
+
             _avFonts = new List<string>();
 
             foreach (FontFamily font in FontFamily.Families)
@@ -1351,18 +1354,19 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
             {
                 object value = t.GetProperty(name).GetValue(o);
 
-                Control l = AddPropertyLabelToGgrid(name, 0, r);
-                Control c = AddPropertyControlToGrid(name, value, ref r, t.GetProperty(name).CanWrite);
-                
+                Color highlighting = this.BackColor;
+
                 if(_multiselection != null && _multiselection.Count > 1 && o is LifeTimeDiagramEditor.LifeTimeElement)
                 {
                     if (!checkAllElementsForSameValue(o, name, _multiselection))
                     {
-                        l.BackColor = Color.LightGreen;
-                        c.BackColor = Color.LightGreen;
+                        highlighting = Color.LightGreen;                        
                         showInformMultiSelDiffLabel = true;                        
                     }
                 }
+
+                Control l = AddPropertyLabelToGgrid(name, 0, r, highlighting);
+                Control c = AddPropertyControlToGrid(name, value, ref r, t.GetProperty(name).CanWrite, highlighting);
             }
 
             if (_multiselection != null && _multiselection.Count > 1)
@@ -1375,7 +1379,7 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
                 addInfoLabelToGrid("[304]", "", Color.LightGreen); //inform what highlighted properties standing for
             }
 
-            AddPropertyLabelToGgrid("", 0, r); //an empty label to finalize the grid
+            AddPropertyLabelToGgrid("", 0, r, this.BackColor); //an empty label to finalize the grid
             _allowDiagramChanging = true;
         }
 
@@ -1408,19 +1412,22 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
             return true;
         }
 
-        private Control AddPropertyLabelToGgrid(string name, int c, int r)
+        private Control AddPropertyLabelToGgrid(string name, int c, int r, Color highlight)
         {
             Label l = new Label();
             l.Text = LifeTimeV3TextList.GetText(name);
             l.TextAlign = ContentAlignment.MiddleRight;
+            l.BackColor = highlight;            
+            
             this.Controls.Add(l, c, r);
+            
 
             return l;
         }
 
-        private Control AddPropertyControlToGrid(string name, object value, ref int r, Boolean ro)
+        private Control AddPropertyControlToGrid(string name, object value, ref int r, Boolean ro, Color highlight)
         {
-            Control c = new Control();
+            Control c = new Control();            
             #region Checkbox
             if (value is bool)
             {
@@ -1570,7 +1577,7 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
                 d.Name = name;
                 d.Value = (Color)value;
 
-                d.BackColorChanged += new EventHandler(ColorChanged);
+                d.ColorChanged += new EventHandler(ColorChanged);
             }
             #endregion
             #region What else?
@@ -1584,6 +1591,8 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
 
             c.Dock = DockStyle.Fill;
             c.Enabled = ro;
+            c.BackColor = highlight;
+            
             this.Controls.Add(c, 1, r);
             r++;
 
@@ -2062,12 +2071,33 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
 
         public class ColorSelectorButton : Button
         {
+            #region
+            public event EventHandler ColorChanged;
+            #endregion
+
             #region properties
+            public override Color BackColor
+            {
+                set
+                { base.BackColor = _value; }
+            }
+
             public Color Value
             {
-                get { return this.BackColor; }
-                set { this.BackColor = value; }
+                get
+                {
+                    return _value;
+                }
+                set
+                {                    
+                    _value = value;
+                    ColorChanged?.Invoke(this, new EventArgs());
+                }
             }
+            #endregion
+
+            #region fields
+            private Color _value;
             #endregion
 
             #region constructor
@@ -2086,6 +2116,7 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
                 ColorDialog d = new ColorDialog();
                 d.Color = Value;
                 d.ShowDialog();
+                base.BackColor = _value;                
 
                 Value = d.Color;
             }
@@ -2265,6 +2296,8 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
         #region constructor
         public LifeTimeExportPNGPropertyGrid()
         {
+            this.BackColor = Color.White;
+            this.CellBorderStyle = TableLayoutPanelCellBorderStyle.Single;
         }
         #endregion
 
