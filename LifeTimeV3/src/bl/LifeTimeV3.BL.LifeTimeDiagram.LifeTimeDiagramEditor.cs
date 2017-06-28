@@ -223,9 +223,9 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
             }
 
             ObjectBrowser.UpdateObjectBrowser(Diagram.Groups);
-            SettingsGrid.SetObject(Diagram.Settings);
+            SettingsGrid.SetObject(Diagram.Settings, false);
 
-            if (CurrentObject != null) PropertyGrid.SetObject(CurrentObject);
+            if (CurrentObject != null) PropertyGrid.SetObject(CurrentObject, false);
 
             return _toolbox;
         }
@@ -401,7 +401,7 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
             CreateToolBoxControlls();
             UpdateObjectBrowser(true);
             
-            SettingsGrid.SetObject(Diagram.Settings);
+            SettingsGrid.SetObject(Diagram.Settings, false);
             
             ExportGrid.SetExportSettings(Diagram.ExportSettings);
         }
@@ -431,6 +431,7 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
         private void ObjectChanged(object sender, LifeTimeObjectPropertyGrid.ObjectChangedArgs e)
         {   
             UpdateObjectBrowser(false);
+            
 
             if (e.NewColorsRequested) RequestNewRandomColors = DrawNewRandomColor.Yes;
 
@@ -624,7 +625,7 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
             public void MoveObjectEnd(MouseEventArgs e)
             {
                 _editorInstance.CurrentObject = Object;
-                _editorInstance.PropertyGrid.SetObject(_editorInstance.CurrentObject);
+                _editorInstance.PropertyGrid.SetObject(_editorInstance.CurrentObject, false);
                 TreeNode t = _editorInstance.ObjectBrowser.ShowItemInObjectBrowser(_editorInstance.CurrentObject);
 
                 Object = null;

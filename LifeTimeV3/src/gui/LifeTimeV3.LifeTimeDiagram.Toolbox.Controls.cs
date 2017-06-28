@@ -1257,7 +1257,7 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
         {            
             _multiselection = multiSelectionElementsCollection;
 
-            SetObject(o);
+            SetObject(o, false);
         }
 
         public void SetNoObject()
@@ -1272,7 +1272,7 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
         /// Set a LifeTimeObjet
         /// </summary>
         /// <param name="o"></param>
-        public void SetObject<T>(T o)
+        public void SetObject<T>(T o, bool forceRefresh)
             where T: LifeTimeDiagramEditor.ILifeTimeObject
         {            
             if (_multiselection == null)
@@ -1292,7 +1292,7 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
             }
             else if (o is LifeTimeDiagramEditor.LifeTimeElement)
             {
-                if (_lifeTimeObject == o as LifeTimeDiagramEditor.LifeTimeElement)
+                if (_lifeTimeObject == o as LifeTimeDiagramEditor.LifeTimeElement && !forceRefresh)
                     return;
 
                 _allowDiagramChanging = false;
@@ -1308,7 +1308,7 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
             }
             else if (o is LifeTimeDiagramEditor.LifeTimeGroup)
             {
-                if (_lifeTimeObject == o as LifeTimeDiagramEditor.LifeTimeGroup)
+                if (_lifeTimeObject == o as LifeTimeDiagramEditor.LifeTimeGroup && !forceRefresh)
                     return;
 
                 _allowDiagramChanging = false;
@@ -1324,7 +1324,7 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
             }
             else if (o is LifeTimeDiagramEditor.LifeTimeDiagramSettings)
             {
-                if (_lifeTimeObject == o as LifeTimeDiagramEditor.LifeTimeDiagramSettings)
+                if (_lifeTimeObject == o as LifeTimeDiagramEditor.LifeTimeDiagramSettings && !forceRefresh)
                     return;
 
                 _allowDiagramChanging = false;
@@ -1352,7 +1352,7 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
         /// </summary>
         public void UpdateProperties()
         {
-            SetObject(_lifeTimeObject);
+            SetObject(_lifeTimeObject, true);
         }
         #endregion
 
@@ -1453,7 +1453,8 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
 
         private Control AddPropertyControlToGrid(string name, object value, ref int r, Boolean ro, Color highlight)
         {
-            Control c = new Control();            
+            Control c = new Control();
+            c.BackColor = highlight;
             #region Checkbox
             if (value is bool)
             {
@@ -1617,7 +1618,7 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
 
             c.Dock = DockStyle.Fill;
             c.Enabled = ro;
-            c.BackColor = highlight;
+            
             
             this.Controls.Add(c, 1, r);
             r++;
@@ -1640,7 +1641,7 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
             {
                 LifeTimeDiagramEditor.LifeTimeElement o = _lifeTimeObject as LifeTimeDiagramEditor.LifeTimeElement;
                 o.Type = c.value;
-                SetObject(_lifeTimeObject);
+                SetObject(_lifeTimeObject, true);
 
                 foreach(LifeTimeDiagramEditor.LifeTimeElement ms in _multiselection)
                 {
@@ -1732,9 +1733,7 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
                 {
                     if (ms is LifeTimeDiagramEditor.LifeTimeElement)
                         (ms as LifeTimeDiagramEditor.LifeTimeElement).HorizontallyBonding = o.HorizontallyBonding;
-                }
-
-                SetObject(_lifeTimeObject);
+                }                
 
                 ObjectChangedArgs objChangedArgs = new ObjectChangedArgs();
                 objChangedArgs.NewColorsRequested = false;
@@ -1762,9 +1761,7 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
                     if (ms is LifeTimeDiagramEditor.LifeTimeElement)
                         (ms as LifeTimeDiagramEditor.LifeTimeElement).VerticallyBonding = o.VerticallyBonding;
                 }
-
-                SetObject(_lifeTimeObject);
-
+                
                 ObjectChangedArgs objChangedArgs = new ObjectChangedArgs();
                 objChangedArgs.NewColorsRequested = false;
                 objChangedArgs.DiagramChanged = _allowDiagramChanging;
@@ -1799,7 +1796,7 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
                 foreach (T ms in _multiselection)
                     t.GetProperty(c.Name).SetValue(ms, c.Checked);
 
-                SetObject(o as LifeTimeDiagramEditor.ILifeTimeObject);
+                SetObject(o as LifeTimeDiagramEditor.ILifeTimeObject, true);
                 
                 ObjectChangedArgs objChangedArgs = new ObjectChangedArgs();
                 objChangedArgs.NewColorsRequested = true;
@@ -1871,11 +1868,9 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
                     foreach (T ms in _multiselection)
                         t.GetProperty(c.Name).SetValue(ms, Convert.ToDouble(c.Text));
                 }
-
-                SetObject(o as LifeTimeDiagramEditor.ILifeTimeObject);
-
+                
                 ObjectChangedArgs objChangedArgs = new ObjectChangedArgs();
-                objChangedArgs.NewColorsRequested = true;
+                objChangedArgs.NewColorsRequested = false;
                 objChangedArgs.DiagramChanged = _allowDiagramChanging;
                 objChangedArgs.ObjectChangedByPropertyGrid = true;
                 if (ObjectChanged != null) ObjectChanged(_lifeTimeObject, objChangedArgs);
@@ -1931,9 +1926,7 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
 
                 foreach (T ms in _multiselection)
                     t.GetProperty(c.Name).SetValue(ms, c.Value);
-
-                SetObject(o as LifeTimeDiagramEditor.ILifeTimeObject);
-
+                
                 ObjectChangedArgs objChangedArgs = new ObjectChangedArgs();
                 objChangedArgs.NewColorsRequested = true;
                 objChangedArgs.DiagramChanged = _allowDiagramChanging;
@@ -2109,7 +2102,8 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
                     return _value;
                 }
                 set
-                {                    
+                {
+                    BackColor = value;   
                     _value = value;
                 }
             }
@@ -2167,48 +2161,33 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
             #endregion
 
             #region fields
-            private bool _isMultiLine;
+            
             #endregion
 
             #region constructor
             public AdvancedTextBox()
-            {
-                _isMultiLine = false;
+            {                
                 Height = 22;
                 TextBox = new TextBox();
                 TextBox.Dock = DockStyle.Fill;
                 Controls.Add(TextBox);
-                TextBox.PreviewKeyDown += new PreviewKeyDownEventHandler(TakeOver);
+                TextBox.TextChanged += new EventHandler(TakeOver);
+                //TextBox.PreviewKeyDown += new PreviewKeyDownEventHandler(TakeOver);
             }
             #endregion
 
             #region public methods
             public void EnableMultiline()
-            {
-                _isMultiLine = true;
+            {                
                 TextBox.Multiline = true;                                
-                Height = 90;
-
-                Label hint = new Label();                
-                hint.Text = LifeTimeV3TextList.GetText("[2000]");
-                hint.Dock = DockStyle.Bottom;
-                hint.BackColor = Color.LightYellow;
-                hint.ForeColor = Color.DimGray;                                
-
-                Controls.Add(hint);
+                Height = 90;;
             }
             #endregion
 
             #region private methods
-            private void TakeOver(object sender, PreviewKeyDownEventArgs e)
-            {
-                if (_isMultiLine && e.KeyCode == Keys.Enter && e.Alt)
-                {
-                    ValueChanged?.Invoke(this, e);                    
-                }
-                else if (!_isMultiLine && e.KeyCode == Keys.Enter)
-                    ValueChanged?.Invoke(this, e);
-                
+            private void TakeOver(object sender, EventArgs e)
+            {                
+                 ValueChanged?.Invoke(this, e);                
             }
             #endregion
 
