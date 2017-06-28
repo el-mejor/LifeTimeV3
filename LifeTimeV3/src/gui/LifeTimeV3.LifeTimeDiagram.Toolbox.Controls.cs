@@ -1373,6 +1373,8 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
 
             _allowDiagramChanging = false;
             bool showInformMultiSelDiffLabel = false;
+            Visible = false;
+            
             foreach (string name in (o as LifeTimeDiagramEditor.ILifeTimeObject).Properties(false))
             {
                 object value = t.GetProperty(name).GetValue(o);
@@ -1404,6 +1406,7 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
 
             AddPropertyLabelToGgrid("", 0, r, this.BackColor); //an empty label to finalize the grid
             _allowDiagramChanging = true;
+            Visible = true;
         }
 
         private void addInfoLabelToGrid(string text, string addText, Color highlight)
@@ -2099,12 +2102,6 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
             #endregion
 
             #region properties
-            public override Color BackColor
-            {
-                set
-                { base.BackColor = _value; }
-            }
-
             public Color Value
             {
                 get
@@ -2114,7 +2111,6 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
                 set
                 {                    
                     _value = value;
-                    ColorChanged?.Invoke(this, new EventArgs());
                 }
             }
             #endregion
@@ -2139,9 +2135,10 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
                 ColorDialog d = new ColorDialog();
                 d.Color = Value;
                 d.ShowDialog();
-                base.BackColor = _value;                
+                _value = d.Color;
+                this.BackColor = _value;
 
-                Value = d.Color;
+                ColorChanged?.Invoke(this, new EventArgs());                
             }
             #endregion
         }
