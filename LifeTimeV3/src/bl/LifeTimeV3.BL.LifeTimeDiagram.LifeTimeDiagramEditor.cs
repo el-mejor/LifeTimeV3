@@ -332,7 +332,7 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
             _toolbox = GetToolBoxForm();
 
             //_toolbox.ObjectBrowser.ShowItemInObjectBrowser(null as ILifeTimeObject);
-            PropertyGrid.SetObject(null);
+            PropertyGrid.SetNoObject();
             CurrentObject = null;
             ObjectSelected?.Invoke(null, null);
 
@@ -434,8 +434,7 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
 
             if (e.NewColorsRequested) RequestNewRandomColors = DrawNewRandomColor.Yes;
 
-            DiagramViewer.Refresh();
-            _toolbox.Refresh();
+            DiagramViewer.Refresh();            
 
             if (DiagramChanged != null && e.DiagramChanged)
             {
@@ -512,7 +511,7 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
                     if (f != null && f.LifeTimeObject != null)
                     {
                         CurrentObject = f.LifeTimeObject;
-                        PropertyGrid.SetObject(f.LifeTimeObject);                        
+                        //PropertyGrid.SetObject(f.LifeTimeObject);                        
                         TreeNode t = ObjectBrowser.ShowItemInObjectBrowser(f.LifeTimeObject);
 
                         if (t != null && e.Button == MouseButtons.Right)
@@ -522,14 +521,12 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
                         }
                         else if (DiagramViewer.ContextMenuStrip != null) DiagramViewer.ContextMenuStrip.Hide();
                     }
-
-                    
                 }
             }   
             else
             {
                 CurrentObject = _moveObject.Object;
-                PropertyGrid.SetObject(_moveObject.Object);
+                //PropertyGrid.SetObject(_moveObject.Object);
 
                 TreeNode t = ObjectBrowser.ShowItemInObjectBrowser(_moveObject.Object);
 

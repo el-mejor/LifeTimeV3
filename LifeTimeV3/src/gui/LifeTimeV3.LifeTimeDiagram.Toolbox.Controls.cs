@@ -98,7 +98,7 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
 
             if (_selectedNode != null) ShowItemInObjectBrowser(_selectedNode);
 
-            this.EndUpdate();
+            this.EndUpdate();            
         }
 
         /// <summary>
@@ -137,6 +137,8 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
 
             ItemSelectedArgs args = new ItemSelectedArgs(o, SelectedObjects);
             ItemSelected?.Invoke(o, args);
+
+            Refresh();
             
             return t as LifeTimeObjectTreeNode;
         }
@@ -313,7 +315,7 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
 
             ItemSelectedArgs args = new ItemSelectedArgs(e.NewObject, SelectedObjects);
             if (ItemSelected != null && e.NewObject != null) this.ItemSelected(this, args);
-            if (ObjectCollectionChanged != null) this.ObjectCollectionChanged(this, null);
+            if (ObjectCollectionChanged != null) this.ObjectCollectionChanged(this, null);            
         }
 
         private void CollapseExpandRequest(object sender, LifeTimeObjectTreeNode.CollapseAllExpandAllEventArgs e)
@@ -1250,24 +1252,32 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
         /// </summary>
         /// <param name="o"></param>
         /// <param name="multiSelectionElementsCollection"></param>
-        public void SetObject(LifeTimeDiagramEditor.ILifeTimeObject o, List<LifeTimeDiagramEditor.ILifeTimeObject> multiSelectionElementsCollection)
-        {
+        public void SetObject<T>(T o, List<LifeTimeDiagramEditor.ILifeTimeObject> multiSelectionElementsCollection)
+            where T: LifeTimeDiagramEditor.ILifeTimeObject
+        {            
             _multiselection = multiSelectionElementsCollection;
 
             SetObject(o);
+        }
+
+        public void SetNoObject()
+        {
+            _allowDiagramChanging = false;
+            this.Controls.Clear();
+
+            NoObjectSelected();
         }
 
         /// <summary>
         /// Set a LifeTimeObjet
         /// </summary>
         /// <param name="o"></param>
-        public void SetObject(LifeTimeDiagramEditor.ILifeTimeObject o)
-        {
+        public void SetObject<T>(T o)
+            where T: LifeTimeDiagramEditor.ILifeTimeObject
+        {            
             if (_multiselection == null)
-                _multiselection = new List<LifeTimeDiagramEditor.ILifeTimeObject>();
-               
-            _allowDiagramChanging = false;
-            this.Controls.Clear();
+                _multiselection = new List<LifeTimeDiagramEditor.ILifeTimeObject>();               
+            
 
             if (_lifeTimeObject != null && _lifeTimeObject is LifeTimeDiagramEditor.LifeTimeElement)
             {
@@ -1282,37 +1292,50 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
             }
             else if (o is LifeTimeDiagramEditor.LifeTimeElement)
             {
+                if (_lifeTimeObject == o as LifeTimeDiagramEditor.LifeTimeElement)
+                    return;
+
+                _allowDiagramChanging = false;
+                this.Controls.Clear();
+
                 _lifeTimeObject = o;
 
-                LifeTimeDiagramEditor.LifeTimeElement currObj = _lifeTimeObject as LifeTimeDiagramEditor.LifeTimeElement;
-
-                LoadObjectProperties(currObj);                
+                LoadObjectProperties(_lifeTimeObject as LifeTimeDiagramEditor.LifeTimeElement);
 
                 ObjectChangedArgs objChangedArgs = new ObjectChangedArgs();
                 objChangedArgs.DiagramChanged = false;
-                ObjectChanged?.Invoke(currObj, objChangedArgs);
+                ObjectChanged?.Invoke(_lifeTimeObject, objChangedArgs);
             }
             else if (o is LifeTimeDiagramEditor.LifeTimeGroup)
             {
+                if (_lifeTimeObject == o as LifeTimeDiagramEditor.LifeTimeGroup)
+                    return;
+
+                _allowDiagramChanging = false;
+                this.Controls.Clear();
+
                 _lifeTimeObject = o;
 
-                LifeTimeDiagramEditor.LifeTimeGroup currObj = _lifeTimeObject as LifeTimeDiagramEditor.LifeTimeGroup;
-
-                LoadObjectProperties(currObj);
+                LoadObjectProperties(_lifeTimeObject as LifeTimeDiagramEditor.LifeTimeGroup);
 
                 ObjectChangedArgs objChangedArgs = new ObjectChangedArgs();
                 objChangedArgs.DiagramChanged = false;
-                ObjectChanged?.Invoke(currObj, objChangedArgs);
+                ObjectChanged?.Invoke(_lifeTimeObject, objChangedArgs);
             }
             else if (o is LifeTimeDiagramEditor.LifeTimeDiagramSettings)
             {
-                _lifeTimeObject = o;
+                if (_lifeTimeObject == o as LifeTimeDiagramEditor.LifeTimeDiagramSettings)
+                    return;
 
-                LifeTimeDiagramEditor.LifeTimeDiagramSettings currObj = _lifeTimeObject as LifeTimeDiagramEditor.LifeTimeDiagramSettings;
+                _allowDiagramChanging = false;
+                this.Controls.Clear();
 
-                LoadObjectProperties(currObj);
+                _lifeTimeObject = o;                
+
+                LoadObjectProperties(_lifeTimeObject as LifeTimeDiagramEditor.LifeTimeDiagramSettings);
             }
             _allowDiagramChanging = true;
+            Refresh(); 
         }
 
         /// <summary>
