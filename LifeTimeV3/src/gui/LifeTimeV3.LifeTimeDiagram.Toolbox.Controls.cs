@@ -1227,12 +1227,14 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
         private bool _allowDiagramChanging = true;
         private List<LifeTimeDiagramEditor.ILifeTimeObject> _multiselection;
         private List<string> _avFonts;
-        
+        private LifeTimeDiagramEditor.LifeTimeDiagramSettings _settings;
         #endregion
 
         #region Constructor
-        public LifeTimeObjectPropertyGrid()
+        public LifeTimeObjectPropertyGrid(LifeTimeDiagramEditor.LifeTimeDiagramSettings diagramSettings)
         {
+            _settings = diagramSettings;
+
             this.BackColor = Color.White;
             this.CellBorderStyle = TableLayoutPanelCellBorderStyle.Single;
 
@@ -1599,10 +1601,10 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
             #region Color
             else if (value is Color)
             {
-                c = new ColorSelectorButton();
+                c = new ColorSelectorButton(_settings);
                 ColorSelectorButton d = c as ColorSelectorButton;
                 d.Name = name;
-                d.Value = (Color)value;
+                d.Value = (Color)value;                
 
                 d.ColorChanged += new EventHandler(ColorChanged);
             }
@@ -1915,7 +1917,7 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
 
             if (_lifeTimeObject is LifeTimeDiagramEditor.LifeTimeElement) ColorChanged<LifeTimeDiagramEditor.LifeTimeElement>(c, _lifeTimeObject as LifeTimeDiagramEditor.LifeTimeElement);
             if (_lifeTimeObject is LifeTimeDiagramEditor.LifeTimeGroup) ColorChanged<LifeTimeDiagramEditor.LifeTimeGroup>(c, _lifeTimeObject as LifeTimeDiagramEditor.LifeTimeGroup);
-            if (_lifeTimeObject is LifeTimeDiagramEditor.LifeTimeDiagramSettings) ColorChanged<LifeTimeDiagramEditor.LifeTimeDiagramSettings>(c, _lifeTimeObject as LifeTimeDiagramEditor.LifeTimeDiagramSettings);
+            if (_lifeTimeObject is LifeTimeDiagramEditor.LifeTimeDiagramSettings) ColorChanged<LifeTimeDiagramEditor.LifeTimeDiagramSettings>(c, _lifeTimeObject as LifeTimeDiagramEditor.LifeTimeDiagramSettings);            
         }
         private void ColorChanged<T>(ColorSelectorButton c, T o)
         {
@@ -2106,16 +2108,18 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
                     BackColor = value;   
                     _value = value;
                 }
-            }
+            }            
             #endregion
 
             #region fields
             private Color _value;
+            private LifeTimeDiagramEditor.LifeTimeDiagramSettings _settings;
             #endregion
 
             #region constructor
-            public ColorSelectorButton()
+            public ColorSelectorButton(LifeTimeDiagramEditor.LifeTimeDiagramSettings diagramSettings)
             {
+                _settings = diagramSettings;
                 this.BackColor = Color.White;
                 this.Width = 100;
                 this.Text = LifeTimeV3TextList.GetText("[20]"); //Change Color
@@ -2127,10 +2131,23 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
             private void ChangeColor(object sender, EventArgs e)
             {
                 ColorDialog d = new ColorDialog();
+                d.AllowFullOpen = true;
+
+                List<int> colorsint = new List<int>();
+                foreach (Color c in _settings.UserDefinedColors)
+                    colorsint.Add(c.ToArgb());
+
+                d.CustomColors = colorsint.ToArray();
                 d.Color = Value;
                 d.ShowDialog();
                 _value = d.Color;
                 this.BackColor = _value;
+
+                List<Color> colors = new List<Color>();
+                foreach (int c in d.CustomColors)
+                    colors.Add(Color.FromArgb(c));
+
+                _settings.UserDefinedColors = colors.ToArray();
 
                 ColorChanged?.Invoke(this, new EventArgs());                
             }

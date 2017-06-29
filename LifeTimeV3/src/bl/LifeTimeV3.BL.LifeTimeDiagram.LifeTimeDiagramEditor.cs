@@ -366,8 +366,8 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
 
         private void CreateToolBoxControlls()
         {
-            PropertyGrid = new LifeTimeObjectPropertyGrid();
-            SettingsGrid = new LifeTimeObjectPropertyGrid();
+            PropertyGrid = new LifeTimeObjectPropertyGrid(Diagram.Settings);
+            SettingsGrid = new LifeTimeObjectPropertyGrid(Diagram.Settings);
             ExportGrid = new LifeTimeExportPNGPropertyGrid();
             ObjectBrowser = new LifeTimeObjectBrowser(Diagram.Settings);
 
