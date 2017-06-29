@@ -1804,7 +1804,7 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
                 objChangedArgs.NewColorsRequested = true;
                 objChangedArgs.DiagramChanged = _allowDiagramChanging;
                 objChangedArgs.ObjectChangedByPropertyGrid = true;
-                if (ObjectChanged != null) ObjectChanged(_lifeTimeObject, objChangedArgs);
+                ObjectChanged?.Invoke(_lifeTimeObject, objChangedArgs);
             }
             catch
             {
@@ -1847,6 +1847,7 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
         private void TextBoxChanged<T>(AdvancedTextBox c, T o)
         {
             Type t = typeof(T);
+            c.TextBox.BackColor = this.BackColor;
             try
             {
                 if (t.GetProperty(c.Name).PropertyType == typeof(string))
@@ -1875,7 +1876,7 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
                 objChangedArgs.NewColorsRequested = false;
                 objChangedArgs.DiagramChanged = _allowDiagramChanging;
                 objChangedArgs.ObjectChangedByPropertyGrid = true;
-                if (ObjectChanged != null) ObjectChanged(_lifeTimeObject, objChangedArgs);
+                ObjectChanged?.Invoke(_lifeTimeObject, objChangedArgs);                
             }
             catch
             {
