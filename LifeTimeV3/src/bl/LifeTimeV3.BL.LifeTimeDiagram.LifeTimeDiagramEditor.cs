@@ -223,9 +223,9 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
             }
 
             ObjectBrowser.UpdateObjectBrowser(Diagram.Groups);
-            SettingsGrid.SetObject(Diagram.Settings);
+            SettingsGrid.SetObject(Diagram.Settings, false);
 
-            if (CurrentObject != null) PropertyGrid.SetObject(CurrentObject);
+            if (CurrentObject != null) PropertyGrid.SetObject(CurrentObject, false);
 
             return _toolbox;
         }
@@ -332,7 +332,7 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
             _toolbox = GetToolBoxForm();
 
             //_toolbox.ObjectBrowser.ShowItemInObjectBrowser(null as ILifeTimeObject);
-            PropertyGrid.SetObject(null);
+            PropertyGrid.SetNoObject();
             CurrentObject = null;
             ObjectSelected?.Invoke(null, null);
 
@@ -366,8 +366,8 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
 
         private void CreateToolBoxControlls()
         {
-            PropertyGrid = new LifeTimeObjectPropertyGrid();
-            SettingsGrid = new LifeTimeObjectPropertyGrid();
+            PropertyGrid = new LifeTimeObjectPropertyGrid(Diagram.Settings);
+            SettingsGrid = new LifeTimeObjectPropertyGrid(Diagram.Settings);
             ExportGrid = new LifeTimeExportPNGPropertyGrid();
             ObjectBrowser = new LifeTimeObjectBrowser(Diagram.Settings);
 
@@ -401,7 +401,7 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
             CreateToolBoxControlls();
             UpdateObjectBrowser(true);
             
-            SettingsGrid.SetObject(Diagram.Settings);
+            SettingsGrid.SetObject(Diagram.Settings, false);
             
             ExportGrid.SetExportSettings(Diagram.ExportSettings);
         }
@@ -431,11 +431,11 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
         private void ObjectChanged(object sender, LifeTimeObjectPropertyGrid.ObjectChangedArgs e)
         {   
             UpdateObjectBrowser(false);
+            
 
             if (e.NewColorsRequested) RequestNewRandomColors = DrawNewRandomColor.Yes;
 
-            DiagramViewer.Refresh();
-            _toolbox.Refresh();
+            DiagramViewer.Refresh();            
 
             if (DiagramChanged != null && e.DiagramChanged)
             {
@@ -512,7 +512,7 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
                     if (f != null && f.LifeTimeObject != null)
                     {
                         CurrentObject = f.LifeTimeObject;
-                        PropertyGrid.SetObject(f.LifeTimeObject);                        
+                        //PropertyGrid.SetObject(f.LifeTimeObject);                        
                         TreeNode t = ObjectBrowser.ShowItemInObjectBrowser(f.LifeTimeObject);
 
                         if (t != null && e.Button == MouseButtons.Right)
@@ -522,14 +522,12 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
                         }
                         else if (DiagramViewer.ContextMenuStrip != null) DiagramViewer.ContextMenuStrip.Hide();
                     }
-
-                    
                 }
             }   
             else
             {
                 CurrentObject = _moveObject.Object;
-                PropertyGrid.SetObject(_moveObject.Object);
+                //PropertyGrid.SetObject(_moveObject.Object);
 
                 TreeNode t = ObjectBrowser.ShowItemInObjectBrowser(_moveObject.Object);
 
@@ -627,7 +625,7 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
             public void MoveObjectEnd(MouseEventArgs e)
             {
                 _editorInstance.CurrentObject = Object;
-                _editorInstance.PropertyGrid.SetObject(_editorInstance.CurrentObject);
+                _editorInstance.PropertyGrid.SetObject(_editorInstance.CurrentObject, false);
                 TreeNode t = _editorInstance.ObjectBrowser.ShowItemInObjectBrowser(_editorInstance.CurrentObject);
 
                 Object = null;

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text;
 using System.Drawing;
 using System.Xml;
 
@@ -46,7 +47,17 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
                         e.SetAttribute(property, ConvertColorToString((Color)(o.GetType().GetProperty(property).GetValue(o))));
                     else if (o.GetType().GetProperty(property).GetValue(o) is FontFamily)
                         e.SetAttribute(property, (o.GetType().GetProperty(property).GetValue(o) as FontFamily).Name);
+                    else if (o.GetType().GetProperty(property).PropertyType == typeof(Color[]))
+                    {
+                        string colors = "";                        
+                        foreach (Color c in o.GetType().GetProperty(property).GetValue(o) as Color[])
+                        {
+                            string color = c.R + ";" + c.G + ";" + c.B;
+                            colors += string.IsNullOrEmpty(colors) ? color : ";" + color;
+                        }
 
+                        e.SetAttribute(property, colors);
+                    }
                     else
                         e.SetAttribute(property, o.GetType().GetProperty(property).GetValue(o).ToString());
                 }
@@ -106,6 +117,19 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
                         t.GetProperty(property).SetValue(o, node.Attributes[property].Value.ToString().ToLower() == "true" ? true : false);
                     else if (t.GetProperty(property).PropertyType == typeof(string))
                         t.GetProperty(property).SetValue(o, node.Attributes[property].Value);
+                    else if (t.GetProperty(property).PropertyType == typeof(Color[]))
+                    {
+                        string[] values = node.Attributes[property].Value.Split(new char[] { ';' });
+
+                        List<Color> colors = new List<Color>();
+
+                        for (int i = 0; i < values.Length; i+=3)
+                        {
+                            colors.Add(Color.FromArgb(0, Convert.ToInt16(values[i]), Convert.ToInt16(values[i + 1]), Convert.ToInt16(values[i + 2])));
+                        }
+
+                        t.GetProperty(property).SetValue(o, colors.ToArray());
+                    }
                     else if (t.GetProperty(property).PropertyType == typeof(int))
                         t.GetProperty(property).SetValue(o, Convert.ToInt16(node.Attributes[property].Value));
                     else if (t.GetProperty(property).PropertyType == typeof(float))

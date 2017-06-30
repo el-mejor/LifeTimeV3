@@ -42,7 +42,7 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox
             this.FormClosing += new FormClosingEventHandler(Toolbox_Closing);
 
             PropertyGrid.Dock = DockStyle.Fill;
-            PropertyGrid.SetObject(null);
+            PropertyGrid.SetNoObject();
 
             SplitContainer _split = new SplitContainer();
             _split.Dock = DockStyle.Fill;
@@ -73,7 +73,7 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox
             tabs.TabPages.Add(ObjPropGrid);
             ObjPropGrid.Text = LifeTimeV3TextList.GetText("[214]"); //Element
             PropertyGrid.Dock = DockStyle.Fill;
-            PropertyGrid.SetObject(null);
+            PropertyGrid.SetNoObject();
             ObjPropGrid.Controls.Add(PropertyGrid);
 
             TabPage DiagSetGrid = new TabPage();
