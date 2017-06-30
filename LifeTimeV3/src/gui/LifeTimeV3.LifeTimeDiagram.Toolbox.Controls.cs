@@ -1228,12 +1228,14 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
         private List<LifeTimeDiagramEditor.ILifeTimeObject> _multiselection;
         private List<string> _avFonts;
         private LifeTimeDiagramEditor.LifeTimeDiagramSettings _settings;
+        private Dictionary<Control, Label> _infoMessagesCausedByControls;
         #endregion
 
         #region Constructor
         public LifeTimeObjectPropertyGrid(LifeTimeDiagramEditor.LifeTimeDiagramSettings diagramSettings)
         {
             _settings = diagramSettings;
+            _infoMessagesCausedByControls = new Dictionary<Control, Label>();
 
             this.BackColor = Color.White;
             this.CellBorderStyle = TableLayoutPanelCellBorderStyle.Single;
@@ -1398,12 +1400,12 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
 
             if (_multiselection != null && _multiselection.Count > 1)
             {
-                addInfoLabelToGrid("[305]", "", Color.LightYellow); //inform that more than one element is selected
+                addInfoLabelToGrid(new Control(), "[305]", "", Color.LightYellow); //inform that more than one element is selected
             }
 
             if (showInformMultiSelDiffLabel)
             {
-                addInfoLabelToGrid("[304]", "", Color.LightGreen); //inform what highlighted properties standing for
+                addInfoLabelToGrid(new Control(), "[304]", "", Color.LightGreen); //inform what highlighted properties standing for
             }
 
             AddPropertyLabelToGgrid("", 0, r, this.BackColor); //an empty label to finalize the grid
@@ -1411,9 +1413,12 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
             Visible = true;
         }
 
-        private void addInfoLabelToGrid(string text, string addText, Color highlight)
+        private void addInfoLabelToGrid(Control causingControl, string text, string addText, Color highlight)
         {
-            Label l = new Label();
+            if (_infoMessagesCausedByControls.ContainsKey(causingControl))
+                return;
+
+                Label l = new Label();
             l.Text = $"{LifeTimeV3TextList.GetText(text)} {addText}"; //inform what highlighted properties standing for
             l.Height = 30;
             l.Dock = DockStyle.Fill;
@@ -1421,7 +1426,19 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
 
             SetColumnSpan(l, 2);
 
+            _infoMessagesCausedByControls.Add(causingControl, l);
+
             Controls.Add(l, 0, 0);
+        }
+
+        private void removeInfoLabelFromGrid(Control causingControl)
+        {
+            Label l;
+            if (_infoMessagesCausedByControls.TryGetValue(causingControl, out l))
+            {
+                l.Dispose();
+                _infoMessagesCausedByControls.Remove(causingControl);
+            }
         }
 
         private static bool checkAllElementsForSameValue<T>(T currElement, string property, List<LifeTimeDiagramEditor.ILifeTimeObject> elementCollection)
@@ -1651,6 +1668,8 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
                         (ms as LifeTimeDiagramEditor.LifeTimeElement).Type = o.Type;
                 }
 
+                removeInfoLabelFromGrid(c);
+
                 ObjectChangedArgs objChangedArgs = new ObjectChangedArgs();
                 objChangedArgs.NewColorsRequested = true;
                 objChangedArgs.DiagramChanged = _allowDiagramChanging;
@@ -1660,7 +1679,7 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
             catch
             {
                 c.BackColor = ErrorBackColor;
-                addInfoLabelToGrid("[306]", LifeTimeV3TextList.GetText(c.Name), ErrorBackColor);
+                addInfoLabelToGrid(c, "[306]", LifeTimeV3TextList.GetText(c.Name), ErrorBackColor);
             }
         }
         private void ObjectFontChanged(object sender, EventArgs e)
@@ -1683,7 +1702,9 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
 
                 foreach (T ms in _multiselection)
                     t.GetProperty(c.Name).SetValue(ms, c.Value);
-                
+
+                removeInfoLabelFromGrid(c);
+
                 ObjectChangedArgs objChangedArgs = new ObjectChangedArgs();
                 objChangedArgs.NewColorsRequested = false;
                 objChangedArgs.DiagramChanged = _allowDiagramChanging;
@@ -1693,7 +1714,7 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
             catch
             {
                 c.BackColor = ErrorBackColor;
-                addInfoLabelToGrid("[306]", LifeTimeV3TextList.GetText(c.Name), ErrorBackColor);
+                addInfoLabelToGrid(c, "[306]", LifeTimeV3TextList.GetText(c.Name), ErrorBackColor);
             }
         }
         private void FontStyleChanged(object sender, EventArgs e)
@@ -1735,7 +1756,9 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
                 {
                     if (ms is LifeTimeDiagramEditor.LifeTimeElement)
                         (ms as LifeTimeDiagramEditor.LifeTimeElement).HorizontallyBonding = o.HorizontallyBonding;
-                }                
+                }
+
+                removeInfoLabelFromGrid(c);
 
                 ObjectChangedArgs objChangedArgs = new ObjectChangedArgs();
                 objChangedArgs.NewColorsRequested = false;
@@ -1746,7 +1769,7 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
             catch
             {
                 c.BackColor = ErrorBackColor;
-                addInfoLabelToGrid("[306]", LifeTimeV3TextList.GetText(c.Name), ErrorBackColor);
+                addInfoLabelToGrid(c, "[306]", LifeTimeV3TextList.GetText(c.Name), ErrorBackColor);
             }
         }
         private void BondVerSelectorChanged(object sender, EventArgs e)
@@ -1763,7 +1786,9 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
                     if (ms is LifeTimeDiagramEditor.LifeTimeElement)
                         (ms as LifeTimeDiagramEditor.LifeTimeElement).VerticallyBonding = o.VerticallyBonding;
                 }
-                
+
+                removeInfoLabelFromGrid(c);
+
                 ObjectChangedArgs objChangedArgs = new ObjectChangedArgs();
                 objChangedArgs.NewColorsRequested = false;
                 objChangedArgs.DiagramChanged = _allowDiagramChanging;
@@ -1773,7 +1798,7 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
             catch
             {
                 c.BackColor = ErrorBackColor;
-                addInfoLabelToGrid("[306]", LifeTimeV3TextList.GetText(c.Name), ErrorBackColor);
+                addInfoLabelToGrid(c, "[306]", LifeTimeV3TextList.GetText(c.Name), ErrorBackColor);
             }
         }
         private void CheckBoxChanged(object sender, EventArgs e)
@@ -1799,7 +1824,9 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
                     t.GetProperty(c.Name).SetValue(ms, c.Checked);
 
                 SetObject(o as LifeTimeDiagramEditor.ILifeTimeObject, true);
-                
+
+                removeInfoLabelFromGrid(c);
+
                 ObjectChangedArgs objChangedArgs = new ObjectChangedArgs();
                 objChangedArgs.NewColorsRequested = true;
                 objChangedArgs.DiagramChanged = _allowDiagramChanging;
@@ -1809,7 +1836,7 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
             catch
             {
                 c.BackColor = ErrorBackColor;
-                addInfoLabelToGrid("[306]", LifeTimeV3TextList.GetText(c.Name), ErrorBackColor);
+                addInfoLabelToGrid(c, "[306]", LifeTimeV3TextList.GetText(c.Name), ErrorBackColor);
             }
         }
         private void TextBoxChanged(object sender, EventArgs e)
@@ -1871,7 +1898,9 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
                     foreach (T ms in _multiselection)
                         t.GetProperty(c.Name).SetValue(ms, Convert.ToDouble(c.Text));
                 }
-                
+
+                removeInfoLabelFromGrid(c);
+
                 ObjectChangedArgs objChangedArgs = new ObjectChangedArgs();
                 objChangedArgs.NewColorsRequested = false;
                 objChangedArgs.DiagramChanged = _allowDiagramChanging;
@@ -1881,7 +1910,7 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
             catch
             {
                 c.TextBox.BackColor = ErrorBackColor;
-                addInfoLabelToGrid("[306]", LifeTimeV3TextList.GetText(c.Name), ErrorBackColor);
+                addInfoLabelToGrid(c, "[306]", LifeTimeV3TextList.GetText(c.Name), ErrorBackColor);
             }
         }
         private void DateTimeChanged(object sender, EventArgs e)
@@ -1900,6 +1929,8 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
                     if(ms.GetType() == _lifeTimeObject.GetType())
                         t.GetProperty(c.Name).SetValue(ms, c.Value);
 
+                removeInfoLabelFromGrid(c);
+
                 ObjectChangedArgs objChangedArgs = new ObjectChangedArgs();
                 objChangedArgs.NewColorsRequested = false;
                 objChangedArgs.DiagramChanged = _allowDiagramChanging;
@@ -1909,7 +1940,7 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
             catch
             {
                 c.BackColor = ErrorBackColor;
-                addInfoLabelToGrid("[306]", LifeTimeV3TextList.GetText(c.Name), ErrorBackColor);
+                addInfoLabelToGrid(c, "[306]", LifeTimeV3TextList.GetText(c.Name), ErrorBackColor);
             }
         }
         private void ColorChanged(object sender, EventArgs e)
