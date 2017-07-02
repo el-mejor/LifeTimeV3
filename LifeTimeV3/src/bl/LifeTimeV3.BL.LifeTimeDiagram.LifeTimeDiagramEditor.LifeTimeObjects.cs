@@ -264,7 +264,7 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
                 TextColor = settings != null? settings.LabelColor : Color.Black;
                 Opacity = 1.0;
                 Size = settings != null ? settings.BlockHeight : 10;
-                Font = settings != null ? settings.Font : new FontFamily("Arial Narrow");
+                Font = settings != null ? settings.Font : new FontFamily("Arial");
                 FontStyle = FontStyle.Regular;
                 UseDiagFont = true;
                 LineDeviation = 0;
@@ -525,7 +525,7 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
                 BackColor = Color.White;
                 LabelColor = Color.Black;
                 DrawShadows = true;
-                Font = new FontFamily("Arial Narrow");
+                Font = new FontFamily("Arial");
                 GlobalFontSize = 8;
                 Locked = true;
             }

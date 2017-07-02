@@ -124,7 +124,7 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
                         }
                         catch
                         {
-                            t.GetProperty(property).SetValue(o, new FontFamily("Arial Narrow"));
+                            t.GetProperty(property).SetValue(o, new FontFamily("Arial"));
                         }                        
                     }
                     else if (t.GetProperty(property).PropertyType == typeof(LifeTimeElement.BondPositionsHorizontally))
