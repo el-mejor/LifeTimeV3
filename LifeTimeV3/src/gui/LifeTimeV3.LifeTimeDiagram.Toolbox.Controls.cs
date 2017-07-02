@@ -8,7 +8,7 @@ using System.Xml;
 using LifeTimeV3.BL.LifeTimeDiagram;
 using LifeTimeV3.LifeTimeDiagram;
 using LifeTimeV3.Src;
-
+using System.Collections;
 
 namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
 {
@@ -38,6 +38,8 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
         #region Constructor
         public LifeTimeObjectBrowser(LifeTimeDiagramEditor.LifeTimeDiagramSettings settings)
         {
+            m_coll = new List<LifeTimeObjectTreeNode>();
+
             _settings = settings;
             _objectsByIndex = new Dictionary<int, LifeTimeDiagramEditor.ILifeTimeObject>();
             _treenodesByObject = new Dictionary<LifeTimeDiagramEditor.ILifeTimeObject, TreeNode>();
@@ -46,7 +48,7 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
             FindObjectControl.FindNextOrPrev += new LifeTimeFindObjectControl.FindEventHandler(FindNextOrPrevious_Clicked);
 
             this.HideSelection = false;
-            this.CheckBoxes = true;
+            this.CheckBoxes = true;            
 
             this.AfterSelect += new TreeViewEventHandler(TreeViewObjectSelected);
             this.AfterCheck += new TreeViewEventHandler(CheckedStateChanged);            
@@ -96,7 +98,7 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
 
             if (_selectedNode != null) ShowItemInObjectBrowser(_selectedNode);
 
-            this.EndUpdate();
+            this.EndUpdate();            
         }
 
         /// <summary>
@@ -120,7 +122,7 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
         {
             if (o == null)
             {
-                ItemSelectedArgs e = new ItemSelectedArgs(o);
+                ItemSelectedArgs e = new ItemSelectedArgs(o, SelectedObjects);
                 ItemSelected?.Invoke(null, e);
                 return null;
             }
@@ -133,8 +135,10 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
 
             SelectedObject = t as LifeTimeObjectTreeNode;
 
-            ItemSelectedArgs args = new ItemSelectedArgs(o);
+            ItemSelectedArgs args = new ItemSelectedArgs(o, SelectedObjects);
             ItemSelected?.Invoke(o, args);
+
+            Refresh();
             
             return t as LifeTimeObjectTreeNode;
         }
@@ -276,9 +280,11 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
         public class ItemSelectedArgs
         {
             public LifeTimeDiagramEditor.ILifeTimeObject Object { get; private set; }
-            public ItemSelectedArgs(LifeTimeDiagramEditor.ILifeTimeObject o)
+            public List<LifeTimeDiagramEditor.ILifeTimeObject> ObjectCollection { get; private set; }
+            public ItemSelectedArgs(LifeTimeDiagramEditor.ILifeTimeObject o, List<LifeTimeDiagramEditor.ILifeTimeObject> coll)
             {
-                Object = o;                
+                Object = o;
+                ObjectCollection = coll;         
             }
         }
         #endregion
@@ -295,7 +301,7 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
 
             _objectsByIndex.TryGetValue(Convert.ToInt16(n.Name), out o);
 
-            ItemSelectedArgs args = new ItemSelectedArgs(o);
+            ItemSelectedArgs args = new ItemSelectedArgs(o, SelectedObjects);
             if (ItemSelected != null && o != null) this.ItemSelected(this, args);
         }
 
@@ -307,9 +313,9 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
 
             UpdateObjectBrowser(_root);
 
-            ItemSelectedArgs args = new ItemSelectedArgs(e.NewObject);
+            ItemSelectedArgs args = new ItemSelectedArgs(e.NewObject, SelectedObjects);
             if (ItemSelected != null && e.NewObject != null) this.ItemSelected(this, args);
-            if (ObjectCollectionChanged != null) this.ObjectCollectionChanged(this, null);
+            if (ObjectCollectionChanged != null) this.ObjectCollectionChanged(this, null);            
         }
 
         private void CollapseExpandRequest(object sender, LifeTimeObjectTreeNode.CollapseAllExpandAllEventArgs e)
@@ -361,6 +367,240 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
             FindObjectControl.UpdateStatusLabel(r.Count, _findResultsIndex + 1);
         }
 
+        #endregion
+
+        #region TreeView with Multiselection Addon
+        // TreeView modification to enable multi selection
+        // Comes from http://www.arstdesign.com/articles/treeviewms.html
+        
+        private List<LifeTimeObjectTreeNode> m_coll;
+        private LifeTimeObjectTreeNode m_lastNode, m_firstNode;
+
+        public List<LifeTimeObjectTreeNode> SelectedNodes
+        {
+            get
+            {
+                return m_coll;
+            }
+            set
+            {
+                removePaintFromNodes();
+                m_coll.Clear();
+                m_coll = value;
+                paintSelectedNodes();
+            }
+        }
+
+        public List<LifeTimeDiagramEditor.ILifeTimeObject> SelectedObjects
+        {
+            get
+            {
+                List<LifeTimeDiagramEditor.ILifeTimeObject> coll = new List<LifeTimeDiagramEditor.ILifeTimeObject>();
+                foreach (LifeTimeObjectTreeNode n in m_coll)
+                    if(n.Object is LifeTimeDiagramEditor.LifeTimeElement)
+                        coll.Add(n.Object);
+
+                return coll;
+            }
+        }
+        
+        protected override void OnBeforeSelect(TreeViewCancelEventArgs e)
+        {
+            // e.Node is the current node exposed by the base TreeView control
+            base.OnBeforeSelect(e);
+
+            bool bControl = (ModifierKeys == Keys.Control);
+            bool bShift = (ModifierKeys == Keys.Shift);
+
+            // selecting twice the node while pressing CTRL ?
+            if (bControl && m_coll.Contains(e.Node as LifeTimeObjectTreeNode))
+            {
+                // unselect it (let framework know we don't want selection this time)
+                e.Cancel = true;
+
+                // update nodes
+                removePaintFromNodes();
+                m_coll.Remove(e.Node as LifeTimeObjectTreeNode);
+                paintSelectedNodes();
+                return;
+            }
+
+            m_lastNode = e.Node as LifeTimeObjectTreeNode;
+            if (!bShift) m_firstNode = e.Node as LifeTimeObjectTreeNode; // store begin of shift sequence
+        }
+
+        protected override void OnAfterSelect(TreeViewEventArgs e)
+        {
+            // e.Node is the current node exposed by the base TreeView control
+
+            base.OnAfterSelect(e);
+
+            bool bControl = (ModifierKeys == Keys.Control);
+            bool bShift = (ModifierKeys == Keys.Shift);
+
+            if (bControl)
+            {
+                if (!m_coll.Contains(e.Node as LifeTimeObjectTreeNode)) // new node ?
+                {
+                    m_coll.Add(e.Node as LifeTimeObjectTreeNode);
+                    selectionHighlightingAfterChanging(true);
+                }
+                else  // not new, remove it from the collection
+                {
+                    removePaintFromNodes();
+                    m_coll.Remove(e.Node as LifeTimeObjectTreeNode);
+                    selectionHighlightingAfterChanging(true);
+                }
+                paintSelectedNodes();
+            }
+            else
+            {
+                if (bShift)
+                {
+                    Queue<LifeTimeObjectTreeNode> myQueue = new Queue<LifeTimeObjectTreeNode>();
+
+                    LifeTimeObjectTreeNode uppernode = m_firstNode;
+                    LifeTimeObjectTreeNode bottomnode = e.Node as LifeTimeObjectTreeNode;
+
+                    // case 1 : begin and end nodes are parent
+                    bool bParent = isParent(m_firstNode, e.Node as LifeTimeObjectTreeNode); // is m_firstNode parent (direct or not) of e.Node
+                    if (!bParent)
+                    {
+                        bParent = isParent(bottomnode, uppernode);
+                        if (bParent) // swap nodes
+                        {
+                            LifeTimeObjectTreeNode t = uppernode;
+                            uppernode = bottomnode;
+                            bottomnode = t;
+                        }
+                    }
+                    if (bParent)
+                    {
+                        LifeTimeObjectTreeNode n = bottomnode;
+                        while (n != uppernode.Parent)
+                        {
+                            if (!m_coll.Contains(n)) // new node ?
+                                myQueue.Enqueue(n);
+
+                            n = n.Parent as LifeTimeObjectTreeNode;
+                        }
+                    }
+                    // case 2 : nor the begin nor the end node are descendant one another
+                    else
+                    {
+                        if ((uppernode.Parent == null && bottomnode.Parent == null) || (uppernode.Parent != null && uppernode.Parent.Nodes.Contains(bottomnode))) // are they siblings ?
+                        {
+                            int nIndexUpper = uppernode.Index;
+                            int nIndexBottom = bottomnode.Index;
+                            if (nIndexBottom < nIndexUpper) // reversed?
+                            {
+                                LifeTimeObjectTreeNode t = uppernode;
+                                uppernode = bottomnode;
+                                bottomnode = t;
+                                nIndexUpper = uppernode.Index;
+                                nIndexBottom = bottomnode.Index;
+                            }
+
+                            LifeTimeObjectTreeNode n = uppernode;
+                            while (nIndexUpper <= nIndexBottom)
+                            {
+                                if (!m_coll.Contains(n)) // new node ?
+                                    myQueue.Enqueue(n);
+
+                                n = n.NextNode as LifeTimeObjectTreeNode;
+
+                                nIndexUpper++;
+                            } // end while
+
+                        }
+                        else
+                        {
+                            if (!m_coll.Contains(uppernode)) myQueue.Enqueue(uppernode);
+                            if (!m_coll.Contains(bottomnode)) myQueue.Enqueue(bottomnode);
+                        }
+
+                    }
+
+                    m_coll.AddRange(myQueue);
+                    selectionHighlightingAfterChanging(true);
+
+                    paintSelectedNodes();
+                    m_firstNode = e.Node as LifeTimeObjectTreeNode; // let us chain several SHIFTs if we like it
+
+                } // end if m_bShift
+                else
+                {
+                    // in the case of a simple click, just add this item
+                    if (m_coll != null && m_coll.Count > 0)
+                    {
+                        selectionHighlightingAfterChanging(false);
+
+                        removePaintFromNodes();
+                        m_coll.Clear();
+                    }
+                    m_coll.Add(e.Node as LifeTimeObjectTreeNode);
+                    selectionHighlightingAfterChanging(true);
+
+                }
+
+                if (m_coll.Count > 0)
+                {
+                    ItemSelectedArgs isa = new ItemSelectedArgs(m_coll[0].Object, SelectedObjects);
+
+                    ItemSelected?.Invoke(this, isa);
+                }
+            }
+        }
+
+        private void selectionHighlightingAfterChanging(bool highlight)
+        {
+            foreach(LifeTimeObjectTreeNode n in m_coll)
+            {
+                if(n.Object is LifeTimeDiagramEditor.LifeTimeElement)
+                {
+                    (n.Object as LifeTimeDiagramEditor.LifeTimeElement).Highlight = highlight;
+                }
+            }
+        }
+
+        private bool isParent(LifeTimeObjectTreeNode p, LifeTimeObjectTreeNode c)
+        {
+            foreach(LifeTimeObjectTreeNode n in p.Nodes)
+            {
+                if(n == c)
+                {
+                    return true;
+                }
+
+                if (isParent(n, c))
+                    return true;
+            }
+
+            return false;
+        }
+
+        protected void paintSelectedNodes()
+        {
+            foreach (TreeNode n in m_coll)
+            {
+                n.BackColor = SystemColors.Highlight;
+                n.ForeColor = SystemColors.HighlightText;
+            }
+        }
+
+        protected void removePaintFromNodes()
+        {
+            if (m_coll.Count == 0) return;
+            
+            Color back = BackColor;
+            Color fore = ForeColor;
+
+            foreach (TreeNode n in m_coll)
+            {
+                n.BackColor = back;
+                n.ForeColor = fore;
+            }
+        }
         #endregion
 
         #region LifeTimeObjectTreeNode Class
@@ -985,11 +1225,26 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
         private LifeTimeDiagramEditor.ILifeTimeObject _lifeTimeObject;
         private Color ErrorBackColor = Color.Orange;
         private bool _allowDiagramChanging = true;
+        private List<LifeTimeDiagramEditor.ILifeTimeObject> _multiselection;
+        private List<string> _avFonts;
+        private LifeTimeDiagramEditor.LifeTimeDiagramSettings _settings;
+        private Dictionary<Control, Label> _infoMessagesCausedByControls;
         #endregion
 
         #region Constructor
-        public LifeTimeObjectPropertyGrid()
+        public LifeTimeObjectPropertyGrid(LifeTimeDiagramEditor.LifeTimeDiagramSettings diagramSettings)
         {
+            _settings = diagramSettings;
+            _infoMessagesCausedByControls = new Dictionary<Control, Label>();
+
+            this.BackColor = Color.White;
+            this.CellBorderStyle = TableLayoutPanelCellBorderStyle.Single;
+
+            _avFonts = new List<string>();
+
+            foreach (FontFamily font in FontFamily.Families)
+                _avFonts.Add(font.Name);
+
             this.AutoScroll = true;
             NoObjectSelected();
         }
@@ -997,59 +1252,94 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
 
         #region Public Methods
         /// <summary>
-        /// Set a LifeTimeObjet
+        /// Set a LifeTimeObject and hands over a collection of simultaneously selected elements
         /// </summary>
         /// <param name="o"></param>
-        public void SetObject(LifeTimeDiagramEditor.ILifeTimeObject o)
+        /// <param name="multiSelectionElementsCollection"></param>
+        public void SetObject<T>(T o, List<LifeTimeDiagramEditor.ILifeTimeObject> multiSelectionElementsCollection)
+            where T: LifeTimeDiagramEditor.ILifeTimeObject
+        {            
+            _multiselection = multiSelectionElementsCollection;
+
+            SetObject(o, false);
+        }
+
+        public void SetNoObject()
         {
             _allowDiagramChanging = false;
             this.Controls.Clear();
 
+            NoObjectSelected();
+        }
+
+        /// <summary>
+        /// Set a LifeTimeObjet
+        /// </summary>
+        /// <param name="o"></param>
+        public void SetObject<T>(T o, bool forceRefresh)
+            where T: LifeTimeDiagramEditor.ILifeTimeObject
+        {            
+            if (_multiselection == null)
+                _multiselection = new List<LifeTimeDiagramEditor.ILifeTimeObject>();               
+            
+
             if (_lifeTimeObject != null && _lifeTimeObject is LifeTimeDiagramEditor.LifeTimeElement)
             {
-                LifeTimeDiagramEditor.LifeTimeElement currObj = _lifeTimeObject as LifeTimeDiagramEditor.LifeTimeElement;
-                currObj.Highlight = false;
+                LifeTimeDiagramEditor.LifeTimeElement currObj = _lifeTimeObject as LifeTimeDiagramEditor.LifeTimeElement;                
             }
 
             if (o == null)
             {
                 NoObjectSelected();
+
                 return;
             }
             else if (o is LifeTimeDiagramEditor.LifeTimeElement)
             {
+                if (_lifeTimeObject == o as LifeTimeDiagramEditor.LifeTimeElement && !forceRefresh)
+                    return;
+
+                _allowDiagramChanging = false;
+                this.Controls.Clear();
+
                 _lifeTimeObject = o;
 
-                LifeTimeDiagramEditor.LifeTimeElement currObj = _lifeTimeObject as LifeTimeDiagramEditor.LifeTimeElement;
-
-                LoadObjectProperties(currObj);
-                currObj.Highlight = true;
+                LoadObjectProperties(_lifeTimeObject as LifeTimeDiagramEditor.LifeTimeElement);
 
                 ObjectChangedArgs objChangedArgs = new ObjectChangedArgs();
                 objChangedArgs.DiagramChanged = false;
-                ObjectChanged?.Invoke(currObj, objChangedArgs);
+                ObjectChanged?.Invoke(_lifeTimeObject, objChangedArgs);
             }
             else if (o is LifeTimeDiagramEditor.LifeTimeGroup)
             {
+                if (_lifeTimeObject == o as LifeTimeDiagramEditor.LifeTimeGroup && !forceRefresh)
+                    return;
+
+                _allowDiagramChanging = false;
+                this.Controls.Clear();
+
                 _lifeTimeObject = o;
 
-                LifeTimeDiagramEditor.LifeTimeGroup currObj = _lifeTimeObject as LifeTimeDiagramEditor.LifeTimeGroup;
-
-                LoadObjectProperties(currObj);
+                LoadObjectProperties(_lifeTimeObject as LifeTimeDiagramEditor.LifeTimeGroup);
 
                 ObjectChangedArgs objChangedArgs = new ObjectChangedArgs();
                 objChangedArgs.DiagramChanged = false;
-                ObjectChanged?.Invoke(currObj, objChangedArgs);
+                ObjectChanged?.Invoke(_lifeTimeObject, objChangedArgs);
             }
             else if (o is LifeTimeDiagramEditor.LifeTimeDiagramSettings)
             {
-                _lifeTimeObject = o;
+                if (_lifeTimeObject == o as LifeTimeDiagramEditor.LifeTimeDiagramSettings && !forceRefresh)
+                    return;
 
-                LifeTimeDiagramEditor.LifeTimeDiagramSettings currObj = _lifeTimeObject as LifeTimeDiagramEditor.LifeTimeDiagramSettings;
+                _allowDiagramChanging = false;
+                this.Controls.Clear();
 
-                LoadObjectProperties(currObj);
+                _lifeTimeObject = o;                
+
+                LoadObjectProperties(_lifeTimeObject as LifeTimeDiagramEditor.LifeTimeDiagramSettings);
             }
             _allowDiagramChanging = true;
+            Refresh(); 
         }
 
         /// <summary>
@@ -1066,7 +1356,7 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
         /// </summary>
         public void UpdateProperties()
         {
-            SetObject(_lifeTimeObject);
+            SetObject(_lifeTimeObject, true);
         }
         #endregion
 
@@ -1086,29 +1376,104 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
             int r = 0;
 
             _allowDiagramChanging = false;
+            bool showInformMultiSelDiffLabel = false;
+            Visible = false;
+            
             foreach (string name in (o as LifeTimeDiagramEditor.ILifeTimeObject).Properties(false))
             {
                 object value = t.GetProperty(name).GetValue(o);
 
-                AddPropertyLabelToGgrid(name, 0, r);
-                AddPropertyControlToGrid(name, value, ref r, t.GetProperty(name).CanWrite);
+                Color highlighting = this.BackColor;
+
+                if(_multiselection != null && _multiselection.Count > 1 && o is LifeTimeDiagramEditor.LifeTimeElement)
+                {
+                    if (!checkAllElementsForSameValue(o, name, _multiselection))
+                    {
+                        highlighting = Color.LightGreen;                        
+                        showInformMultiSelDiffLabel = true;                        
+                    }
+                }
+
+                Control l = AddPropertyLabelToGgrid(name, 0, r, highlighting);
+                Control c = AddPropertyControlToGrid(name, value, ref r, t.GetProperty(name).CanWrite, highlighting);
             }
 
-            AddPropertyLabelToGgrid("", 0, r); //an empty label to finalize the grid
+            if (_multiselection != null && _multiselection.Count > 1)
+            {
+                addInfoLabelToGrid(new Control(), "[305]", "", Color.LightYellow); //inform that more than one element is selected
+            }
+
+            if (showInformMultiSelDiffLabel)
+            {
+                addInfoLabelToGrid(new Control(), "[304]", "", Color.LightGreen); //inform what highlighted properties standing for
+            }
+
+            AddPropertyLabelToGgrid("", 0, r, this.BackColor); //an empty label to finalize the grid
             _allowDiagramChanging = true;
+            Visible = true;
         }
 
-        private void AddPropertyLabelToGgrid(string name, int c, int r)
+        private void addInfoLabelToGrid(Control causingControl, string text, string addText, Color highlight)
+        {
+            if (_infoMessagesCausedByControls.ContainsKey(causingControl))
+                return;
+
+                Label l = new Label();
+            l.Text = $"{LifeTimeV3TextList.GetText(text)} {addText}"; //inform what highlighted properties standing for
+            l.Height = 30;
+            l.Dock = DockStyle.Fill;
+            l.BackColor = highlight;
+
+            SetColumnSpan(l, 2);
+
+            _infoMessagesCausedByControls.Add(causingControl, l);
+
+            Controls.Add(l, 0, 0);
+        }
+
+        private void removeInfoLabelFromGrid(Control causingControl)
+        {
+            Label l;
+            if (_infoMessagesCausedByControls.TryGetValue(causingControl, out l))
+            {
+                l.Dispose();
+                _infoMessagesCausedByControls.Remove(causingControl);
+            }
+        }
+
+        private static bool checkAllElementsForSameValue<T>(T currElement, string property, List<LifeTimeDiagramEditor.ILifeTimeObject> elementCollection)
+        {
+            Type t = typeof(T);
+            object currVal = t.GetProperty(property).GetValue(currElement);
+
+            foreach (T element in elementCollection)
+            {
+                object value = t.GetProperty(property).GetValue(element);
+                
+                if (!Equals(currVal, value))
+                    return false;
+            }
+
+            return true;
+        }
+
+        private Control AddPropertyLabelToGgrid(string name, int c, int r, Color highlight)
         {
             Label l = new Label();
             l.Text = LifeTimeV3TextList.GetText(name);
             l.TextAlign = ContentAlignment.MiddleRight;
+            l.BackColor = highlight;            
+            
             this.Controls.Add(l, c, r);
+            
+
+            return l;
         }
 
-        private void AddPropertyControlToGrid(string name, object value, ref int r, Boolean ro)
+        private Control AddPropertyControlToGrid(string name, object value, ref int r, Boolean ro, Color highlight)
         {
             Control c = new Control();
+            c.BackColor = highlight;
             #region Checkbox
             if (value is bool)
             {
@@ -1143,13 +1508,13 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
             #region FontFamily
             else if (value is FontFamily)
             {
-                c = new FontFamilySelectorBox();
+                c = new FontFamilySelectorBox(_avFonts);
                 FontFamilySelectorBox d = c as FontFamilySelectorBox;
                 d.Name = name;
 
-                d.Text = (value as FontFamily).Name;
+                d.Value = value as FontFamily;
 
-                d.TextChanged += new EventHandler(ObjectFontChanged);
+                d.SelectedIndexChanged += new EventHandler(ObjectFontChanged);
             }
             #endregion
             #region FontStyle
@@ -1253,12 +1618,12 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
             #region Color
             else if (value is Color)
             {
-                c = new ColorSelectorButton();
+                c = new ColorSelectorButton(_settings);
                 ColorSelectorButton d = c as ColorSelectorButton;
                 d.Name = name;
-                d.Value = (Color)value;
+                d.Value = (Color)value;                
 
-                d.BackColorChanged += new EventHandler(ColorChanged);
+                d.ColorChanged += new EventHandler(ColorChanged);
             }
             #endregion
             #region What else?
@@ -1272,8 +1637,12 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
 
             c.Dock = DockStyle.Fill;
             c.Enabled = ro;
+            
+            
             this.Controls.Add(c, 1, r);
             r++;
+
+            return c;
         }
         #endregion
 
@@ -1291,7 +1660,15 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
             {
                 LifeTimeDiagramEditor.LifeTimeElement o = _lifeTimeObject as LifeTimeDiagramEditor.LifeTimeElement;
                 o.Type = c.value;
-                SetObject(_lifeTimeObject);
+                SetObject(_lifeTimeObject, true);
+
+                foreach(LifeTimeDiagramEditor.LifeTimeElement ms in _multiselection)
+                {
+                    if (ms is LifeTimeDiagramEditor.LifeTimeElement)
+                        (ms as LifeTimeDiagramEditor.LifeTimeElement).Type = o.Type;
+                }
+
+                removeInfoLabelFromGrid(c);
 
                 ObjectChangedArgs objChangedArgs = new ObjectChangedArgs();
                 objChangedArgs.NewColorsRequested = true;
@@ -1302,12 +1679,14 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
             catch
             {
                 c.BackColor = ErrorBackColor;
+                addInfoLabelToGrid(c, "[306]", LifeTimeV3TextList.GetText(c.Name), ErrorBackColor);
             }
         }
         private void ObjectFontChanged(object sender, EventArgs e)
         {
             FontFamilySelectorBox c = sender as FontFamilySelectorBox;
             c.BackColor = Color.White;
+
             if (_lifeTimeObject is LifeTimeDiagramEditor.LifeTimeElement)
                 ObjectFontChanged(c, _lifeTimeObject as LifeTimeDiagramEditor.LifeTimeElement);
             if (_lifeTimeObject is LifeTimeDiagramEditor.LifeTimeDiagramSettings)
@@ -1321,6 +1700,11 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
             {
                 t.GetProperty(c.Name).SetValue(o, c.Value);
 
+                foreach (T ms in _multiselection)
+                    t.GetProperty(c.Name).SetValue(ms, c.Value);
+
+                removeInfoLabelFromGrid(c);
+
                 ObjectChangedArgs objChangedArgs = new ObjectChangedArgs();
                 objChangedArgs.NewColorsRequested = false;
                 objChangedArgs.DiagramChanged = _allowDiagramChanging;
@@ -1330,6 +1714,7 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
             catch
             {
                 c.BackColor = ErrorBackColor;
+                addInfoLabelToGrid(c, "[306]", LifeTimeV3TextList.GetText(c.Name), ErrorBackColor);
             }
         }
         private void FontStyleChanged(object sender, EventArgs e)
@@ -1340,6 +1725,12 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
             {
                 LifeTimeDiagramEditor.LifeTimeElement o = _lifeTimeObject as LifeTimeDiagramEditor.LifeTimeElement;
                 o.FontStyle = c.Value;
+
+                foreach (LifeTimeDiagramEditor.LifeTimeElement ms in _multiselection)
+                {
+                    if (ms is LifeTimeDiagramEditor.LifeTimeElement)
+                        (ms as LifeTimeDiagramEditor.LifeTimeElement).FontStyle = o.FontStyle;
+                }
 
                 ObjectChangedArgs objChangedArgs = new ObjectChangedArgs();
                 objChangedArgs.NewColorsRequested = false;
@@ -1360,7 +1751,14 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
             {
                 LifeTimeDiagramEditor.LifeTimeElement o = _lifeTimeObject as LifeTimeDiagramEditor.LifeTimeElement;
                 o.HorizontallyBonding = c.value;
-                SetObject(_lifeTimeObject);
+
+                foreach (LifeTimeDiagramEditor.LifeTimeElement ms in _multiselection)
+                {
+                    if (ms is LifeTimeDiagramEditor.LifeTimeElement)
+                        (ms as LifeTimeDiagramEditor.LifeTimeElement).HorizontallyBonding = o.HorizontallyBonding;
+                }
+
+                removeInfoLabelFromGrid(c);
 
                 ObjectChangedArgs objChangedArgs = new ObjectChangedArgs();
                 objChangedArgs.NewColorsRequested = false;
@@ -1368,7 +1766,11 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
                 objChangedArgs.ObjectChangedByPropertyGrid = true;
                 ObjectChanged?.Invoke(_lifeTimeObject, objChangedArgs);
             }
-            catch { c.BackColor = ErrorBackColor; }
+            catch
+            {
+                c.BackColor = ErrorBackColor;
+                addInfoLabelToGrid(c, "[306]", LifeTimeV3TextList.GetText(c.Name), ErrorBackColor);
+            }
         }
         private void BondVerSelectorChanged(object sender, EventArgs e)
         {
@@ -1378,8 +1780,14 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
             {
                 LifeTimeDiagramEditor.LifeTimeElement o = _lifeTimeObject as LifeTimeDiagramEditor.LifeTimeElement;
                 o.VerticallyBonding = c.value;
-                
-                SetObject(_lifeTimeObject);
+
+                foreach (LifeTimeDiagramEditor.LifeTimeElement ms in _multiselection)
+                {
+                    if (ms is LifeTimeDiagramEditor.LifeTimeElement)
+                        (ms as LifeTimeDiagramEditor.LifeTimeElement).VerticallyBonding = o.VerticallyBonding;
+                }
+
+                removeInfoLabelFromGrid(c);
 
                 ObjectChangedArgs objChangedArgs = new ObjectChangedArgs();
                 objChangedArgs.NewColorsRequested = false;
@@ -1387,7 +1795,11 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
                 objChangedArgs.ObjectChangedByPropertyGrid = true;
                 ObjectChanged?.Invoke(_lifeTimeObject, objChangedArgs);
             }
-            catch { c.BackColor = ErrorBackColor; }
+            catch
+            {
+                c.BackColor = ErrorBackColor;
+                addInfoLabelToGrid(c, "[306]", LifeTimeV3TextList.GetText(c.Name), ErrorBackColor);
+            }
         }
         private void CheckBoxChanged(object sender, EventArgs e)
         {
@@ -1407,15 +1819,25 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
             try
             {
                 t.GetProperty(c.Name).SetValue(o, c.Checked);
-                SetObject(o as LifeTimeDiagramEditor.ILifeTimeObject);
+
+                foreach (T ms in _multiselection)
+                    t.GetProperty(c.Name).SetValue(ms, c.Checked);
+
+                SetObject(o as LifeTimeDiagramEditor.ILifeTimeObject, true);
+
+                removeInfoLabelFromGrid(c);
 
                 ObjectChangedArgs objChangedArgs = new ObjectChangedArgs();
                 objChangedArgs.NewColorsRequested = true;
                 objChangedArgs.DiagramChanged = _allowDiagramChanging;
                 objChangedArgs.ObjectChangedByPropertyGrid = true;
-                if (ObjectChanged != null) ObjectChanged(_lifeTimeObject, objChangedArgs);
+                ObjectChanged?.Invoke(_lifeTimeObject, objChangedArgs);
             }
-            catch { c.BackColor = ErrorBackColor; }
+            catch
+            {
+                c.BackColor = ErrorBackColor;
+                addInfoLabelToGrid(c, "[306]", LifeTimeV3TextList.GetText(c.Name), ErrorBackColor);
+            }
         }
         private void TextBoxChanged(object sender, EventArgs e)
         {
@@ -1452,24 +1874,44 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
         private void TextBoxChanged<T>(AdvancedTextBox c, T o)
         {
             Type t = typeof(T);
+            c.TextBox.BackColor = this.BackColor;
             try
             {
-                if (t.GetProperty(c.Name).PropertyType == typeof(String))
+                if (t.GetProperty(c.Name).PropertyType == typeof(string))
+                {
                     t.GetProperty(c.Name).SetValue(o, c.Text);
-                if (t.GetProperty(c.Name).PropertyType == typeof(Int32))
-                    t.GetProperty(c.Name).SetValue(o, Convert.ToInt16(c.Text));
-                if (t.GetProperty(c.Name).PropertyType == typeof(Double))
+
+                    foreach (T ms in _multiselection)
+                        t.GetProperty(c.Name).SetValue(ms, c.Text);
+                }
+                if (t.GetProperty(c.Name).PropertyType == typeof(int))
+                {
+                    t.GetProperty(c.Name).SetValue(o, Convert.ToInt32(c.Text));
+
+                    foreach (T ms in _multiselection)
+                        t.GetProperty(c.Name).SetValue(ms, Convert.ToInt16(c.Text));
+                }
+                if (t.GetProperty(c.Name).PropertyType == typeof(double))
+                {
                     t.GetProperty(c.Name).SetValue(o, Convert.ToDouble(c.Text));
 
-                SetObject(o as LifeTimeDiagramEditor.ILifeTimeObject);
+                    foreach (T ms in _multiselection)
+                        t.GetProperty(c.Name).SetValue(ms, Convert.ToDouble(c.Text));
+                }
+
+                removeInfoLabelFromGrid(c);
 
                 ObjectChangedArgs objChangedArgs = new ObjectChangedArgs();
-                objChangedArgs.NewColorsRequested = true;
+                objChangedArgs.NewColorsRequested = false;
                 objChangedArgs.DiagramChanged = _allowDiagramChanging;
                 objChangedArgs.ObjectChangedByPropertyGrid = true;
-                if (ObjectChanged != null) ObjectChanged(_lifeTimeObject, objChangedArgs);
+                ObjectChanged?.Invoke(_lifeTimeObject, objChangedArgs);                
             }
-            catch { c.TextBox.BackColor = ErrorBackColor; }
+            catch
+            {
+                c.TextBox.BackColor = ErrorBackColor;
+                addInfoLabelToGrid(c, "[306]", LifeTimeV3TextList.GetText(c.Name), ErrorBackColor);
+            }
         }
         private void DateTimeChanged(object sender, EventArgs e)
         {
@@ -1482,14 +1924,24 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
             try
             {
                 t.GetProperty(c.Name).SetValue(_lifeTimeObject, c.Value);
-                
+
+                foreach (LifeTimeDiagramEditor.ILifeTimeObject ms in _multiselection)
+                    if(ms.GetType() == _lifeTimeObject.GetType())
+                        t.GetProperty(c.Name).SetValue(ms, c.Value);
+
+                removeInfoLabelFromGrid(c);
+
                 ObjectChangedArgs objChangedArgs = new ObjectChangedArgs();
                 objChangedArgs.NewColorsRequested = false;
                 objChangedArgs.DiagramChanged = _allowDiagramChanging;
                 objChangedArgs.ObjectChangedByPropertyGrid = true;
                 ObjectChanged?.Invoke(this, objChangedArgs);              
             }
-            catch { c.BackColor = ErrorBackColor; }
+            catch
+            {
+                c.BackColor = ErrorBackColor;
+                addInfoLabelToGrid(c, "[306]", LifeTimeV3TextList.GetText(c.Name), ErrorBackColor);
+            }
         }
         private void ColorChanged(object sender, EventArgs e)
         {
@@ -1497,7 +1949,7 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
 
             if (_lifeTimeObject is LifeTimeDiagramEditor.LifeTimeElement) ColorChanged<LifeTimeDiagramEditor.LifeTimeElement>(c, _lifeTimeObject as LifeTimeDiagramEditor.LifeTimeElement);
             if (_lifeTimeObject is LifeTimeDiagramEditor.LifeTimeGroup) ColorChanged<LifeTimeDiagramEditor.LifeTimeGroup>(c, _lifeTimeObject as LifeTimeDiagramEditor.LifeTimeGroup);
-            if (_lifeTimeObject is LifeTimeDiagramEditor.LifeTimeDiagramSettings) ColorChanged<LifeTimeDiagramEditor.LifeTimeDiagramSettings>(c, _lifeTimeObject as LifeTimeDiagramEditor.LifeTimeDiagramSettings);
+            if (_lifeTimeObject is LifeTimeDiagramEditor.LifeTimeDiagramSettings) ColorChanged<LifeTimeDiagramEditor.LifeTimeDiagramSettings>(c, _lifeTimeObject as LifeTimeDiagramEditor.LifeTimeDiagramSettings);            
         }
         private void ColorChanged<T>(ColorSelectorButton c, T o)
         {
@@ -1505,8 +1957,10 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
             try
             {
                 t.GetProperty(c.Name).SetValue(o, c.Value);
-                SetObject(o as LifeTimeDiagramEditor.ILifeTimeObject);
 
+                foreach (T ms in _multiselection)
+                    t.GetProperty(c.Name).SetValue(ms, c.Value);
+                
                 ObjectChangedArgs objChangedArgs = new ObjectChangedArgs();
                 objChangedArgs.NewColorsRequested = true;
                 objChangedArgs.DiagramChanged = _allowDiagramChanging;
@@ -1567,25 +2021,32 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
         public class FontFamilySelectorBox : ComboBox
         {
             #region properties
-            public FontFamily Value { get; set; }
+            public FontFamily Value
+            {
+                get
+                {
+                    return new FontFamily((string)Items[SelectedIndex]);
+                }
+                set
+                {                    
+                    this.SelectedIndex = Items.IndexOf(value.Name);
+                }
+            }
+            #endregion
+
+            #region fields
             #endregion
 
             #region constructor
-            public FontFamilySelectorBox()
-            {
-                foreach (FontFamily font in System.Drawing.FontFamily.Families)
-                    Items.Add(font.Name);
-                
-                this.AutoCompleteMode = System.Windows.Forms.AutoCompleteMode.SuggestAppend;
-                this.TextChanged += new EventHandler(SelectionChanged);
+            public FontFamilySelectorBox(List<string> avFonts)
+            {   
+                this.Items.AddRange(avFonts.ToArray());                
+
+                this.DropDownStyle = ComboBoxStyle.DropDownList;                                
             }
             #endregion
 
             #region private methods
-            private void SelectionChanged(object sender, EventArgs e)
-            {
-                Value = new FontFamily(Text);
-            }
             #endregion
         }
 
@@ -1663,17 +2124,34 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
 
         public class ColorSelectorButton : Button
         {
+            #region
+            public event EventHandler ColorChanged;
+            #endregion
+
             #region properties
             public Color Value
             {
-                get { return this.BackColor; }
-                set { this.BackColor = value; }
-            }
+                get
+                {
+                    return _value;
+                }
+                set
+                {
+                    BackColor = value;   
+                    _value = value;
+                }
+            }            
+            #endregion
+
+            #region fields
+            private Color _value;
+            private LifeTimeDiagramEditor.LifeTimeDiagramSettings _settings;
             #endregion
 
             #region constructor
-            public ColorSelectorButton()
+            public ColorSelectorButton(LifeTimeDiagramEditor.LifeTimeDiagramSettings diagramSettings)
             {
+                _settings = diagramSettings;
                 this.BackColor = Color.White;
                 this.Width = 100;
                 this.Text = LifeTimeV3TextList.GetText("[20]"); //Change Color
@@ -1685,10 +2163,25 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
             private void ChangeColor(object sender, EventArgs e)
             {
                 ColorDialog d = new ColorDialog();
+                d.AllowFullOpen = true;
+
+                List<int> colorsint = new List<int>();
+                foreach (Color c in _settings.UserDefinedColors)
+                    colorsint.Add(c.ToArgb());
+
+                d.CustomColors = colorsint.ToArray();
                 d.Color = Value;
                 d.ShowDialog();
+                _value = d.Color;
+                this.BackColor = _value;
 
-                Value = d.Color;
+                List<Color> colors = new List<Color>();
+                foreach (int c in d.CustomColors)
+                    colors.Add(Color.FromArgb(c));
+
+                _settings.UserDefinedColors = colors.ToArray();
+
+                ColorChanged?.Invoke(this, new EventArgs());                
             }
             #endregion
         }
@@ -1717,48 +2210,33 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
             #endregion
 
             #region fields
-            private bool _isMultiLine;
+            
             #endregion
 
             #region constructor
             public AdvancedTextBox()
-            {
-                _isMultiLine = false;
+            {                
                 Height = 22;
                 TextBox = new TextBox();
                 TextBox.Dock = DockStyle.Fill;
                 Controls.Add(TextBox);
-                TextBox.PreviewKeyDown += new PreviewKeyDownEventHandler(TakeOver);
+                TextBox.TextChanged += new EventHandler(TakeOver);
+                //TextBox.PreviewKeyDown += new PreviewKeyDownEventHandler(TakeOver);
             }
             #endregion
 
             #region public methods
             public void EnableMultiline()
-            {
-                _isMultiLine = true;
+            {                
                 TextBox.Multiline = true;                                
-                Height = 90;
-
-                Label hint = new Label();                
-                hint.Text = LifeTimeV3TextList.GetText("[2000]");
-                hint.Dock = DockStyle.Bottom;
-                hint.BackColor = Color.LightYellow;
-                hint.ForeColor = Color.DimGray;                                
-
-                Controls.Add(hint);
+                Height = 90;;
             }
             #endregion
 
             #region private methods
-            private void TakeOver(object sender, PreviewKeyDownEventArgs e)
-            {
-                if (_isMultiLine && e.KeyCode == Keys.Enter && e.Alt)
-                {
-                    ValueChanged?.Invoke(this, e);                    
-                }
-                else if (!_isMultiLine && e.KeyCode == Keys.Enter)
-                    ValueChanged?.Invoke(this, e);
-                
+            private void TakeOver(object sender, EventArgs e)
+            {                
+                 ValueChanged?.Invoke(this, e);                
             }
             #endregion
 
@@ -1866,6 +2344,8 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
         #region constructor
         public LifeTimeExportPNGPropertyGrid()
         {
+            this.BackColor = Color.White;
+            this.CellBorderStyle = TableLayoutPanelCellBorderStyle.Single;
         }
         #endregion
 

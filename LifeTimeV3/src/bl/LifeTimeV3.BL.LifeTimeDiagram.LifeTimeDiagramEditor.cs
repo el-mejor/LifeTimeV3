@@ -21,7 +21,7 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
         public enum DrawStyle { WithShadow, WithoutShadow }
         public enum PeriodBaseEnum { Days, Month, Years };
         #endregion
-
+        
         #region Properties
         public String FileName 
         {
@@ -55,6 +55,9 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
 
         public event EventHandler DiagramChanged;
         public event MouseEventHandler MouseMoved;
+
+        public delegate void DiagramMessageHandler(object sender, LifeTimeDiagram.DiagramMessageArgs e);
+        public event DiagramMessageHandler DiagramMessage;
         #endregion
 
         #region Constructor
@@ -81,10 +84,9 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
             if (Diagram != null) Diagram.Dispose();
 
             LifeTimeDiagramFileHandler open = new LifeTimeDiagramFileHandler(filename);
-
             
-
             Diagram = open.OpenFile();
+            Diagram.DiagramMessage += new LifeTimeDiagram.DiagramMessageHandler(DiagramMessageChanged);
 
             DiagramViewer.Zoom = Diagram.Settings.Zoom;
             DiagramViewer.OffsetX = Diagram.Settings.OffsetX;
@@ -94,6 +96,18 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
                       
 
             DiagramChanged?.Invoke(this, null);
+        }
+
+        /// <summary>
+        /// Creates an empty diagram
+        /// </summary>
+        public void EmptyDiagram()
+        {
+            if (_toolbox != null) _toolbox.Close();
+            if (Diagram != null) Diagram.Dispose();
+
+            Diagram = new LifeTimeDiagram();
+            Diagram.DiagramMessage += new LifeTimeDiagram.DiagramMessageHandler(DiagramMessageChanged);
         }
 
         /// <summary>
@@ -157,8 +171,9 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
             credits.TextInBox = false;
             credits.Size = 6;
             Diagram.Groups.Groups[1].Add(credits);
-            
-            
+
+            Diagram.DiagramMessage += new LifeTimeDiagram.DiagramMessageHandler(DiagramMessageChanged);
+
             LoadToolbox();            
 
             DiagramChanged?.Invoke(this, null);
@@ -208,9 +223,9 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
             }
 
             ObjectBrowser.UpdateObjectBrowser(Diagram.Groups);
-            SettingsGrid.SetObject(Diagram.Settings);
+            SettingsGrid.SetObject(Diagram.Settings, false);
 
-            if (CurrentObject != null) PropertyGrid.SetObject(CurrentObject);
+            if (CurrentObject != null) PropertyGrid.SetObject(CurrentObject, false);
 
             return _toolbox;
         }
@@ -237,9 +252,9 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
         /// </summary>
         /// <param name="x"></param>
         /// <param name="y"></param>
-        public LifeTimeElement SelectObjectByPosition(int x, int y)
+        public LifeTimeDiagram.ElementFence SelectObjectByPosition(int x, int y)
         {
-            LifeTimeElement o;
+            LifeTimeDiagram.ElementFence fence = null;
 
             LifeTimeElement.LifeTimeObjectType[] types = { 
                                                             LifeTimeElement.LifeTimeObjectType.Event, //giving the order of searching
@@ -250,11 +265,26 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
 
             foreach (LifeTimeElement.LifeTimeObjectType type in types)
             {
-                Diagram.ObjectFences.TryGetValue(SelectObjectByPositionSeeker(type, x, y), out o);
-                if (o != null) return o;
+                foreach (LifeTimeDiagram.ElementFence f in Diagram.ElementFences)
+                {                       
+                    if (f.LifeTimeObject is LifeTimeElement && (f.LifeTimeObject as LifeTimeElement).Type == type)
+                    {
+                        float refX = (f.FenceRectangle.X + DiagramViewer.OffsetX) * DiagramViewer.Zoom;
+                        float refWidth = f.FenceRectangle.Width * DiagramViewer.Zoom;
+                        float refY = (f.FenceRectangle.Y + DiagramViewer.OffsetY) * DiagramViewer.Zoom;
+                        float refHeight = f.FenceRectangle.Height * DiagramViewer.Zoom;
+
+                        if ((x > refX && x < refX + refWidth) && (y > refY && y < refY + refHeight))
+                        {
+                            if (!(f.LifeTimeObject as LifeTimeElement).Highlight) return f; //prefer an object which is not already selected                            
+                            else
+                                fence = f;
+                        }
+                    }
+                }
             }
 
-            return null; 
+            return fence; 
         }
 
         public static List<LifeTimeElement> MultiplyElements(ILifeTimeObject element, PeriodBaseEnum periodBase, int period, int ammount)
@@ -302,11 +332,11 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
             _toolbox = GetToolBoxForm();
 
             //_toolbox.ObjectBrowser.ShowItemInObjectBrowser(null as ILifeTimeObject);
-            PropertyGrid.SetObject(null);
+            PropertyGrid.SetNoObject();
             CurrentObject = null;
             ObjectSelected?.Invoke(null, null);
 
-            _toolbox.Visible = false;            
+            _toolbox.Visible = false;                        
         }
 
         private static DateTime _addElementAndAddPeriod(LifeTimeElement element, PeriodBaseEnum periodBase, int value, List<LifeTimeElement> l)
@@ -336,8 +366,8 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
 
         private void CreateToolBoxControlls()
         {
-            PropertyGrid = new LifeTimeObjectPropertyGrid();
-            SettingsGrid = new LifeTimeObjectPropertyGrid();
+            PropertyGrid = new LifeTimeObjectPropertyGrid(Diagram.Settings);
+            SettingsGrid = new LifeTimeObjectPropertyGrid(Diagram.Settings);
             ExportGrid = new LifeTimeExportPNGPropertyGrid();
             ObjectBrowser = new LifeTimeObjectBrowser(Diagram.Settings);
 
@@ -360,33 +390,6 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
             DiagramViewer.Resize += new System.EventHandler(this.diagramViewer_Resize);
         }
 
-        private Rectangle SelectObjectByPositionSeeker(LifeTimeElement.LifeTimeObjectType seekFor, int x, int y)
-        {
-            Rectangle s = new Rectangle();
-
-            foreach (Rectangle r in Diagram.ObjectFences.Keys)
-            {
-                LifeTimeElement o;
-                Diagram.ObjectFences.TryGetValue(r, out o);
-                if (o.Type == seekFor)
-                {
-                    float refX = (r.X + DiagramViewer.OffsetX) * DiagramViewer.Zoom;
-                    float refWidth = r.Width * DiagramViewer.Zoom;
-                    float refY = (r.Y + DiagramViewer.OffsetY) * DiagramViewer.Zoom;
-                    float refHeight = r.Height * DiagramViewer.Zoom;
-
-                    if ((x > refX && x < refX + refWidth) && (y > refY && y < refY + refHeight))
-                    {
-                        if(!o.Highlight) return r; //prefer an object which is not already selected
-                        else s = r; //if there's no alternate object return the object which is already selected
-                    }
-                }
-
-            }
-
-            return s; //return no object if none was found (an empty rectangle as key)
-        }
-
         private void UpdateObjectBrowser(bool ReloadContent)
         {
             if (ReloadContent) ObjectBrowser.UpdateObjectBrowser(Diagram.Groups);
@@ -398,7 +401,7 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
             CreateToolBoxControlls();
             UpdateObjectBrowser(true);
             
-            SettingsGrid.SetObject(Diagram.Settings);
+            SettingsGrid.SetObject(Diagram.Settings, false);
             
             ExportGrid.SetExportSettings(Diagram.ExportSettings);
         }
@@ -409,7 +412,7 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
         {
             if (e.Object != null)
             {
-                PropertyGrid.SetObject(e.Object);
+                PropertyGrid.SetObject(e.Object, e.ObjectCollection);
                 ObjectSelected?.Invoke(e.Object, null);
             }
 
@@ -428,10 +431,11 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
         private void ObjectChanged(object sender, LifeTimeObjectPropertyGrid.ObjectChangedArgs e)
         {   
             UpdateObjectBrowser(false);
+            
 
             if (e.NewColorsRequested) RequestNewRandomColors = DrawNewRandomColor.Yes;
 
-            DiagramViewer.Refresh();
+            DiagramViewer.Refresh();            
 
             if (DiagramChanged != null && e.DiagramChanged)
             {
@@ -481,13 +485,14 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
         {
             //DiagramViewer.ContextMenuStrip = null;
 
-            ILifeTimeObject o = SelectObjectByPosition(e.X, e.Y);
+            LifeTimeDiagram.ElementFence f = SelectObjectByPosition(e.X, e.Y);
             
-            if (o == null || (!(o is LifeTimeElement) || (o as LifeTimeElement).Locked || Diagram.Settings.Locked))
+
+            if (f == null || f.LifeTimeObject == null || (!(f.LifeTimeObject is LifeTimeElement) || (f.LifeTimeObject as LifeTimeElement).Locked || Diagram.Settings.Locked || !f.Movable))
                 DiagramViewer.BeginMouse(e);
             else
             {
-                _moveObject = new MoveObject(this, o as LifeTimeElement, DiagramViewer.Zoom);
+                _moveObject = new MoveObject(this, f.LifeTimeObject as LifeTimeElement, DiagramViewer.Zoom);
                 _moveObject.MoveObjectBegin(e);
             }
         }
@@ -502,25 +507,27 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
 
                 if (!DiagramViewer.Scaling && !DiagramViewer.Moving)
                 {
-                    ILifeTimeObject o = SelectObjectByPosition(e.X, e.Y);
+                    LifeTimeDiagram.ElementFence f = SelectObjectByPosition(e.X, e.Y);
 
-                    CurrentObject = o;
-                    PropertyGrid.SetObject(o);                    
-
-                    TreeNode t = ObjectBrowser.ShowItemInObjectBrowser(o);
-
-                    if (t != null && e.Button == MouseButtons.Right)
+                    if (f != null && f.LifeTimeObject != null)
                     {
-                        DiagramViewer.ContextMenuStrip = t.ContextMenuStrip;
-                        DiagramViewer.ContextMenuStrip.Show(Cursor.Position);
+                        CurrentObject = f.LifeTimeObject;
+                        //PropertyGrid.SetObject(f.LifeTimeObject);                        
+                        TreeNode t = ObjectBrowser.ShowItemInObjectBrowser(f.LifeTimeObject);
+
+                        if (t != null && e.Button == MouseButtons.Right)
+                        {
+                            DiagramViewer.ContextMenuStrip = t.ContextMenuStrip;
+                            DiagramViewer.ContextMenuStrip.Show(Cursor.Position);
+                        }
+                        else if (DiagramViewer.ContextMenuStrip != null) DiagramViewer.ContextMenuStrip.Hide();
                     }
-                    else if (DiagramViewer.ContextMenuStrip != null) DiagramViewer.ContextMenuStrip.Hide();
                 }
             }   
             else
             {
                 CurrentObject = _moveObject.Object;
-                PropertyGrid.SetObject(_moveObject.Object);
+                //PropertyGrid.SetObject(_moveObject.Object);
 
                 TreeNode t = ObjectBrowser.ShowItemInObjectBrowser(_moveObject.Object);
 
@@ -559,6 +566,24 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
         private void ExportButtonClick(object sender, EventArgs e)
         {
             ExportPNG(Diagram.ExportSettings.FileName, Diagram.ExportSettings.Width, Diagram.ExportSettings.Height);
+        }
+
+        private void DiagramMessageChanged(object sender, LifeTimeDiagram.DiagramMessageArgs e)
+        {
+            //hint that the lock master switch is disabled
+            if (e.MsgPriority == LifeTimeDiagram.DiagramMessageArgs.MsgPriorities.None && !Diagram.Settings.Locked)
+            {
+                LifeTimeDiagram.DiagramMessageArgs dma = new LifeTimeDiagram.DiagramMessageArgs(LifeTimeV3TextList.GetText("[311]"), LifeTimeDiagram.DiagramMessageArgs.MsgPriorities.Info);
+                DiagramMessage?.Invoke(this, dma);
+            }
+            //determine if toolbox is shown and if not send hint to main ui
+            else if (e.MsgPriority == LifeTimeDiagram.DiagramMessageArgs.MsgPriorities.None && (_toolbox == null || _toolbox.IsDisposed || !_toolbox.Visible))
+            {
+                LifeTimeDiagram.DiagramMessageArgs dma = new LifeTimeDiagram.DiagramMessageArgs(LifeTimeV3TextList.GetText("[310]"), LifeTimeDiagram.DiagramMessageArgs.MsgPriorities.Tip);
+                DiagramMessage?.Invoke(this, dma);
+            }            
+            else
+                DiagramMessage?.Invoke(this, e);
         }
         #endregion
 
@@ -600,7 +625,7 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
             public void MoveObjectEnd(MouseEventArgs e)
             {
                 _editorInstance.CurrentObject = Object;
-                _editorInstance.PropertyGrid.SetObject(_editorInstance.CurrentObject);
+                _editorInstance.PropertyGrid.SetObject(_editorInstance.CurrentObject, false);
                 TreeNode t = _editorInstance.ObjectBrowser.ShowItemInObjectBrowser(_editorInstance.CurrentObject);
 
                 Object = null;

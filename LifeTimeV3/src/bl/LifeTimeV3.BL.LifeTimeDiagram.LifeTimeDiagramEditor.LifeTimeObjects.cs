@@ -477,6 +477,7 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
                 properties.Add("GlobalFontSize");
                 properties.Add("Locked");
                 properties.Add("ShowRefLine");
+                if (All) properties.Add("UserDefinedColors");
                 return properties;
             }
             public const String XmlNodeNameDefinition = "DiagramSettings";
@@ -506,6 +507,7 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
             public FontFamily Font { get; set; }
             public int GlobalFontSize { get; set; }
             public bool Locked { get; set; }
+            public Color[] UserDefinedColors { get; set; }
             #endregion
 
             #region Constructors
@@ -528,6 +530,7 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
                 Font = new FontFamily("Arial");
                 GlobalFontSize = 8;
                 Locked = true;
+                UserDefinedColors = new Color[0];
             }
             #endregion
 
