@@ -32,7 +32,7 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox
             ObjectBrowser = objectBrowser;
 
             this.Text = LifeTimeV3TextList.GetText("[213]"); //Toolbox
-            this.Font = new Font("Arial", 8.0f);
+            //this.Font = new Font("Arial", 8.0f);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.SizableToolWindow;
             //this.ControlBox = false;
             this.TopMost = false;
