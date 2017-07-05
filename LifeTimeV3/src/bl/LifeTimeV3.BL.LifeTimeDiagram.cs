@@ -137,11 +137,11 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
                 foreach (var ex in exColl)
                     sb.Append(ex).Append(Environment.NewLine);
                 
-                SizeF s = g.MeasureString(sb.ToString(), new Font(new FontFamily("Arial"), 8.0f, FontStyle.Bold));
+                SizeF s = g.MeasureString(sb.ToString(), new Font(SystemFonts.DefaultFont.FontFamily, 8.0f, FontStyle.Bold));
 
                 g.FillRectangle(new SolidBrush(Color.Red), Settings.Border, Settings.Border, s.Width + 20, s.Height + 20);
 
-                g.DrawString(sb.ToString(), new Font(new FontFamily("Arial"), 8.0f, FontStyle.Bold), new SolidBrush(Color.White), new PointF(Settings.Border + 10, Settings.Border + 10));
+                g.DrawString(sb.ToString(), new Font(SystemFonts.DefaultFont.FontFamily, 8.0f, FontStyle.Bold), new SolidBrush(Color.White), new PointF(Settings.Border + 10, Settings.Border + 10));
             }
 
             public void PrintDiagram(PrintDocument prntDoc)
