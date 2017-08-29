@@ -640,6 +640,10 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
                     if (!IsRoot) AddContextMenuItem(contextMenuItemCollection, ContextMenuItems.AddElement, true);
                     AddContextMenuItem(contextMenuItemCollection, ContextMenuItems.AddGroup, false);
                     AddContextMenuItem(contextMenuItemCollection, ContextMenuItems.Separator, false);
+                    AddContextMenuItem(contextMenuItemCollection, ContextMenuItems.Copy, true);                    
+                    AddContextMenuItem(contextMenuItemCollection, ContextMenuItems.Cut, true);
+                    AddContextMenuItem(contextMenuItemCollection, ContextMenuItems.Paste, true);
+                    AddContextMenuItem(contextMenuItemCollection, ContextMenuItems.Separator, true);
                     if (!IsRoot) AddContextMenuItem(contextMenuItemCollection, ContextMenuItems.Delete, false);
                     if (!IsRoot) AddContextMenuItem(contextMenuItemCollection, ContextMenuItems.Separator, false);
                     if (!IsRoot) AddContextMenuItem(contextMenuItemCollection, ContextMenuItems.Paste, false);
@@ -809,9 +813,26 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
                 else if (_object is LifeTimeDiagramEditor.LifeTimeGroup)
                 {
                     n = xml.GetXmlFromObject(_object as LifeTimeDiagramEditor.LifeTimeGroup);
+                    copyToClipboardGetDeepObjects(o, xml, n);
                     Clipboard.SetData("LifeTimeGroup", n.OuterXml);
                 }
             }
+
+            private void copyToClipboardGetDeepObjects(LifeTimeDiagramEditor.ILifeTimeObject o, LifeTimeDiagramEditor.LifeTimeXmlObject xml, XmlNode n)
+            {
+                foreach (LifeTimeDiagramEditor.LifeTimeElement e in (o as LifeTimeDiagramEditor.LifeTimeGroup).Objects)
+                {
+                    n.AppendChild(xml.GetXmlFromObject(e as LifeTimeDiagramEditor.LifeTimeElement));
+                }
+
+                foreach (LifeTimeDiagramEditor.LifeTimeGroup e in (o as LifeTimeDiagramEditor.LifeTimeGroup).Groups)
+                {
+                    n.AppendChild(xml.GetXmlFromObject(e as LifeTimeDiagramEditor.LifeTimeGroup));
+                    copyToClipboardGetDeepObjects(e, xml, n.LastChild);
+                }
+            }
+
+
             #endregion
 
             #region events
@@ -894,7 +915,7 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
                 {
                     n.InnerXml = (string)Clipboard.GetData("LifeTimeGroup");
                     o = xml.GetObjectFromXml(n.FirstChild) as LifeTimeDiagramEditor.LifeTimeGroup;
-
+                    pasteDeepObjects(o as LifeTimeDiagramEditor.LifeTimeGroup, xml, n.FirstChild);
                     LifeTimeDiagramEditor.LifeTimeGroup g = null;
                     if (Object is LifeTimeDiagramEditor.LifeTimeGroup) g = Object as LifeTimeDiagramEditor.LifeTimeGroup;
                     if (Object is LifeTimeDiagramEditor.LifeTimeElement) g = (this.Parent as LifeTimeObjectTreeNode).Object as LifeTimeDiagramEditor.LifeTimeGroup;
@@ -905,6 +926,20 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
                 eventArgs.NewObject = o;
 
                 NodeChanged?.Invoke(this, eventArgs);
+            }
+
+            private static void pasteDeepObjects(LifeTimeDiagramEditor.LifeTimeGroup o, LifeTimeDiagramEditor.LifeTimeXmlObject xml, XmlNode n)
+            {
+                foreach (XmlNode node in n.ChildNodes)
+                {
+                    if (node.Name == "Object")
+                        o.Objects.Add(xml.GetObjectFromXml(node) as LifeTimeDiagramEditor.LifeTimeElement);
+                    if (node.Name == "Group")
+                    {
+                        o.Groups.Add(xml.GetObjectFromXml(node) as LifeTimeDiagramEditor.LifeTimeGroup);
+                        pasteDeepObjects(o.Groups[o.Groups.Count - 1], xml, node);
+                    }
+                }
             }
 
             private void MenuItemCutClicked(object sender, EventArgs e)

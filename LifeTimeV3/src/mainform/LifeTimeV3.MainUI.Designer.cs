@@ -40,7 +40,7 @@
             this.printToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator4 = new System.Windows.Forms.ToolStripSeparator();
             this.exitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.eLEMENTToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.elementToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.eXTRASToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItemSwitchLang = new System.Windows.Forms.ToolStripMenuItem();
             this.toolboxToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -63,7 +63,7 @@
             // 
             this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.toolStripMenuItem1,
-            this.eLEMENTToolStripMenuItem,
+            this.elementToolStripMenuItem,
             this.eXTRASToolStripMenuItem,
             this.infoToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
@@ -153,10 +153,10 @@
             // 
             // eLEMENTToolStripMenuItem
             // 
-            this.eLEMENTToolStripMenuItem.Enabled = false;
-            this.eLEMENTToolStripMenuItem.Name = "eLEMENTToolStripMenuItem";
-            this.eLEMENTToolStripMenuItem.Size = new System.Drawing.Size(70, 20);
-            this.eLEMENTToolStripMenuItem.Text = "ELEMENT";
+            this.elementToolStripMenuItem.Enabled = false;
+            this.elementToolStripMenuItem.Name = "eLEMENTToolStripMenuItem";
+            this.elementToolStripMenuItem.Size = new System.Drawing.Size(70, 20);
+            this.elementToolStripMenuItem.Text = "ELEMENT";
             // 
             // eXTRASToolStripMenuItem
             // 
@@ -312,7 +312,7 @@
         private System.Windows.Forms.ToolStripStatusLabel toolStripObjectStatusLabel;
         private System.Windows.Forms.ToolStripMenuItem resetZoomToolStripMenuItem;
         private System.Windows.Forms.TrackBar zoomSlider;
-        internal System.Windows.Forms.ToolStripMenuItem eLEMENTToolStripMenuItem;
+        internal System.Windows.Forms.ToolStripMenuItem elementToolStripMenuItem;
         private System.Windows.Forms.Label labelInfo;
         private System.Windows.Forms.ToolStripMenuItem toolStripMenuItemSwitchLang;
         private System.Windows.Forms.ToolStripMenuItem infoToolStripMenuItem;

@@ -177,11 +177,11 @@ namespace LifeTimeV3.MainUI
                 
                 if (_diagramEditor.ObjectBrowser.SelectedObject != null)
                 {
-                    eLEMENTToolStripMenuItem.Enabled = true;
-                    eLEMENTToolStripMenuItem.Text = $"ELEMENT \"{_diagramEditor.ObjectBrowser.SelectedObject.Text}\"";
+                    elementToolStripMenuItem.Enabled = true;
+                    elementToolStripMenuItem.Text = $"ELEMENT \"{_diagramEditor.ObjectBrowser.SelectedObject.Text}\"";
 
                     foreach (ToolStripItem i in _diagramEditor.ObjectBrowser.SelectedObject.BuildContextMenu(false, true))
-                        eLEMENTToolStripMenuItem.DropDownItems.Add(i);
+                        elementToolStripMenuItem.DropDownItems.Add(i);
                 }
             }
             else
@@ -190,9 +190,9 @@ namespace LifeTimeV3.MainUI
 
                 ClearAndAddMainMenuElementGenericItems();
 
-                eLEMENTToolStripMenuItem.Text = "ELEMENT";
+                elementToolStripMenuItem.Text = "ELEMENT";
 
-                eLEMENTToolStripMenuItem.Enabled = false;
+                elementToolStripMenuItem.Enabled = false;
             }
 
             Refresh();            
@@ -200,7 +200,7 @@ namespace LifeTimeV3.MainUI
 
         private void ClearAndAddMainMenuElementGenericItems()
         {            
-            eLEMENTToolStripMenuItem.DropDownItems.Clear();            
+            elementToolStripMenuItem.DropDownItems.Clear();            
         }
         
         private void DiagramChanged(object sender, EventArgs e)
