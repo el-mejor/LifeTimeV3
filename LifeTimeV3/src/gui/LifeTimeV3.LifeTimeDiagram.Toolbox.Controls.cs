@@ -81,7 +81,7 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
 
             int index = 0;
 
-            LifeTimeObjectTreeNode root = new LifeTimeObjectTreeNode(_settings, _root, true);
+            LifeTimeObjectTreeNode root = new LifeTimeObjectTreeNode(_settings, _root, true, this);
             root.Expand();
             root.Text = LifeTimeV3TextList.GetText("[101]");
             root.Name = (-1).ToString();
@@ -201,7 +201,7 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
 
         private LifeTimeObjectTreeNode AddGroupNode(LifeTimeDiagramEditor.LifeTimeGroup _g, ref int i)
         {
-            LifeTimeObjectTreeNode grpNode = new LifeTimeObjectTreeNode(_settings, _g, false);
+            LifeTimeObjectTreeNode grpNode = new LifeTimeObjectTreeNode(_settings, _g, false, this);
             grpNode.Name = i.ToString();
             grpNode.Checked = _g.Enabled;
             grpNode.Text = string.Format("{0}", _g.Name);
@@ -223,7 +223,7 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
 
         private void AddElementNode(LifeTimeDiagramEditor.LifeTimeElement _o, LifeTimeObjectTreeNode _g, ref int i)
         {
-            LifeTimeObjectTreeNode objNode = new LifeTimeObjectTreeNode(_settings, _o, false);
+            LifeTimeObjectTreeNode objNode = new LifeTimeObjectTreeNode(_settings, _o, false, this);
             objNode.Name = i.ToString();
             objNode.Checked = _o.Enabled;
             objNode.Text = string.Format("{0}", _o.Name);
@@ -397,7 +397,7 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
             {
                 List<LifeTimeDiagramEditor.ILifeTimeObject> coll = new List<LifeTimeDiagramEditor.ILifeTimeObject>();
                 foreach (LifeTimeObjectTreeNode n in m_coll)
-                    if(n.Object is LifeTimeDiagramEditor.LifeTimeElement)
+                    //if(n.Object is LifeTimeDiagramEditor.LifeTimeElement)
                         coll.Add(n.Object);
 
                 return coll;
@@ -607,6 +607,8 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
         public class LifeTimeObjectTreeNode : TreeNode
         {
             #region Properties
+            public LifeTimeObjectBrowser Container
+            { get; set; }
             public LifeTimeDiagramEditor.ILifeTimeObject Object
             {
                 get { return _object; }
@@ -619,8 +621,9 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
             #endregion
 
             #region constructor
-            public LifeTimeObjectTreeNode(LifeTimeDiagramEditor.LifeTimeDiagramSettings settings, LifeTimeDiagramEditor.ILifeTimeObject o, Boolean IsRoot)
+            public LifeTimeObjectTreeNode(LifeTimeDiagramEditor.LifeTimeDiagramSettings settings, LifeTimeDiagramEditor.ILifeTimeObject o, bool IsRoot, LifeTimeObjectBrowser container)
             {
+                Container = container;
                 _settings = settings;
                 _object = o;                
 
@@ -800,36 +803,45 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
             }
 
             #region private methods
-            private void CopyObjectToClipboard(LifeTimeDiagramEditor.ILifeTimeObject o)
+            private void CopyObjectToClipboard(List<LifeTimeDiagramEditor.ILifeTimeObject> objectCollection)
             {
                 Clipboard.Clear();
+                List<string> xmlNodeXmlCollection = new List<string>();
+
                 LifeTimeDiagramEditor.LifeTimeXmlObject xml = new LifeTimeDiagramEditor.LifeTimeXmlObject(new XmlDocument(), _settings);
                 XmlNode n = null;
-                if (_object is LifeTimeDiagramEditor.LifeTimeElement)
-                {
-                    n = xml.GetXmlFromObject(_object as LifeTimeDiagramEditor.LifeTimeElement);
-                    Clipboard.SetData("LifeTimeElement", n.OuterXml);
-                }
-                else if (_object is LifeTimeDiagramEditor.LifeTimeGroup)
-                {
-                    n = xml.GetXmlFromObject(_object as LifeTimeDiagramEditor.LifeTimeGroup);
-                    copyToClipboardGetDeepObjects(o, xml, n);
-                    Clipboard.SetData("LifeTimeGroup", n.OuterXml);
-                }
+
+                foreach (LifeTimeDiagramEditor.ILifeTimeObject o in objectCollection)
+                    if (o is LifeTimeDiagramEditor.LifeTimeElement && !((LifeTimeDiagramEditor.LifeTimeElement)o).Deleted)
+                    {                        
+                        n = xml.GetXmlFromObject(o as LifeTimeDiagramEditor.LifeTimeElement);                        
+                        xmlNodeXmlCollection.Add(n.OuterXml);
+                    }
+                    else if (o is LifeTimeDiagramEditor.LifeTimeGroup && !((LifeTimeDiagramEditor.LifeTimeGroup)o).Deleted)
+                    {                        
+                        n = xml.GetXmlFromObject(o as LifeTimeDiagramEditor.LifeTimeGroup);
+                        copyToClipboardGetDeepObjects(o, xml, n);
+                        xmlNodeXmlCollection.Add(n.OuterXml);
+                    }
+                
+
+                Clipboard.SetData("LifeTimeObjectCollection", xmlNodeXmlCollection);
+
+
             }
 
             private void copyToClipboardGetDeepObjects(LifeTimeDiagramEditor.ILifeTimeObject o, LifeTimeDiagramEditor.LifeTimeXmlObject xml, XmlNode n)
             {
                 foreach (LifeTimeDiagramEditor.LifeTimeElement e in (o as LifeTimeDiagramEditor.LifeTimeGroup).Objects)
-                {
-                    n.AppendChild(xml.GetXmlFromObject(e as LifeTimeDiagramEditor.LifeTimeElement));
-                }
-
+                    if(!e.Deleted)
+                        n.AppendChild(xml.GetXmlFromObject(e as LifeTimeDiagramEditor.LifeTimeElement));
+                
                 foreach (LifeTimeDiagramEditor.LifeTimeGroup e in (o as LifeTimeDiagramEditor.LifeTimeGroup).Groups)
-                {
-                    n.AppendChild(xml.GetXmlFromObject(e as LifeTimeDiagramEditor.LifeTimeGroup));
-                    copyToClipboardGetDeepObjects(e, xml, n.LastChild);
-                }
+                    if (!e.Deleted)
+                    {
+                        n.AppendChild(xml.GetXmlFromObject(e as LifeTimeDiagramEditor.LifeTimeGroup));
+                        copyToClipboardGetDeepObjects(e, xml, n.LastChild);
+                    }                
             }
 
 
@@ -872,7 +884,8 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
 
                 if (r == DialogResult.No) return;
 
-                DeleteObject(_object);
+                foreach(LifeTimeDiagramEditor.ILifeTimeObject o in Container.SelectedObjects)
+                    DeleteObject(o);
 
                 NodeChangedEventArgs eventArgs = new NodeChangedEventArgs();
                 eventArgs.NewObject = null;
@@ -899,32 +912,34 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
                 LifeTimeDiagramEditor.ILifeTimeObject o = null;
                 XmlDocument xmldoc = new XmlDocument();
                 LifeTimeDiagramEditor.LifeTimeXmlObject xml = new LifeTimeDiagramEditor.LifeTimeXmlObject(xmldoc, _settings);
-                XmlNode n = xmldoc.CreateElement("object");
 
-                if (Clipboard.ContainsData("LifeTimeElement"))
+                foreach (string innerXmlString in (List<string>)Clipboard.GetData("LifeTimeObjectCollection"))
                 {
-                    n.InnerXml = (string)Clipboard.GetData("LifeTimeElement");
-                    o = xml.GetObjectFromXml(n.FirstChild) as LifeTimeDiagramEditor.LifeTimeElement;
+                    XmlNode n = xmldoc.CreateElement("obj");
+                    n.InnerXml = innerXmlString;
 
-                    LifeTimeDiagramEditor.LifeTimeGroup g = null;
-                    if (Object is LifeTimeDiagramEditor.LifeTimeGroup) g = Object as LifeTimeDiagramEditor.LifeTimeGroup;
-                    if (Object is LifeTimeDiagramEditor.LifeTimeElement) g = (this.Parent as LifeTimeObjectTreeNode).Object as LifeTimeDiagramEditor.LifeTimeGroup;
-                    g.Objects.Add(o as LifeTimeDiagramEditor.LifeTimeElement);
-                }
-                else if (Clipboard.ContainsData("LifeTimeGroup"))
-                {
-                    n.InnerXml = (string)Clipboard.GetData("LifeTimeGroup");
-                    o = xml.GetObjectFromXml(n.FirstChild) as LifeTimeDiagramEditor.LifeTimeGroup;
-                    pasteDeepObjects(o as LifeTimeDiagramEditor.LifeTimeGroup, xml, n.FirstChild);
-                    LifeTimeDiagramEditor.LifeTimeGroup g = null;
-                    if (Object is LifeTimeDiagramEditor.LifeTimeGroup) g = Object as LifeTimeDiagramEditor.LifeTimeGroup;
-                    if (Object is LifeTimeDiagramEditor.LifeTimeElement) g = (this.Parent as LifeTimeObjectTreeNode).Object as LifeTimeDiagramEditor.LifeTimeGroup;
-                    g.Groups.Add(o as LifeTimeDiagramEditor.LifeTimeGroup);
+                    if (n.FirstChild.Name == "Object")
+                    {
+                        o = xml.GetObjectFromXml(n.FirstChild) as LifeTimeDiagramEditor.LifeTimeElement;
+
+                        LifeTimeDiagramEditor.LifeTimeGroup g = null;
+                        if (Object is LifeTimeDiagramEditor.LifeTimeGroup) g = Object as LifeTimeDiagramEditor.LifeTimeGroup;
+                        if (Object is LifeTimeDiagramEditor.LifeTimeElement) g = (this.Parent as LifeTimeObjectTreeNode).Object as LifeTimeDiagramEditor.LifeTimeGroup;
+                        g.Objects.Add(o as LifeTimeDiagramEditor.LifeTimeElement);
+                    }
+                    else if (n.FirstChild.Name == "Group")
+                    {
+                        o = xml.GetObjectFromXml(n.FirstChild) as LifeTimeDiagramEditor.LifeTimeGroup;
+                        pasteDeepObjects(o as LifeTimeDiagramEditor.LifeTimeGroup, xml, n.FirstChild);
+                        LifeTimeDiagramEditor.LifeTimeGroup g = null;
+                        if (Object is LifeTimeDiagramEditor.LifeTimeGroup) g = Object as LifeTimeDiagramEditor.LifeTimeGroup;
+                        if (Object is LifeTimeDiagramEditor.LifeTimeElement) g = (this.Parent as LifeTimeObjectTreeNode).Object as LifeTimeDiagramEditor.LifeTimeGroup;
+                        g.Groups.Add(o as LifeTimeDiagramEditor.LifeTimeGroup);
+                    }
                 }
 
                 NodeChangedEventArgs eventArgs = new NodeChangedEventArgs();
-                eventArgs.NewObject = o;
-
+                eventArgs.NewObject = o;                
                 NodeChanged?.Invoke(this, eventArgs);
             }
 
@@ -944,9 +959,10 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
 
             private void MenuItemCutClicked(object sender, EventArgs e)
             {
-                CopyObjectToClipboard(_object);
+                CopyObjectToClipboard(Container.SelectedObjects);
 
-                DeleteObject(_object);
+                foreach(LifeTimeDiagramEditor.ILifeTimeObject o in Container.SelectedObjects)
+                    DeleteObject(o);
 
                 NodeChangedEventArgs eventArgs = new NodeChangedEventArgs();
                 eventArgs.NewObject = null;
@@ -956,7 +972,7 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
 
             private void MenuItemCopyClicked(object sender, EventArgs e)
             {
-                CopyObjectToClipboard(_object);
+                CopyObjectToClipboard(Container.SelectedObjects);
             }
 
             private void MenuItemCopyPeriodicClicked(object sender, EventArgs e)
@@ -1420,7 +1436,7 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
 
                 Color highlighting = this.BackColor;
 
-                if(_multiselection != null && _multiselection.Count > 1 && o is LifeTimeDiagramEditor.LifeTimeElement)
+                if(_multiselection != null && _multiselection.Count > 1)
                 {
                     if (!checkAllElementsForSameValue(o, name, _multiselection))
                     {
@@ -1481,12 +1497,15 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
             Type t = typeof(T);
             object currVal = t.GetProperty(property).GetValue(currElement);
 
-            foreach (T element in elementCollection)
+            foreach (LifeTimeDiagramEditor.ILifeTimeObject element in elementCollection)
             {
-                object value = t.GetProperty(property).GetValue(element);
-                
-                if (!Equals(currVal, value))
-                    return false;
+                if (element is T)
+                {
+                    object value = t.GetProperty(property).GetValue(element);
+
+                    if (!Equals(currVal, value))
+                        return false;
+                }
             }
 
             return true;

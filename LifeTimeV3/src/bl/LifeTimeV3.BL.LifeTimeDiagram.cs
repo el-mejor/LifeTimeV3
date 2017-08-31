@@ -164,7 +164,9 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
 
                 foreach (LifeTimeGroup _g in Groups.Groups)
                 {
-                    if (SkipDisabled && !_g.Enabled) continue;
+                    if ((SkipDisabled && !_g.Enabled) || _g.Deleted)
+                        continue;
+
                     row += 2;
                     row = GetAllObjectsDeep(c, _g, row, path, SkipDisabled);
                 }
@@ -247,7 +249,9 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
             {
                 foreach (LifeTimeElement _o in g.Objects)
                 {
-                    if (SkipDisabled && !_o.Enabled) continue;
+                    if ((SkipDisabled && !_o.Enabled) || _o.Deleted)
+                        continue;
+
                     _o.Row = row;
 
                     c.Add(_o);
@@ -255,7 +259,9 @@ namespace LifeTimeV3.BL.LifeTimeDiagram
 
                 foreach (LifeTimeGroup _g in g.Groups)
                 {
-                    if (SkipDisabled && !_g.Enabled) continue;
+                    if ((SkipDisabled && !_g.Enabled) || _g.Deleted)
+                        continue;
+
                     row += 1;
                     row = GetAllObjectsDeep(c, _g, row, path, SkipDisabled);
                 }
