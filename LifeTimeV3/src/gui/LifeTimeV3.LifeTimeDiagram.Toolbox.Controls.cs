@@ -1004,124 +1004,116 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
             {
                 LifeTimeObjectTreeNode parent = (this.Parent as LifeTimeObjectTreeNode);
 
-                for (int i = 0; i < parent.Object.Objects.Count - 1; i++)
+                foreach (LifeTimeObjectTreeNode obj in Container.SelectedNodes)
                 {
-                    if (parent.Object.Objects[i] == Object)
+                    if (obj.Object is LifeTimeDiagramEditor.LifeTimeElement)
                     {
+                        int i = parent.Object.Objects.IndexOf(obj.Object as LifeTimeDiagramEditor.LifeTimeElement);
                         parent.Object.Objects.RemoveAt(i);
-                        parent.Object.Objects.Add(Object as LifeTimeDiagramEditor.LifeTimeElement);
-                        break;
+                        parent.Object.Objects.Add(obj.Object as LifeTimeDiagramEditor.LifeTimeElement);
                     }
                 }
 
                 NodeChangedEventArgs eventArgs = new NodeChangedEventArgs();
                 eventArgs.NewObject = Object;
 
-                if (NodeChanged != null) NodeChanged(this, eventArgs);
+                NodeChanged?.Invoke(this, eventArgs);
             }
 
             private void MenuItemMovetoFront(object sender, EventArgs e)
             {
                 LifeTimeObjectTreeNode parent = (this.Parent as LifeTimeObjectTreeNode);
+                //foreach (LifeTimeObjectTreeNode obj in Container.SelectedNodes)
+                //{                    
+                LifeTimeObjectTreeNode obj = this;
 
-                if (Object is LifeTimeDiagramEditor.LifeTimeElement)
-                {
-                    for (int i = 0; i < parent.Object.Objects.Count - 1; i++)
-                    {
-                        if (parent.Object.Objects[i] == Object)
+                if (obj.Object is LifeTimeDiagramEditor.LifeTimeElement)
                         {
+                            int i = parent.Object.Objects.IndexOf(obj.Object as LifeTimeDiagramEditor.LifeTimeElement);
+                            if (i == parent.Object.Objects.Count - 1)
+                                return;
                             parent.Object.Objects.RemoveAt(i);
-                            parent.Object.Objects.Insert(i + 1, Object as LifeTimeDiagramEditor.LifeTimeElement);
-                            break;
+                            parent.Object.Objects.Insert(i + 1, obj.Object as LifeTimeDiagramEditor.LifeTimeElement);
+
                         }
-                    }
-                }
-                else if (Object is LifeTimeDiagramEditor.LifeTimeGroup)
-                {
-                    for (int i = 0; i < parent.Object.Groups.Count - 1; i++)
-                    {
-                        if (parent.Object.Groups[i] == Object)
+                        else if (obj.Object is LifeTimeDiagramEditor.LifeTimeGroup)
                         {
+                            int i = parent.Object.Groups.IndexOf(obj.Object as LifeTimeDiagramEditor.LifeTimeGroup);
+                            if (i == parent.Object.Groups.Count - 1)
+                                return;
                             parent.Object.Groups.RemoveAt(i);
-                            parent.Object.Groups.Insert(i + 1, Object as LifeTimeDiagramEditor.LifeTimeGroup);
-                            break;
+                            parent.Object.Groups.Insert(i + 1, obj.Object as LifeTimeDiagramEditor.LifeTimeGroup);
                         }
-                    }
-                }
+                    
+                //}
 
                 NodeChangedEventArgs eventArgs = new NodeChangedEventArgs();
                 eventArgs.NewObject = Object;
 
-                if (NodeChanged != null) NodeChanged(this, eventArgs);
+                NodeChanged?.Invoke(this, eventArgs);
             }
 
             private void MenuItemBringToBack(object sender, EventArgs e)
             {
                 LifeTimeObjectTreeNode parent = (this.Parent as LifeTimeObjectTreeNode);
-
-                for (int i = 0; i <= parent.Object.Objects.Count - 1; i++)
+                foreach (LifeTimeObjectTreeNode obj in Container.SelectedNodes)
                 {
-                    if (parent.Object.Objects[i] == Object)
+                    if (obj.Object is LifeTimeDiagramEditor.LifeTimeElement)
                     {
+                        int i = parent.Object.Objects.IndexOf(obj.Object as LifeTimeDiagramEditor.LifeTimeElement);
                         parent.Object.Objects.RemoveAt(i);
-                        parent.Object.Objects.Insert(0, Object as LifeTimeDiagramEditor.LifeTimeElement);
-                        break;
+                        parent.Object.Objects.Insert(0, obj.Object as LifeTimeDiagramEditor.LifeTimeElement);
                     }
                 }
 
                 NodeChangedEventArgs eventArgs = new NodeChangedEventArgs();
                 eventArgs.NewObject = Object;
 
-                if (NodeChanged != null) NodeChanged(this, eventArgs);
+                NodeChanged?.Invoke(this, eventArgs);
             }
 
             private void MenuItemMovetoBack(object sender, EventArgs e)
             {
                 LifeTimeObjectTreeNode parent = (this.Parent as LifeTimeObjectTreeNode);
-
-                if (Object is LifeTimeDiagramEditor.LifeTimeElement)
-                {
-                    for (int i = 1; i <= parent.Object.Objects.Count - 1; i++)
+                //foreach (LifeTimeObjectTreeNode obj in Container.SelectedNodes)
+                //{
+                LifeTimeObjectTreeNode obj = this;
+                    if (obj.Object is LifeTimeDiagramEditor.LifeTimeElement)
                     {
-                        if (parent.Object.Objects[i] == Object)
-                        {
-                            parent.Object.Objects.RemoveAt(i);
-                            parent.Object.Objects.Insert(i - 1, Object as LifeTimeDiagramEditor.LifeTimeElement);
-                            break;
-                        }
+                        int i = parent.Object.Objects.IndexOf(obj.Object as LifeTimeDiagramEditor.LifeTimeElement);
+                        if (i == 0)
+                            return;
+                        parent.Object.Objects.RemoveAt(i);
+                        parent.Object.Objects.Insert(i - 1, obj.Object as LifeTimeDiagramEditor.LifeTimeElement);
                     }
-                }
-                else if (Object is LifeTimeDiagramEditor.LifeTimeGroup)
-                {
-                    for (int i = 1; i <= parent.Object.Groups.Count - 1; i++)
+                    else if (obj.Object is LifeTimeDiagramEditor.LifeTimeGroup)
                     {
-                        if (parent.Object.Groups[i] == Object)
-                        {
-                            parent.Object.Groups.RemoveAt(i);
-                            parent.Object.Groups.Insert(i - 1, Object as LifeTimeDiagramEditor.LifeTimeGroup);
-                            break;
-                        }
+                        int i = parent.Object.Groups.IndexOf(obj.Object as LifeTimeDiagramEditor.LifeTimeGroup);
+                        if (i == 0)
+                            return;
+                        parent.Object.Groups.RemoveAt(i);
+                        parent.Object.Groups.Insert(i - 1, obj.Object as LifeTimeDiagramEditor.LifeTimeGroup);
                     }
-                }
+                //}
 
                 NodeChangedEventArgs eventArgs = new NodeChangedEventArgs();
                 eventArgs.NewObject = Object;
 
-                if (NodeChanged != null) NodeChanged(this, eventArgs);
+                NodeChanged?.Invoke(this, eventArgs);
             }
 
             private void MenuItemCollapsedAll(object sender, EventArgs e)
             {
                 CollapseAllExpandAllEventArgs args = new CollapseAllExpandAllEventArgs();
                 args.Request = CollapseAllExpandAllEventArgs.RequestType.CollapseAll;
-                if (CollapsAllExpandAllRequested != null) CollapsAllExpandAllRequested(this, args);
+                CollapsAllExpandAllRequested?.Invoke(this, args);
             }
 
             private void MenuItemExpandAll(object sender, EventArgs e)
             {
                 CollapseAllExpandAllEventArgs args = new CollapseAllExpandAllEventArgs();
                 args.Request = CollapseAllExpandAllEventArgs.RequestType.ExpandAll;
-                if (CollapsAllExpandAllRequested != null) CollapsAllExpandAllRequested(this, args);
+                CollapsAllExpandAllRequested?.Invoke(this, args);
             }
             #endregion
 
