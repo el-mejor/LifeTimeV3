@@ -909,7 +909,7 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
 
             private void MenuItemPasteClicked(object sender, EventArgs e)
             {
-                LifeTimeDiagramEditor.ILifeTimeObject o = null;
+                LifeTimeDiagramEditor.ILifeTimeObject o = null;                
                 XmlDocument xmldoc = new XmlDocument();
                 LifeTimeDiagramEditor.LifeTimeXmlObject xml = new LifeTimeDiagramEditor.LifeTimeXmlObject(xmldoc, _settings);
 
@@ -920,12 +920,11 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
 
                     if (n.FirstChild.Name == "Object")
                     {
-                        o = xml.GetObjectFromXml(n.FirstChild) as LifeTimeDiagramEditor.LifeTimeElement;
-
+                        o = xml.GetObjectFromXml(n.FirstChild) as LifeTimeDiagramEditor.LifeTimeElement;                        
                         LifeTimeDiagramEditor.LifeTimeGroup g = null;
                         if (Object is LifeTimeDiagramEditor.LifeTimeGroup) g = Object as LifeTimeDiagramEditor.LifeTimeGroup;
                         if (Object is LifeTimeDiagramEditor.LifeTimeElement) g = (this.Parent as LifeTimeObjectTreeNode).Object as LifeTimeDiagramEditor.LifeTimeGroup;
-                        g.Objects.Add(o as LifeTimeDiagramEditor.LifeTimeElement);
+                        g.Objects.Add(o as LifeTimeDiagramEditor.LifeTimeElement);                        
                     }
                     else if (n.FirstChild.Name == "Group")
                     {
@@ -939,16 +938,23 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
                 }
 
                 NodeChangedEventArgs eventArgs = new NodeChangedEventArgs();
-                eventArgs.NewObject = o;                
+                Container.SelectedNodes.Clear();
+                eventArgs.NewObject = o;
                 NodeChanged?.Invoke(this, eventArgs);
+                
             }
 
             private static void pasteDeepObjects(LifeTimeDiagramEditor.LifeTimeGroup o, LifeTimeDiagramEditor.LifeTimeXmlObject xml, XmlNode n)
             {
+                LifeTimeDiagramEditor.LifeTimeElement _o = null;
+
                 foreach (XmlNode node in n.ChildNodes)
                 {
                     if (node.Name == "Object")
-                        o.Objects.Add(xml.GetObjectFromXml(node) as LifeTimeDiagramEditor.LifeTimeElement);
+                    {
+                        _o = xml.GetObjectFromXml(node) as LifeTimeDiagramEditor.LifeTimeElement;
+                        o.Objects.Add(_o);                        
+                    }
                     if (node.Name == "Group")
                     {
                         o.Groups.Add(xml.GetObjectFromXml(node) as LifeTimeDiagramEditor.LifeTimeGroup);
