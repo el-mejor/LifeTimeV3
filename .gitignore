@@ -1,3 +1,9 @@
 Debug/
 LifeTimeV3/obj/
+
+
+# User-specific files
 *.suo
+*.user
+*.userosscache
+*.sln.docstates
