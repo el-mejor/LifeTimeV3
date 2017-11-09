@@ -168,7 +168,7 @@ namespace LifeTimeV3.LifeTimeDiagram.Toolbox.Controls
 
             foreach (TreeNode t in treeNodeCollection)
             {
-                if (t.Text.Contains(findText))
+                if (t.Text.ToLower().Contains(findText.ToLower()))
                     coll.Add(t);
 
                 coll.AddRange(deepSearchInTreeNodes(t.Nodes, findText));
