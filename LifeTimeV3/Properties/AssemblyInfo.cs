@@ -8,9 +8,9 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyTitle("LifeTimeV3")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("Licence Owner")]
+[assembly: AssemblyCompany("")]
 [assembly: AssemblyProduct("LifeTimeV3")]
-[assembly: AssemblyCopyright("Copyright © Licence Owner 2015")]
+[assembly: AssemblyCopyright("Copyright © Lars Becker 2015 - 2017")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
